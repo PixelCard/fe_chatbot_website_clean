@@ -1,0 +1,1 @@
+export { useAiConsultingApi } from "./useAiConsultingApi";

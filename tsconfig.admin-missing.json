@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": false,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "codex-next-env.d.ts",
+    "app/services/apiClient.ts",
+    "app/services/common/**/*.ts",
+    "app/hooks/common/**/*.ts",
+    "app/admin/_shared/**/*.ts",
+    "app/admin/accounts/services/**/*.ts",
+    "app/admin/accounts/types/**/*.ts",
+    "app/admin/technicians/services/**/*.ts",
+    "app/admin/technicians/types/**/*.ts",
+    "app/admin/chats/services/**/*.ts",
+    "app/admin/Devices/**/*.ts",
+    "app/admin/Devices/**/*.tsx",
+    "app/admin/techinical-document/**/*.ts",
+    "app/admin/techinical-document/**/*.tsx",
+    "app/admin/rag-knowledge/**/*.ts",
+    "app/admin/rag-knowledge/**/*.tsx",
+    "app/admin/dashboard/**/*.ts",
+    "app/admin/dashboard/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
+}

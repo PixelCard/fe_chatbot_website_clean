@@ -1,0 +1,35 @@
+/* Copy vào cuối app/globals.css */
+
+/* View Transition API: reveal toàn bộ UI mới bằng vòng tròn từ vị trí click */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  clip-path: circle(0 at var(--theme-ripple-x) var(--theme-ripple-y));
+  animation: ocean-theme-reveal 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ocean-theme-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-ripple-x) var(--theme-ripple-y));
+  }
+
+  to {
+    clip-path: circle(var(--theme-ripple-radius) at var(--theme-ripple-x) var(--theme-ripple-y));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

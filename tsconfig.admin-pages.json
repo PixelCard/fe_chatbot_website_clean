@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": false,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "codex-next-env.d.ts",
+    "app/services/apiClient.ts",
+    "app/admin/accounts/**/*.ts",
+    "app/admin/accounts/**/*.tsx",
+    "app/admin/technicians/**/*.ts",
+    "app/admin/technicians/**/*.tsx",
+    "app/admin/dashboard/components/dashboard/AdminShell.tsx",
+    "app/components/Pagination.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
+}

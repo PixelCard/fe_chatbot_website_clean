@@ -1,0 +1,636 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-mono: var(--font-montserrat);
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Hide scrollbar but keep scroll */
+.scrollbar-hidden {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.scrollbar-hidden::-webkit-scrollbar-track,
+.scrollbar-hidden::-webkit-scrollbar-thumb {
+  display: none !important;
+}
+
+/* Ẩn scrollbar toàn trang nhưng vẫn cuộn được */
+html {
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Admin ripple theme */
+.admin-ripple-theme-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  color: var(--admin-theme-text);
+  transition:
+    color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Theme tokens: dark */
+.admin-ripple-theme-shell[data-admin-theme="dark"] {
+  --admin-theme-text: #f8fafc;
+  --admin-strong-text: #ffffff;
+  --admin-muted-text: #cbd5e1;
+  --admin-subtle-text: #94a3b8;
+  --admin-divider-text: #475569;
+
+  --admin-card-bg: rgba(16, 27, 46, 0.84);
+  --admin-card-border: rgba(30, 42, 63, 0.96);
+  --admin-card-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+
+  --admin-control-bg: rgba(7, 17, 31, 0.86);
+  --admin-control-border: rgba(30, 42, 63, 0.95);
+  --admin-control-hover-border: rgba(51, 65, 85, 0.98);
+  --admin-control-hover-bg: rgba(18, 32, 57, 0.94);
+
+  --admin-table-header-bg: rgba(7, 17, 31, 0.94);
+  --admin-row-border: rgba(30, 42, 63, 0.62);
+  --admin-row-hover: rgba(18, 32, 57, 0.92);
+
+  --admin-soft-panel: rgba(7, 17, 31, 0.72);
+  --admin-soft-panel-border: rgba(30, 42, 63, 0.9);
+  --admin-placeholder: #94a3b8;
+
+  --admin-accent: #c7d2fe;
+  --admin-success: #22c55e;
+  --admin-focus-ring: rgba(199, 210, 254, 0.36);
+  --admin-theme-ring: rgba(181, 184, 208, 0.34);
+
+  --admin-toggle-surface: rgba(7, 17, 31, 0.9);
+  --admin-toggle-border: rgba(255, 255, 255, 0.12);
+  --admin-toggle-icon: #c7d2fe;
+
+  --admin-avatar-text: #050816;
+
+  --admin-sidebar-bg: rgba(7, 17, 31, 0.95);
+  --admin-sidebar-border: rgba(30, 42, 63, 0.95);
+  --admin-sidebar-title: #94a3b8;
+  --admin-sidebar-brand-subtitle: #cbd5e1;
+  --admin-sidebar-item-text: #cbd5e1;
+  --admin-sidebar-item-hover-bg: #101b2e;
+  --admin-sidebar-item-hover-text: #ffffff;
+  --admin-sidebar-icon-bg: #0d1728;
+  --admin-sidebar-icon-border: #1e2a3f;
+  --admin-sidebar-icon-text: #94a3b8;
+  --admin-sidebar-panel-bg: rgba(13, 23, 40, 0.8);
+  --admin-sidebar-panel-text: #94a3b8;
+
+  --admin-sidebar-decor-bg:
+    radial-gradient(circle at 20% 0%,
+      rgba(6, 182, 212, 0.1),
+      transparent 32%),
+    radial-gradient(circle at 80% 100%,
+      rgba(34, 197, 94, 0.06),
+      transparent 36%);
+
+  --admin-sidebar-brand-icon-bg: rgba(6, 182, 212, 0.1);
+  --admin-sidebar-brand-icon-border: rgba(6, 182, 212, 0.3);
+  --admin-sidebar-brand-icon-text: #22d3ee;
+  --admin-sidebar-brand-title: #22c55e;
+
+  --admin-sidebar-active-bg: rgba(6, 182, 212, 0.16);
+  --admin-sidebar-active-border: rgba(6, 182, 212, 0.32);
+  --admin-sidebar-active-text: #ffffff;
+  --admin-sidebar-active-rail: #06b6d4;
+
+  --admin-sidebar-active-icon-bg: rgba(6, 182, 212, 0.14);
+  --admin-sidebar-active-icon-border: rgba(6, 182, 212, 0.42);
+  --admin-sidebar-active-icon-text: #22d3ee;
+
+  --admin-cta-bg: linear-gradient(135deg,
+      #818cf8 0%,
+      #c7d2fe 52%,
+      #e0e7ff 100%);
+  --admin-cta-text: #050816;
+  --admin-cta-shadow: 0 16px 34px rgba(99, 102, 241, 0.22);
+}
+
+/* Theme tokens: light */
+.admin-ripple-theme-shell[data-admin-theme="light"] {
+  --admin-theme-text: #243041;
+  --admin-strong-text: #111827;
+  --admin-muted-text: #344054;
+  --admin-subtle-text: #667085;
+  --admin-divider-text: #98a2b3;
+
+  --admin-card-bg: rgba(255, 255, 255, 0.9);
+  --admin-card-border: rgba(223, 227, 234, 0.96);
+  --admin-card-shadow: 0 18px 40px rgba(255, 140, 0, 0.07);
+
+  --admin-control-bg: rgba(255, 255, 255, 0.86);
+  --admin-control-border: rgba(223, 227, 234, 0.98);
+  --admin-control-hover-border: rgba(255, 145, 34, 0.46);
+  --admin-control-hover-bg: rgba(255, 255, 255, 0.98);
+
+  --admin-table-header-bg: rgba(255, 255, 255, 0.94);
+  --admin-row-border: rgba(223, 227, 234, 0.9);
+  --admin-row-hover: rgba(255, 249, 242, 0.98);
+
+  --admin-soft-panel: rgba(248, 250, 252, 0.92);
+  --admin-soft-panel-border: rgba(223, 227, 234, 0.98);
+  --admin-placeholder: #667085;
+
+  --admin-accent: #ff8a1f;
+  --admin-success: #16a34a;
+  --admin-focus-ring: rgba(255, 138, 31, 0.28);
+  --admin-theme-ring: rgba(255, 138, 31, 0.3);
+
+  --admin-toggle-surface: rgba(255, 255, 255, 0.9);
+  --admin-toggle-border: rgba(223, 227, 234, 0.98);
+  --admin-toggle-icon: #ff8a1f;
+
+  --admin-avatar-text: #ffffff;
+
+  --admin-sidebar-bg: rgba(255, 255, 255, 0.94);
+  --admin-sidebar-border: rgba(223, 227, 234, 0.98);
+  --admin-sidebar-title: #667085;
+  --admin-sidebar-brand-subtitle: #344054;
+  --admin-sidebar-item-text: #344054;
+  --admin-sidebar-item-hover-bg: rgba(255, 248, 240, 0.92);
+  --admin-sidebar-item-hover-text: #111827;
+  --admin-sidebar-icon-bg: rgba(248, 250, 252, 0.96);
+  --admin-sidebar-icon-border: rgba(208, 213, 221, 0.98);
+  --admin-sidebar-icon-text: #344054;
+  --admin-sidebar-panel-bg: rgba(248, 250, 252, 0.94);
+  --admin-sidebar-panel-text: #344054;
+
+  --admin-sidebar-decor-bg:
+    radial-gradient(circle at 18% 0%,
+      rgba(255, 138, 31, 0.055),
+      transparent 34%),
+    radial-gradient(circle at 90% 100%,
+      rgba(255, 191, 82, 0.045),
+      transparent 38%);
+
+  --admin-sidebar-brand-icon-bg: rgba(255, 138, 31, 0.1);
+  --admin-sidebar-brand-icon-border: rgba(255, 138, 31, 0.32);
+  --admin-sidebar-brand-icon-text: #ea580c;
+  --admin-sidebar-brand-title: #16a34a;
+
+  --admin-sidebar-active-bg: rgba(255, 138, 31, 0.14);
+  --admin-sidebar-active-border: rgba(255, 138, 31, 0.42);
+  --admin-sidebar-active-text: #111827;
+  --admin-sidebar-active-rail: #ff8a1f;
+
+  --admin-sidebar-active-icon-bg: rgba(255, 138, 31, 0.16);
+  --admin-sidebar-active-icon-border: rgba(255, 138, 31, 0.42);
+  --admin-sidebar-active-icon-text: #ea580c;
+
+  --admin-cta-bg: linear-gradient(135deg,
+      #ff7a00 0%,
+      #ff9f1a 55%,
+      #ffc043 100%);
+  --admin-cta-text: #ffffff;
+  --admin-cta-shadow: 0 16px 34px rgba(255, 138, 31, 0.2);
+}
+
+/* Background stack */
+.admin-theme-background-stack {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000000;
+  contain: layout paint style;
+}
+
+.admin-theme-overlay-snapshot {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+  isolation: isolate;
+  contain: layout paint style;
+  -webkit-mask-image: radial-gradient(circle at var(--admin-overlay-x, 50%) var(--admin-overlay-y, 50%),
+      transparent 0,
+      transparent var(--admin-overlay-radius, 0px),
+      #000 calc(var(--admin-overlay-radius, 0px) + 1px));
+  mask-image: radial-gradient(circle at var(--admin-overlay-x, 50%) var(--admin-overlay-y, 50%),
+      transparent 0,
+      transparent var(--admin-overlay-radius, 0px),
+      #000 calc(var(--admin-overlay-radius, 0px) + 1px));
+}
+
+.admin-theme-overlay-snapshot .admin-ripple-soft-wave,
+.admin-theme-overlay-snapshot .admin-ripple-ring,
+.admin-theme-overlay-snapshot .admin-ripple-ring-two {
+  display: none !important;
+}
+
+.admin-theme-bg {
+  position: absolute;
+  inset: 0;
+  min-height: 100vh;
+  background: var(--admin-page-bg);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: paint;
+}
+
+/* Dark background: Midnight Mist */
+.admin-theme-bg[data-theme="dark"] {
+  --admin-page-bg:
+    radial-gradient(circle at 50% 100%,
+      rgba(70, 85, 110, 0.5) 0%,
+      transparent 60%),
+    radial-gradient(circle at 50% 100%,
+      rgba(99, 102, 241, 0.4) 0%,
+      transparent 70%),
+    radial-gradient(circle at 50% 100%,
+      rgba(181, 184, 208, 0.3) 0%,
+      transparent 80%),
+    #000000;
+}
+
+/* Light background: white + orange */
+.admin-theme-bg[data-theme="light"] {
+  --admin-page-bg:
+    radial-gradient(circle at 50% 100%,
+      rgba(255, 138, 31, 0.14) 0%,
+      transparent 58%),
+    radial-gradient(circle at 50% 100%,
+      rgba(255, 191, 82, 0.1) 0%,
+      transparent 70%),
+    radial-gradient(circle at 50% 100%,
+      rgba(255, 227, 176, 0.08) 0%,
+      transparent 82%),
+    linear-gradient(180deg, #ffffff 0%, #fffcf8 58%, #fff8ef 100%);
+}
+
+.admin-theme-bg-base {
+  z-index: 1;
+}
+
+.admin-theme-bg-reveal {
+  z-index: 2;
+  pointer-events: none;
+  clip-path: circle(var(--admin-ripple-radius, 0px) at var(--admin-ripple-x, 50%) var(--admin-ripple-y, 50%));
+  will-change: clip-path;
+}
+
+/* Soft ripple edge */
+.admin-ripple-soft-wave {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at var(--admin-ripple-x, 50%) var(--admin-ripple-y, 50%),
+      transparent max(0px, calc(var(--admin-ripple-radius, 0px) - 36px)),
+      color-mix(in srgb, var(--admin-theme-ring) 24%, transparent) calc(var(--admin-ripple-radius, 0px) - 8px),
+      color-mix(in srgb, var(--admin-theme-ring) 9%, transparent) var(--admin-ripple-radius, 0px),
+      transparent calc(var(--admin-ripple-radius, 0px) + 34px));
+  filter: blur(4px);
+  will-change: opacity, background;
+  contain: paint;
+}
+
+.admin-ripple-soft-wave[data-active="true"] {
+  opacity: 1;
+}
+
+/* Ripple rings */
+.admin-ripple-ring {
+  position: fixed;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--admin-theme-ring);
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) scale(0.1);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--admin-theme-ring) 32%, transparent);
+  will-change: transform, opacity;
+  contain: paint;
+}
+
+.admin-ripple-ring-two {
+  border-color: color-mix(in srgb, var(--admin-theme-ring) 70%, transparent);
+}
+
+/* Reusable admin surfaces */
+.admin-card {
+  border: 1px solid var(--admin-card-border);
+  background: var(--admin-card-bg);
+  color: var(--admin-theme-text);
+  box-shadow: var(--admin-card-shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-control,
+.admin-icon-button,
+.admin-profile-button {
+  border: 1px solid var(--admin-control-border);
+  background: var(--admin-control-bg);
+  color: var(--admin-muted-text);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-icon-button {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+}
+
+.admin-profile-button {
+  display: flex;
+  height: 44px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  padding-inline: 0.75rem;
+}
+
+.admin-icon-button:hover,
+.admin-profile-button:hover,
+.admin-theme-toggle:hover {
+  border-color: var(--admin-control-hover-border);
+  background: var(--admin-control-hover-bg);
+  color: var(--admin-strong-text);
+  transform: translateY(-1px);
+}
+
+.admin-icon-button:focus-visible,
+.admin-profile-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--admin-focus-ring);
+}
+
+/* Theme toggle */
+.admin-theme-toggle {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--admin-toggle-border);
+  border-radius: 0.75rem;
+  background: var(--admin-toggle-surface);
+  color: var(--admin-toggle-icon);
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(2, 8, 23, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-theme-toggle:active,
+.admin-icon-button:active,
+.admin-profile-button:active {
+  transform: scale(0.96);
+}
+
+.admin-theme-toggle:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.admin-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--admin-focus-ring),
+    0 14px 30px rgba(2, 8, 23, 0.16);
+}
+
+.admin-theme-toggle-art {
+  position: relative;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-toggle-icon) 12%, transparent);
+}
+
+.admin-theme-toggle-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  transition:
+    opacity 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-ripple-theme-shell[data-admin-theme="light"] .admin-theme-toggle-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.admin-ripple-theme-shell[data-admin-theme="light"] .admin-theme-toggle-moon {
+  opacity: 0;
+  transform: rotate(80deg) scale(0.42);
+}
+
+.admin-ripple-theme-shell[data-admin-theme="dark"] .admin-theme-toggle-sun {
+  opacity: 0;
+  transform: rotate(-80deg) scale(0.42);
+}
+
+.admin-ripple-theme-shell[data-admin-theme="dark"] .admin-theme-toggle-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.client-theme-toggle {
+  position: relative;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--client-card-border);
+  border-radius: 0.75rem;
+  background: var(--client-control-bg);
+  color: var(--client-text-secondary);
+  cursor: pointer;
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--client-primary-shadow) 65%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.client-theme-toggle:hover {
+  border-color: var(--client-primary-soft-border);
+  background: var(--client-control-hover-bg);
+  color: var(--client-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--client-primary-shadow) 80%, transparent);
+}
+
+.client-theme-toggle:active {
+  transform: scale(0.96);
+}
+
+.client-theme-toggle:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.client-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px var(--client-focus-ring),
+    0 16px 34px color-mix(in srgb, var(--client-primary-shadow) 80%, transparent);
+}
+
+.client-theme-toggle-art {
+  position: relative;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--client-primary) 14%, transparent);
+}
+
+.client-theme-toggle-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  transition:
+    opacity 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.client-theme-toggle-sun {
+  color: #ff8a1f;
+}
+
+.client-theme-toggle-moon {
+  color: var(--client-primary);
+}
+
+.client-theme-toggle[aria-pressed="false"] .client-theme-toggle-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.client-theme-toggle[aria-pressed="false"] .client-theme-toggle-moon {
+  opacity: 0;
+  transform: rotate(80deg) scale(0.42);
+}
+
+.client-theme-toggle[aria-pressed="true"] .client-theme-toggle-sun {
+  opacity: 0;
+  transform: rotate(-80deg) scale(0.42);
+}
+
+.client-theme-toggle[aria-pressed="true"] .client-theme-toggle-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* Accessibility + performance */
+@media (prefers-reduced-motion: reduce) {
+
+  .admin-ripple-theme-shell,
+  .admin-card,
+  .admin-control,
+  .admin-icon-button,
+  .admin-profile-button,
+  .admin-theme-toggle,
+  .admin-theme-toggle-icon,
+  .client-theme-toggle,
+  .client-theme-toggle-icon {
+    transition-duration: 0ms !important;
+  }
+
+  .admin-theme-bg-reveal {
+    clip-path: none;
+  }
+
+  .admin-ripple-soft-wave,
+  .admin-ripple-ring {
+    display: none;
+  }
+}
+
+/* ── Timeline shimmer (hiệu ứng nước chảy) ── */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

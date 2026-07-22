@@ -1,0 +1,1 @@
+export { aiConsultingAdminService } from "./aiConsultingAdmin.service";
