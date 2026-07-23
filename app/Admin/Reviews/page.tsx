@@ -6,7 +6,7 @@ import AdminShell from "../dashboard/components/Action/AdminShell";
 import {
   buildReviewSummary,
   filterReviews,
-} from "@/app/admin/Reviews/lib/reviewHelpers";
+} from "@/app/Admin/Reviews/lib/reviewHelpers";
 import { useReviewsApi } from "./hooks";
 import { ReviewFilterBar } from "./components/filter/ReviewFilterBar";
 import { ReviewDetailPanel } from "./components/detail/ReviewDetailPanel";

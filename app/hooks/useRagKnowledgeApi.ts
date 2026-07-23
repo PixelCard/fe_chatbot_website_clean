@@ -11,7 +11,7 @@ import type {
   RagDocumentListItem,
   RagDocumentStats,
   UpdateRagDocumentFormValues,
-} from "@/app/admin/rag-knowledge/types/ragKnowledge.types";
+} from "@/app/Admin/rag-knowledge/types/ragKnowledge.types";
 
 type RagOverviewState = {
   documents: RagDocumentListItem[];

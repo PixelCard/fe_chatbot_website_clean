@@ -1,7 +1,7 @@
 import { apiClient } from "@/app/services/apiClient";
 import type { ChatSessionItem } from "@/app/services/common";
-import { technicianAdminService } from "@/app/admin/technicians/services";
-import type { Technician as AdminTechnician } from "@/app/admin/technicians/types/technician.types";
+import { technicianAdminService } from "../../technicians/services";
+import type { Technician as AdminTechnician } from "../../technicians/types/technician.types";
 
 export type AdminSessionListQuery = {
   keyword?: string;

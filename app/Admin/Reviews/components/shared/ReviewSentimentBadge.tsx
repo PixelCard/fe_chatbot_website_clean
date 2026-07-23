@@ -1,7 +1,7 @@
 import {
   getReviewSentiment,
   getReviewSentimentLabel,
-} from "@/app/admin/Reviews/lib/reviewHelpers";
+} from "@/app/Admin/Reviews/lib/reviewHelpers";
 
 export function ReviewSentimentBadge({ rating }: { rating: number }) {
   const sentiment = getReviewSentiment(rating);

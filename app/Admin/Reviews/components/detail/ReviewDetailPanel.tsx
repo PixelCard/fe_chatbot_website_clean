@@ -5,7 +5,7 @@ import type { ReviewItem } from "../../types/review.types";
 import {
   formatDateTime,
   getReviewSentimentLabel,
-} from "@/app/admin/Reviews/lib/reviewHelpers";
+} from "@/app/Admin/Reviews/lib/reviewHelpers";
 import { ReviewTagBadge } from "../shared/ReviewTagBadge";
 
 export function ReviewDetailPanel({ review }: { review: ReviewItem | null }) {

@@ -4,7 +4,7 @@ import { use, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, RefreshCcw } from "lucide-react";
 
-import AdminShell from "@/app/admin/dashboard/components/Action/AdminShell";
+import AdminShell from "@/app/Admin/dashboard/components/Action/AdminShell";
 import { useAiReasoningLogsApi } from "../hooks";
 import { AiReasoningLogDetail } from "../components/AiReasoningLogDetail";
 

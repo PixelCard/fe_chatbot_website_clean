@@ -9,7 +9,7 @@ import type {
   RagDocumentMutationResponse,
   RagDocumentStats,
   UpdateRagDocumentFormValues,
-} from "@/app/admin/rag-knowledge/types/ragKnowledge.types";
+} from "@/app/Admin/rag-knowledge/types/ragKnowledge.types";
 
 const ADMIN_RAG_BASE = "/api/admin/rag-knowledge";
 

@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 
 import { Pagination } from "@/app/components/Pagination";
-import { AdminDetailAction } from "@/app/admin/_shared/components/AdminDetailAction";
-import { getAdminDetailActionClass } from "@/app/admin/_shared/styles/detailAction";
+import { AdminDetailAction } from "@/app/Admin/_shared/components/AdminDetailAction";
+import { getAdminDetailActionClass } from "@/app/Admin/_shared/styles/detailAction";
 
 import type { QuoteItem } from "../../types/quote.types";
 
