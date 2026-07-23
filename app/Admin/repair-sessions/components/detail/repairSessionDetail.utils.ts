@@ -1,3 +1,5 @@
+import type { AdminStatusPillTone } from "@/app/Admin/_shared/components/AdminStatusPill";
+
 import type { RepairSession } from "../../types/repairSession.types";
 import { formatTime } from "../../utils/repairSessionFormatters";
 import { hasAssignedTechnician } from "../../utils/repairSessionRules";
@@ -6,7 +8,7 @@ export type DetailTab = "overview" | "ai" | "history";
 
 export type DetailFlag = {
   label: string;
-  tone: "neutral" | "warning" | "danger" | "success";
+  tone: AdminStatusPillTone;
 };
 
 export type RepairSessionDetailView = {
@@ -70,20 +72,4 @@ export function createRepairSessionDetailView(
     nextDescription,
     flags,
   };
-}
-
-export function detailFlagClass(tone: DetailFlag["tone"]) {
-  if (tone === "danger") {
-    return "border-rose-300 bg-rose-50 text-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-300";
-  }
-
-  if (tone === "warning") {
-    return "border-amber-300 bg-amber-50 text-amber-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-300";
-  }
-
-  if (tone === "success") {
-    return "border-emerald-300 bg-emerald-50 text-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-300";
-  }
-
-  return "border-[var(--admin-soft-panel-border)] bg-[var(--admin-control-bg)] text-[var(--admin-theme-text)] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#334155] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#CBD5E1]";
 }

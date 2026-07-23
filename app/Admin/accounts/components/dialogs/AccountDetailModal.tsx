@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { Mail, SquarePen, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AdminStatusPill } from "../../../_shared/components/AdminStatusPill";
 import type { AccountItem } from "../../types/account.types";
 import AccountDetailPanel from "../detail-panel/AccountDetailPanel";
 import AccountLockDialog from "./AccountLockDialog";
 import AccountVerifyDialog from "./AccountVerifyDialog";
-import { getActiveBadge, getInitials } from "../../utils/accountFormatters";
+import { getInitials } from "../../utils/accountFormatters";
 
 type Props = {
   open: boolean;
@@ -89,11 +90,11 @@ export default function AccountDetailModal({
       }}
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#020817]/55 px-3 py-4 backdrop-blur-sm sm:px-5 sm:py-6"
     >
-      <div className="flex max-h-[calc(100dvh-32px)] w-[min(1120px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-[var(--admin-soft-panel-border)] bg-[var(--admin-card-bg)] shadow-[0_32px_120px_-45px_rgba(0,0,0,0.45)] sm:rounded-3xl">
-        <header className="shrink-0 border-b border-[var(--admin-soft-panel-border)] bg-[var(--admin-soft-panel)] px-4 py-4 sm:px-5 sm:py-4">
-          <div className="flex items-start justify-between gap-3">
+      <div className="flex max-h-[calc(100dvh-32px)] w-[min(1080px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-[var(--admin-soft-panel-border)] bg-[var(--admin-card-bg)] shadow-[0_28px_90px_-42px_rgba(0,0,0,0.5)]">
+        <header className="shrink-0 border-b border-[var(--admin-soft-panel-border)] bg-[var(--admin-soft-panel)] px-4 py-3.5 sm:px-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex min-w-0 items-start gap-3">
-              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#F59E0B] via-[#FF8A1F] to-[#0EA5E9] text-sm font-bold text-white">
+              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#F59E0B] via-[#FF8A1F] to-[#0EA5E9] text-sm font-bold text-white">
                 {account.avatarUrl ? (
                   <img
                     src={account.avatarUrl}
@@ -110,27 +111,25 @@ export default function AccountDetailModal({
                   <h2
                     id="account-detail-modal-title"
                     title={account.fullName}
-                    className="truncate text-lg font-semibold text-[var(--admin-strong-text)] sm:text-xl"
+                    className="min-w-0 truncate text-lg font-extrabold text-[var(--admin-strong-text)] sm:text-xl"
                   >
                     {account.fullName}
                   </h2>
 
-                  <span className="font-mono text-sm font-medium text-[var(--admin-muted-text)]">
+                  <span className="font-mono text-sm font-semibold text-[var(--admin-muted-text)]">
                     #{account.id}
                   </span>
 
-                  <span className="text-sm font-semibold text-[var(--admin-theme-text)]">
+                  <span className="rounded-full bg-[var(--admin-control-bg)] px-2.5 py-1 text-xs font-bold text-[var(--admin-theme-text)]">
                     {getRoleLabel(account.role)}
                   </span>
 
-                  <span
-                    className={[
-                      "inline-flex rounded-full border px-2.5 py-1 text-sm font-bold",
-                      getActiveBadge(account.isActive),
-                    ].join(" ")}
+                  <AdminStatusPill
+                    tone={account.isActive ? "success" : "cancel"}
+                    className="px-2.5 py-1 text-sm"
                   >
                     {account.isActive ? "Hoạt động" : "Bị khóa"}
-                  </span>
+                  </AdminStatusPill>
                 </div>
 
                 <div className="mt-2 flex min-w-0 items-center gap-2 text-sm text-[var(--admin-theme-text)]">
@@ -145,10 +144,10 @@ export default function AccountDetailModal({
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center justify-end gap-2">
               <Link
                 href={`/admin/accounts/${account.id}/edit`}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-400/80 bg-amber-100 px-3 text-sm font-bold text-amber-800 transition hover:border-amber-500/80 hover:bg-amber-200 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F59E0B]/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#2A1607] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:border-[#FBBF24]/60 [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-[#3A1E07] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B]/40"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500 bg-amber-500 px-3 text-sm font-extrabold text-white shadow-sm shadow-amber-500/20 transition hover:border-amber-600 hover:bg-amber-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F59E0B] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#F59E0B] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:border-[#FBBF24] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-[#FBBF24] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B]/40"
               >
                 <SquarePen className="h-4 w-4" />
                 Chỉnh sửa

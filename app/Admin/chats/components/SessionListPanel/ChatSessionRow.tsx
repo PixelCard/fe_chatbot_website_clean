@@ -9,6 +9,11 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
+import {
+  AdminStatusPill,
+  type AdminStatusPillTone,
+} from "@/app/Admin/_shared/components/AdminStatusPill";
+
 import type { ChatSession } from "../../types/chat.types";
 
 type Props = {
@@ -98,8 +103,7 @@ export function ChatSessionRow({ session, isActive, onSelect }: Props) {
               <div className="flex min-w-0 flex-wrap gap-1.5">
                 <StatusBadge
                   label={state.label}
-                  icon={state.icon}
-                  className={state.badgeClass}
+                  tone={state.tone}
                 />
               </div>
 
@@ -117,23 +121,18 @@ export function ChatSessionRow({ session, isActive, onSelect }: Props) {
 
 function StatusBadge({
   label,
-  icon,
-  className,
+  tone,
 }: {
   label: string;
-  icon: React.ReactNode;
-  className: string;
+  tone: AdminStatusPillTone;
 }) {
   return (
-    <span
-      className={[
-        "inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold",
-        className,
-      ].join(" ")}
+    <AdminStatusPill
+      tone={tone}
+      className="min-h-8 px-3 text-[12px] font-black"
     >
-      {icon}
       {label}
-    </span>
+    </AdminStatusPill>
   );
 }
 
@@ -141,10 +140,9 @@ function getSessionState(session: ChatSession) {
   if (session.isDangerous) {
     return {
       label: "Nguy hiểm",
-      icon: <AlertTriangle className="h-3 w-3" />,
+      icon: AlertTriangle,
+      tone: "danger" as const,
       iconBoxClass:
-        "border-rose-300/80 bg-rose-50 text-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-400/35 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-300",
-      badgeClass:
         "border-rose-300/80 bg-rose-50 text-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-400/35 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-300",
     };
   }
@@ -152,20 +150,18 @@ function getSessionState(session: ChatSession) {
   if (session.isFlagged) {
     return {
       label: "Đã đánh dấu",
-      icon: <Flag className="h-3 w-3" />,
+      icon: Flag,
+      tone: "warning" as const,
       iconBoxClass:
-        "border-amber-300/80 bg-amber-50 text-amber-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-400/35 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-300",
-      badgeClass:
         "border-amber-300/80 bg-amber-50 text-amber-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-400/35 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-300",
     };
   }
 
   return {
     label: "Ổn định",
-    icon: <MessageSquare className="h-3 w-3" />,
+    icon: MessageSquare,
+    tone: "success" as const,
     iconBoxClass:
-      "border-emerald-300/80 bg-emerald-50 text-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-400/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-300",
-    badgeClass:
       "border-emerald-300/80 bg-emerald-50 text-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-400/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-300",
   };
 }

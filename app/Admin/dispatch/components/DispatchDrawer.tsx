@@ -23,8 +23,9 @@ import type {
   ChatSession,
   SessionAssignmentHistory,
 } from "../types/dispatch.types";
+import { AdminStatusPill } from "../../_shared/components/AdminStatusPill";
 import { ASSIGNMENT_ACTION_VI, JOB_STATUS_VI } from "../types/dispatch.types";
-import { getStatusBadgeStyle } from "./DispatchTable";
+import { getStatusBadgeTone } from "./DispatchTable";
 
 type DispatchDrawerProps = {
   session: ChatSession | null;
@@ -151,14 +152,12 @@ export default function DispatchDrawer({
                   #{session.id}
                 </span>
 
-                <span
-                  className={[
-                    "inline-flex h-8 items-center rounded-full border px-3 text-sm font-semibold",
-                    getStatusBadgeStyle(session.status),
-                  ].join(" ")}
+                <AdminStatusPill
+                  tone={getStatusBadgeTone(session.status)}
+                  className="h-8 px-3 text-sm"
                 >
                   {JOB_STATUS_VI[session.status]}
-                </span>
+                </AdminStatusPill>
 
                 <span className="inline-flex h-8 max-w-full items-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 text-sm font-semibold text-[var(--admin-muted-text)] shadow-sm">
                   <span className="truncate">

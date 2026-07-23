@@ -57,12 +57,31 @@ export type RevenueReportSummary = {
   averageOrderValue: number;
 };
 
+export type RevenueReportDetail = {
+  sessionId: number;
+  sessionStatus: JobStatus | "DONE";
+  deviceType: string | null;
+  symptom: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  technicianName: string | null;
+  technicianPhone: string | null;
+  createdAt: string;
+  updatedAt: string;
+  acceptedQuoteCount: number;
+  acceptedRevenue: number;
+  latestQuoteId: number | null;
+  latestQuoteTitle: string | null;
+  latestAcceptedAt: string | null;
+};
+
 export type RevenueReportData = {
   from: string;
   to: string;
   groupBy: RevenueReportGroupBy;
   summary: RevenueReportSummary;
   series: RevenueReportPoint[];
+  details?: RevenueReportDetail[];
 };
 
 export type StatusPoint = {

@@ -2,10 +2,7 @@ import { CalendarDays, MapPin, Phone } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 
 import type { AccountItem } from "../../types/account.types";
-import {
-  getActiveBadge,
-  hasAccountLocation,
-} from "../../utils/accountFormatters";
+import { hasAccountLocation } from "../../utils/accountFormatters";
 import AccountActionBar from "../actions/AccountActionBar";
 import AccountWarningCard from "./AccountWarningCard";
 
@@ -23,7 +20,7 @@ export default function AccountDetailPanel({
   onToggleLock,
 }: Props) {
   return (
-    <div className="bg-[var(--admin-card-bg)] p-4">
+    <div className="bg-[var(--admin-card-bg)] p-4 sm:p-5">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="space-y-4">
           <AccountWarningCard account={account} />
@@ -122,7 +119,7 @@ function StatusCard({ account }: { account: AccountItem }) {
   return (
     <DetailCard title="Trạng thái tài khoản">
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#D0D5DD] bg-white px-4 py-3 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E]">
+        <div className="rounded-xl border border-[#D0D5DD] bg-white px-4 py-3 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E]">
           <div className="min-w-0">
             <p className={labelClass}>Tình trạng tài khoản</p>
 
@@ -130,18 +127,9 @@ function StatusCard({ account }: { account: AccountItem }) {
               {account.isActive ? "Đang hoạt động" : "Đang bị khóa"}
             </p>
           </div>
-
-          <span
-            className={[
-              "inline-flex shrink-0 rounded-full border px-2.5 py-1 text-sm font-extrabold",
-              getActiveBadge(account.isActive),
-            ].join(" ")}
-          >
-            {account.isActive ? "Hoạt động" : "Bị khóa"}
-          </span>
         </div>
 
-        <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <StatusRow
             label="Xác minh"
             value={account.isVerified ? "Đã xác minh" : "Chưa xác minh"}

@@ -27,6 +27,15 @@ const routeMeta: Array<{ prefix: string; meta: RouteMeta }> = [
     },
   },
   {
+    prefix: "/admin/reports",
+    meta: {
+      root: "Tổng quan",
+      current: "Thống kê doanh thu",
+      description:
+        "Theo dõi doanh thu, số đơn và báo giá đã chấp nhận theo khoảng thời gian.",
+    },
+  },
+  {
     prefix: "/admin/repair-sessions",
     meta: {
       root: "Vận hành",

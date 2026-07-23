@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import {
+  BarChart3,
   BrainCircuit,
   ChevronLeft,
   ChevronRight,
@@ -50,6 +51,11 @@ const sections: NavSection[] = [
         label: "Bảng điều khiển",
         href: "/admin/dashboard",
         icon: LayoutDashboard,
+      },
+      {
+        label: "Thống kê doanh thu",
+        href: "/admin/reports",
+        icon: BarChart3,
       },
     ],
   },

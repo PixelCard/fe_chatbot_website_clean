@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   Archive,
   Eye,
+  FileText,
   Layers3,
   MoreVertical,
   Pencil,
@@ -131,7 +132,7 @@ export default function DocumentLifecycleGrid({
               </div>
 
               <div className="flex items-center">
-                <MetaPill>{document.fileType}</MetaPill>
+                <FileTypeBadge type={document.fileType} />
               </div>
 
               <div className="flex items-center">
@@ -148,7 +149,7 @@ export default function DocumentLifecycleGrid({
                 <AccessBadge level={document.accessLevel} />
               </div>
 
-              <div className="relative flex items-center justify-end gap-2.5">
+              <div className="relative flex min-w-0 items-center justify-end gap-2">
                 <ActionButton
                   label="Chi tiết"
                   icon={<Eye className="h-4.5 w-4.5" />}
@@ -258,7 +259,7 @@ export default function DocumentLifecycleGrid({
             </div>
 
             <div className="mt-4 grid gap-2.5 rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4">
-              <MobileInfo label="File" value={document.fileType} />
+              <MobileInfo label="File" value={<FileTypeBadge type={document.fileType} />} />
               <MobileInfo
                 label="Phân loại"
                 value={document.category || "Chưa phân loại"}
@@ -390,7 +391,7 @@ function ActionButton({
       onClick={onClick}
       disabled={disabled}
       className={[
-        "inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border px-4 text-[14px] font-bold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50 active:scale-95",
+        "inline-flex h-10 min-w-[92px] items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border px-3 text-[14px] font-extrabold leading-none transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50 active:scale-95",
         variant === "danger"
           ? "border-red-500/30 bg-red-500/10 text-[var(--admin-error)] hover:bg-red-500/15"
           : "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-strong-text)] hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)]",
@@ -440,25 +441,25 @@ function StatusBadge({
 }) {
   const toneClass = {
     READY:
-      "border-[#22C55E]/35 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
+      "border-emerald-600 bg-emerald-600 text-white shadow-emerald-600/20",
     FAILED:
-      "border-[#EF4444]/35 bg-[#EF4444]/10 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]",
+      "border-rose-600 bg-rose-600 text-white shadow-rose-600/20",
     ARCHIVED:
-      "border-[#64748B]/35 bg-[#64748B]/10 text-[#475569] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#CBD5E1]",
+      "border-slate-500 bg-slate-600 text-white shadow-slate-600/20",
     UPLOADED:
-      "border-[#0EA5E9]/35 bg-[#0EA5E9]/10 text-[#0369A1] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#38BDF8]",
+      "border-sky-600 bg-sky-600 text-white shadow-sky-600/20",
     PARSING:
-      "border-[#0EA5E9]/35 bg-[#0EA5E9]/10 text-[#0369A1] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#38BDF8]",
+      "border-sky-600 bg-sky-600 text-white shadow-sky-600/20",
     CHUNKING:
-      "border-[#F59E0B]/35 bg-[#F59E0B]/10 text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]",
+      "border-amber-500 bg-amber-500 text-white shadow-amber-500/20",
     EMBEDDING:
-      "border-[#8B5CF6]/35 bg-[#8B5CF6]/10 text-[#7C3AED] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#C4B5FD]",
+      "border-violet-600 bg-violet-600 text-white shadow-violet-600/20",
   }[status];
 
   return (
     <span
       className={[
-        "inline-flex h-9 items-center rounded-full border px-3 text-xs font-bold",
+        "inline-flex h-9 items-center rounded-full border px-3 text-xs font-black shadow-sm",
         toneClass,
       ].join(" ")}
     >
@@ -487,22 +488,55 @@ function AccessBadge({
   );
 }
 
-// Giữ lại MetaPill phục vụ FileType
-function MetaPill({ children }: { children: React.ReactNode }) {
+function FileTypeBadge({ type }: { type: RagDocumentListItem["fileType"] }) {
+  const meta = getFileTypeMeta(type);
+
   return (
-    <span className="inline-flex h-9 items-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 text-xs font-bold text-[var(--admin-strong-text)]">
-      {children}
+    <span
+      className={[
+        "inline-flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-black shadow-sm",
+        meta.className,
+      ].join(" ")}
+    >
+      <span className="grid h-5 min-w-5 place-items-center rounded-md bg-white/90 text-[10px] font-black leading-none text-[#111827]">
+        {meta.mark}
+      </span>
+      {type}
     </span>
   );
 }
 
-function MobileInfo({ label, value }: { label: string; value: string }) {
+function getFileTypeMeta(type: RagDocumentListItem["fileType"]) {
+  if (type === "PDF") {
+    return {
+      mark: "PDF",
+      className:
+        "border-rose-600 bg-rose-600 text-white shadow-rose-600/20",
+    };
+  }
+
+  if (type === "DOCX") {
+    return {
+      mark: "W",
+      className:
+        "border-blue-600 bg-blue-600 text-white shadow-blue-600/20",
+    };
+  }
+
+  return {
+    mark: <FileText className="h-3.5 w-3.5" />,
+    className:
+      "border-slate-500 bg-slate-600 text-white shadow-slate-600/20",
+  };
+}
+
+function MobileInfo({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-3">
       <span className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--admin-muted-text)]">
         {label}
       </span>
-      <span className="text-right text-[14px] font-bold text-[var(--admin-strong-text)]">
+      <span className="flex justify-end text-right text-[14px] font-bold text-[var(--admin-strong-text)]">
         {value}
       </span>
     </div>

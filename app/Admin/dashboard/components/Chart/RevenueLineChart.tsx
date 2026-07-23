@@ -16,6 +16,7 @@ type HoverPoint = {
 };
 
 type DatePreset = "1d" | "7d" | "15d" | "30d" | "month" | "year";
+type ActiveRange = DatePreset | "custom";
 
 const DATE_PRESETS: Array<{ value: DatePreset; label: string }> = [
   { value: "1d", label: "1 ngày" },
@@ -64,6 +65,21 @@ function getPresetQuery(preset: DatePreset): RevenueReportQuery {
     to: toInputDate(today),
     groupBy: "day",
   };
+}
+
+function getCustomGroupBy(from: string, to: string): RevenueReportQuery["groupBy"] {
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
+
+  if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+    return "day";
+  }
+
+  const diffDays = Math.abs(toDate.getTime() - fromDate.getTime()) / 86400000;
+
+  if (diffDays > 120) return "month";
+  if (diffDays > 45) return "week";
+  return "day";
 }
 
 function toRecord(value: unknown): Record<string, unknown> {
@@ -208,11 +224,15 @@ export default function RevenueLineChart({
   loading?: boolean;
   error?: string | null;
 }) {
+  const initialRange = getPresetQuery("7d");
   const [hover, setHover] = useState<HoverPoint | null>(null);
-  const [activePreset, setActivePreset] = useState<DatePreset>("7d");
+  const [activePreset, setActivePreset] = useState<ActiveRange>("7d");
+  const [customFrom, setCustomFrom] = useState(initialRange.from ?? "");
+  const [customTo, setCustomTo] = useState(initialRange.to ?? "");
   const [reportData, setReportData] = useState<RevenuePoint[] | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
+  const [rangeError, setRangeError] = useState<string | null>(null);
   const requestIdRef = useRef(0);
 
   const loadPreset = async (preset: DatePreset) => {
@@ -222,9 +242,61 @@ export default function RevenueLineChart({
     setHover(null);
     setReportLoading(true);
     setReportError(null);
+    setRangeError(null);
 
     try {
-      const report = await dashboardService.getRevenueReport(getPresetQuery(preset));
+      const query = getPresetQuery(preset);
+      const report = await dashboardService.getRevenueReport(query);
+      if (requestIdRef.current !== requestId) return;
+
+      setCustomFrom(query.from ?? "");
+      setCustomTo(query.to ?? "");
+      setReportData(
+        report.series.map((item) => ({
+          date: item.label,
+          jobs: item.jobs,
+          revenue: item.revenue,
+        })),
+      );
+    } catch (caughtError) {
+      if (requestIdRef.current !== requestId) return;
+
+      setReportData(null);
+      setReportError(
+        caughtError && typeof caughtError === "object" && "message" in caughtError
+          ? String(caughtError.message)
+          : "Không tải được dữ liệu doanh thu theo thời gian.",
+      );
+    } finally {
+      if (requestIdRef.current === requestId) setReportLoading(false);
+    }
+  };
+
+  const loadCustomRange = async () => {
+    if (!customFrom || !customTo) {
+      setRangeError("Vui lòng chọn đủ ngày bắt đầu và ngày kết thúc.");
+      return;
+    }
+
+    if (new Date(customFrom).getTime() > new Date(customTo).getTime()) {
+      setRangeError("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+      return;
+    }
+
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    setActivePreset("custom");
+    setHover(null);
+    setReportLoading(true);
+    setReportError(null);
+    setRangeError(null);
+
+    try {
+      const report = await dashboardService.getRevenueReport({
+        from: customFrom,
+        to: customTo,
+        groupBy: getCustomGroupBy(customFrom, customTo),
+      });
       if (requestIdRef.current !== requestId) return;
 
       setReportData(
@@ -241,7 +313,7 @@ export default function RevenueLineChart({
       setReportError(
         caughtError && typeof caughtError === "object" && "message" in caughtError
           ? String(caughtError.message)
-          : "Không tải được dữ liệu doanh thu theo thời gian.",
+          : "Không tải được dữ liệu doanh thu theo khoảng thời gian.",
       );
     } finally {
       if (requestIdRef.current === requestId) setReportLoading(false);
@@ -362,22 +434,65 @@ export default function RevenueLineChart({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
-          {DATE_PRESETS.map((preset) => (
+        <div className="grid gap-3 xl:justify-end">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
+            {DATE_PRESETS.map((preset) => (
+              <button
+                key={preset.value}
+                type="button"
+                onClick={() => void loadPreset(preset.value)}
+                className={[
+                  "h-10 rounded-xl border px-4 text-sm font-bold transition-colors",
+                  activePreset === preset.value
+                    ? "border-[#FDBA74] bg-[#FFF1E8] text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F97316]/60 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#2A1A0A] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]"
+                    : "border-[#D0D5DD] bg-white text-[#344054] hover:border-[#FDBA74] hover:text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0B1527] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#D1D5DB] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:hover:border-[#06B6D4]/45 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:hover:text-white",
+                ].join(" ")}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid gap-2 rounded-2xl border border-[#E4E7EC] bg-[#F8FAFC] p-2 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1A2940] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0B1729] sm:grid-cols-[1fr_1fr_auto]">
+            <label className="grid gap-1 text-[11px] font-black uppercase tracking-[0.08em] text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#94A3B8]">
+              Từ ngày
+              <input
+                type="date"
+                value={customFrom}
+                onChange={(event) => setCustomFrom(event.target.value)}
+                className="h-10 rounded-xl border border-[#D0D5DD] bg-white px-3 text-sm font-bold text-[#111827] outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#FDBA74]/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0B1527] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white"
+              />
+            </label>
+
+            <label className="grid gap-1 text-[11px] font-black uppercase tracking-[0.08em] text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#94A3B8]">
+              Đến ngày
+              <input
+                type="date"
+                value={customTo}
+                onChange={(event) => setCustomTo(event.target.value)}
+                className="h-10 rounded-xl border border-[#D0D5DD] bg-white px-3 text-sm font-bold text-[#111827] outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#FDBA74]/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0B1527] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white"
+              />
+            </label>
+
             <button
-              key={preset.value}
               type="button"
-              onClick={() => void loadPreset(preset.value)}
+              onClick={() => void loadCustomRange()}
               className={[
-                "h-10 rounded-xl border px-4 text-sm font-bold transition-colors",
-                activePreset === preset.value
-                  ? "border-[#FDBA74] bg-[#FFF1E8] text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F97316]/60 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#2A1A0A] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]"
-                  : "border-[#D0D5DD] bg-white text-[#344054] hover:border-[#FDBA74] hover:text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0B1527] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#D1D5DB] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:hover:border-[#06B6D4]/45 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:hover:text-white",
+                "h-10 self-end rounded-xl border px-4 text-sm font-extrabold transition-colors",
+                activePreset === "custom"
+                  ? "border-[#F97316] bg-[#F97316] text-white"
+                  : "border-[#FDBA74] bg-[#FFF7ED] text-[#C2410C] hover:bg-[#FFEDD5] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F97316]/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#23160B] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]",
               ].join(" ")}
             >
-              {preset.label}
+              Áp dụng
             </button>
-          ))}
+          </div>
+
+          {rangeError ? (
+            <p className="rounded-xl border border-[#FCA5A5] bg-[#FEF2F2] px-3 py-2 text-xs font-bold text-[#B42318] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#EF4444]/35 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#2A1215] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]">
+              {rangeError}
+            </p>
+          ) : null}
         </div>
       </div>
 

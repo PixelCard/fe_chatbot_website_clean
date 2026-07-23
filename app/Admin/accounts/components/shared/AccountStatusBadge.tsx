@@ -1,5 +1,4 @@
-import { StatusBadge } from "@/app/components/common/status-badge/StatusBadge";
-import { getActiveBadge } from "../../utils/accountFormatters";
+import { AdminStatusPill } from "@/app/Admin/_shared/components/AdminStatusPill";
 
 type Props = {
   active: boolean;
@@ -7,10 +6,8 @@ type Props = {
 
 export default function AccountStatusBadge({ active }: Props) {
   return (
-    <StatusBadge
-      label={active ? "Hoat dong" : "Bi khoa"}
-      size="md"
-      toneClassName={getActiveBadge(active)}
-    />
+    <AdminStatusPill tone={active ? "success" : "cancel"}>
+      {active ? "Hoạt động" : "Bị khóa"}
+    </AdminStatusPill>
   );
 }

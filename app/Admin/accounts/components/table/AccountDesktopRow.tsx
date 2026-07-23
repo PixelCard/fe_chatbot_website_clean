@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import { AdminDetailAction } from "../../../_shared/components/AdminDetailAction";
+import { AdminStatusPill } from "../../../_shared/components/AdminStatusPill";
 import type { AccountItem } from "../../types/account.types";
-import { getActiveBadge } from "../../utils/accountFormatters";
 
 type Props = {
   row: AccountItem;
@@ -49,14 +49,12 @@ export default function AccountDesktopRow({ row, onViewDetail }: Props) {
       </td>
 
       <td className="px-5 py-4.5 align-middle whitespace-nowrap">
-        <span
-          className={[
-            "inline-flex h-7 items-center rounded-full border px-3 text-xs font-semibold",
-            getActiveBadge(row.isActive),
-          ].join(" ")}
+        <AdminStatusPill
+          tone={row.isActive ? "success" : "cancel"}
+          className="h-7 px-3"
         >
           {row.isActive ? "Hoạt động" : "Bị khóa"}
-        </span>
+        </AdminStatusPill>
       </td>
 
       <td className="px-5 py-4.5 align-middle">

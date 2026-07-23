@@ -693,7 +693,7 @@ function StateInfoTile({
         getStateTileClassName(tone),
       ].join(" ")}
     >
-      <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
+      <p className="text-[13px] font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
         {label}
       </p>
       <p className="mt-2 break-words text-base font-black text-[var(--admin-strong-text)]">
@@ -823,7 +823,7 @@ function SideInfo({
           </span>
         ) : null}
 
-        <p className="min-w-0 truncate text-sm font-bold text-[var(--admin-strong-text)]">
+        <p className="min-w-0 truncate text-base font-extrabold text-[var(--admin-strong-text)]">
           {value}
         </p>
       </div>
@@ -840,7 +840,7 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-sm font-bold text-[var(--admin-muted-text)]">
+      <span className="text-base font-extrabold text-[var(--admin-muted-text)]">
         {label}
       </span>
 
@@ -910,7 +910,7 @@ function RiskBadge({ riskLevel }: { riskLevel: RiskLevel }) {
   return (
     <span
       className={[
-        "inline-flex h-8 items-center rounded-full border px-3 text-xs font-black",
+        "inline-flex h-8 items-center rounded-full border px-3 text-sm font-black shadow-sm",
         getRiskClassName(riskLevel),
       ].join(" ")}
     >
@@ -928,7 +928,7 @@ function FeedbackBadge({
 }) {
   if (isGolden) {
     return (
-      <span className="inline-flex h-8 items-center rounded-full border border-[#22C55E]/35 bg-[#22C55E]/10 px-3 text-xs font-black text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
+      <span className="inline-flex h-8 items-center rounded-full border border-emerald-600 bg-emerald-600 px-3 text-sm font-black text-white shadow-sm shadow-emerald-600/20">
         Mẫu tốt
       </span>
     );
@@ -936,7 +936,7 @@ function FeedbackBadge({
 
   if (feedback === "LIKE") {
     return (
-      <span className="inline-flex h-8 items-center rounded-full border border-[#22C55E]/35 bg-[#22C55E]/10 px-3 text-xs font-black text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
+      <span className="inline-flex h-8 items-center rounded-full border border-emerald-600 bg-emerald-600 px-3 text-sm font-black text-white shadow-sm shadow-emerald-600/20">
         Tốt
       </span>
     );
@@ -944,14 +944,14 @@ function FeedbackBadge({
 
   if (feedback === "DISLIKE") {
     return (
-      <span className="inline-flex h-8 items-center rounded-full border border-[#EF4444]/35 bg-[#EF4444]/10 px-3 text-xs font-black text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]">
+      <span className="inline-flex h-8 items-center rounded-full border border-rose-600 bg-rose-600 px-3 text-sm font-black text-white shadow-sm shadow-rose-600/20">
         Không tốt
       </span>
     );
   }
 
   return (
-    <span className="inline-flex h-8 items-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 text-xs font-black text-[var(--admin-muted-text)]">
+    <span className="inline-flex h-8 items-center rounded-full border border-slate-500 bg-slate-600 px-3 text-sm font-black text-white shadow-sm shadow-slate-600/20">
       Chưa phản hồi
     </span>
   );
@@ -964,12 +964,12 @@ function ScoreBadge({ score }: { score: number }) {
   return (
     <span
       className={[
-        "inline-flex h-8 items-center rounded-full border px-3 text-xs font-black",
+        "inline-flex h-8 items-center rounded-full border px-3 text-sm font-black shadow-sm",
         isLow
-          ? "border-[#EF4444]/35 bg-[#EF4444]/10 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]"
+          ? "border-rose-600 bg-rose-600 text-white shadow-rose-600/20"
           : isGood
-            ? "border-[#22C55E]/35 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
-            : "border-[#F59E0B]/35 bg-[#F59E0B]/10 text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]",
+            ? "border-emerald-600 bg-emerald-600 text-white shadow-emerald-600/20"
+            : "border-amber-500 bg-amber-500 text-white shadow-amber-500/20",
       ].join(" ")}
     >
       {score}/10
@@ -997,18 +997,18 @@ function getUsefulnessText(label: Exclude<UsefulnessLabel, null>) {
 
 function getRiskClassName(riskLevel: RiskLevel) {
   if (riskLevel === "CRITICAL" || riskLevel === "HIGH") {
-    return "border-[#EF4444]/35 bg-[#EF4444]/10 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]";
+    return "border-rose-600 bg-rose-600 text-white shadow-rose-600/20";
   }
 
   if (riskLevel === "MEDIUM") {
-    return "border-[#F59E0B]/35 bg-[#F59E0B]/10 text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]";
+    return "border-amber-500 bg-amber-500 text-white shadow-amber-500/20";
   }
 
   if (riskLevel === "LOW") {
-    return "border-[#22C55E]/35 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]";
+    return "border-emerald-600 bg-emerald-600 text-white shadow-emerald-600/20";
   }
 
-  return "border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] text-[var(--admin-muted-text)]";
+  return "border-slate-500 bg-slate-600 text-white shadow-slate-600/20";
 }
 
 function getRiskText(riskLevel: RiskLevel) {

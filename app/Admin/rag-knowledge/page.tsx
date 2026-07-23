@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   Archive,
@@ -79,6 +79,7 @@ export default function RagKnowledgePage() {
     null,
   );
   const [busyDocumentId, setBusyDocumentId] = useState<number | null>(null);
+  const chunkPanelRef = useRef<HTMLDivElement | null>(null);
 
   // States cho modal chỉnh sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -226,6 +227,16 @@ export default function RagKnowledgePage() {
     } finally {
       setChunkLoading(false);
     }
+  };
+
+  const handleOpenChunks = async (document: RagDocumentListItem) => {
+    await loadChunks(document, { page: 1, search: "" });
+    window.requestAnimationFrame(() => {
+      chunkPanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
   };
 
   const handleViewChunkDetail = async (chunkId: number) => {
@@ -411,7 +422,7 @@ export default function RagKnowledgePage() {
           isLoading={isLoading}
           busyDocumentId={busyDocumentId}
           onViewDetail={(document) => void handleOpenDetail(document)}
-          onViewChunks={(document) => void loadChunks(document, { page: 1, search: "" })}
+          onViewChunks={(document) => void handleOpenChunks(document)}
           onEdit={(document) => void handleOpenEdit(document)}
           onToggleArchive={(document, isActive) =>
             runDocumentAction(document.id, async () => {
@@ -474,38 +485,40 @@ export default function RagKnowledgePage() {
           </section>
         ) : null}
 
-        <ChunkViewerPanel
-          key={activeChunkDocument?.id ?? "chunk-panel"}
-          open={Boolean(activeChunkDocument)}
-          document={activeChunkDocument}
-          documentDetail={activeChunkDocumentDetail}
-          data={chunkData}
-          selectedChunk={selectedChunk}
-          isLoading={chunkLoading}
-          isChunkLoading={chunkDetailLoading}
-          searchValue={chunkSearch}
-          onClose={() => {
-            setActiveChunkDocument(null);
-            setActiveChunkDocumentDetail(null);
-            setChunkData(null);
-            setSelectedChunk(null);
-            setChunkSearch("");
-          }}
-          onCloseChunkDetail={() => {
-            setSelectedChunk(null);
-          }}
-          onSearch={(value) => {
-            if (activeChunkDocument) {
-              void loadChunks(activeChunkDocument, { page: 1, search: value });
-            }
-          }}
-          onPageChange={(page) => {
-            if (activeChunkDocument) {
-              void loadChunks(activeChunkDocument, { page });
-            }
-          }}
-          onViewChunk={(chunkId) => void handleViewChunkDetail(chunkId)}
-        />
+        <div ref={chunkPanelRef} className="scroll-mt-5">
+          <ChunkViewerPanel
+            key={activeChunkDocument?.id ?? "chunk-panel"}
+            open={Boolean(activeChunkDocument)}
+            document={activeChunkDocument}
+            documentDetail={activeChunkDocumentDetail}
+            data={chunkData}
+            selectedChunk={selectedChunk}
+            isLoading={chunkLoading}
+            isChunkLoading={chunkDetailLoading}
+            searchValue={chunkSearch}
+            onClose={() => {
+              setActiveChunkDocument(null);
+              setActiveChunkDocumentDetail(null);
+              setChunkData(null);
+              setSelectedChunk(null);
+              setChunkSearch("");
+            }}
+            onCloseChunkDetail={() => {
+              setSelectedChunk(null);
+            }}
+            onSearch={(value) => {
+              if (activeChunkDocument) {
+                void loadChunks(activeChunkDocument, { page: 1, search: value });
+              }
+            }}
+            onPageChange={(page) => {
+              if (activeChunkDocument) {
+                void loadChunks(activeChunkDocument, { page });
+              }
+            }}
+            onViewChunk={(chunkId) => void handleViewChunkDetail(chunkId)}
+          />
+        </div>
 
         <KnowledgeActionDrawer
           key={`${drawerMode}-${isDrawerOpen ? selectedDocumentDetail?.id ?? "new" : "closed"}`}

@@ -1,15 +1,14 @@
 import { Bot, CircleAlert, Wrench } from "lucide-react";
 
+import { AdminStatusPill } from "@/app/Admin/_shared/components/AdminStatusPill";
+
 import type { RepairSession } from "../../types/repairSession.types";
 import { truncateText } from "../../utils/repairSessionFormatters";
 import {
   DetailRow,
   RepairSessionPanel,
 } from "../common/RepairSessionUi";
-import {
-  detailFlagClass,
-  type RepairSessionDetailView,
-} from "./repairSessionDetail.utils";
+import { type RepairSessionDetailView } from "./repairSessionDetail.utils";
 
 export function RepairSessionOverview({
   session,
@@ -43,15 +42,13 @@ export function RepairSessionOverview({
 
           <div className="flex flex-wrap gap-2 lg:max-w-[360px] lg:justify-end">
             {view.flags.map((flag) => (
-              <span
+              <AdminStatusPill
                 key={flag.label}
-                className={[
-                  "inline-flex min-h-8 items-center rounded-full border px-3 text-xs font-semibold",
-                  detailFlagClass(flag.tone),
-                ].join(" ")}
+                tone={flag.tone}
+                className="min-h-8 px-3"
               >
                 {flag.label}
-              </span>
+              </AdminStatusPill>
             ))}
           </div>
         </div>

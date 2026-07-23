@@ -2,6 +2,10 @@ import type { ReactNode } from "react";
 import { ChevronRight, Phone, Wrench } from "lucide-react";
 
 import { AdminDetailAction } from "../../_shared/components/AdminDetailAction";
+import {
+  AdminStatusPill,
+  type AdminStatusPillTone,
+} from "../../_shared/components/AdminStatusPill";
 import type { ChatSession } from "../types/dispatch.types";
 import { JOB_STATUS_VI } from "../types/dispatch.types";
 
@@ -10,88 +14,36 @@ type DispatchTableProps = {
   onSelectSession: (session: ChatSession) => void;
 };
 
-export function getStatusBadgeStyle(status: ChatSession["status"]) {
+export function getStatusBadgeTone(
+  status: ChatSession["status"],
+): AdminStatusPillTone {
   switch (status) {
     case "AI_CONSULTING":
-      return [
-        "border-violet-200 bg-violet-50 text-violet-700 shadow-violet-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-violet-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-violet-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-violet-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "purple";
 
     case "BROADCASTING":
-      return [
-        "border-amber-200 bg-amber-50 text-amber-700 shadow-amber-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "warning";
 
     case "MATCHED":
-      return [
-        "border-sky-200 bg-sky-50 text-sky-700 shadow-sky-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-sky-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-sky-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-sky-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "success";
 
     case "EN_ROUTE":
-      return [
-        "border-indigo-200 bg-indigo-50 text-indigo-700 shadow-indigo-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-indigo-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-indigo-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-indigo-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "sky";
 
     case "ARRIVED":
-      return [
-        "border-teal-200 bg-teal-50 text-teal-700 shadow-teal-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-teal-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-teal-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-teal-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "info";
 
     case "IN_PROGRESS":
-      return [
-        "border-orange-200 bg-orange-50 text-orange-700 shadow-orange-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-orange-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-orange-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-orange-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "warning";
 
     case "COMPLETED":
-      return [
-        "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-emerald-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "success";
 
     case "CANCELLED":
-      return [
-        "border-rose-200 bg-rose-50 text-rose-700 shadow-rose-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-400/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "cancel";
 
     default:
-      return [
-        "border-slate-200 bg-slate-50 text-slate-700 shadow-slate-100/70",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-slate-500/25",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-slate-400/10",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-slate-200",
-        "[.admin-ripple-theme-shell[data-admin-theme=dark]_&]:shadow-none",
-      ].join(" ");
+      return "neutral";
   }
 }
 
@@ -238,14 +190,12 @@ function DeviceBadge({ children }: { children: ReactNode }) {
 
 function StatusBadge({ status }: { status: ChatSession["status"] }) {
   return (
-    <span
-      className={[
-        "inline-flex h-8 min-w-[132px] max-w-[170px] items-center justify-center truncate whitespace-nowrap rounded-full border px-3 text-center text-sm font-bold shadow-sm",
-        getStatusBadgeStyle(status),
-      ].join(" ")}
+    <AdminStatusPill
+      tone={getStatusBadgeTone(status)}
+      className="h-8 min-w-[132px] max-w-[170px] justify-center truncate whitespace-nowrap px-3 text-center text-sm"
     >
       {JOB_STATUS_VI[status]}
-    </span>
+    </AdminStatusPill>
   );
 }
 

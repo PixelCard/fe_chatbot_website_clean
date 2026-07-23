@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 
 import { Pagination } from "@/app/components/Pagination";
@@ -47,10 +47,6 @@ export function RepairSessionListPanel({
     (effectivePage - 1) * ITEMS_PER_PAGE,
     effectivePage * ITEMS_PER_PAGE,
   );
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [sessions]);
 
   return (
     <aside className="flex min-h-[360px] min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--admin-soft-panel-border)] bg-[var(--admin-card-bg)] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E] xl:min-h-0">
@@ -120,6 +116,7 @@ export function RepairSessionListPanel({
             currentPage={effectivePage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
+            compact
           />
         </footer>
       ) : null}

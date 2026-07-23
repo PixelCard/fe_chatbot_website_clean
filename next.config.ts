@@ -8,12 +8,24 @@ const nextConfig: NextConfig = {
     const target = process.env.API_PROXY_TARGET ?? "http://localhost:3000";
     return [
       {
+        source: "/admin",
+        destination: "/Admin/dashboard",
+      },
+      {
+        source: "/admin/dashboard",
+        destination: "/Admin/dashboard",
+      },
+      {
         source: "/admin/reviews",
-        destination: "/admin/Reviews",
+        destination: "/Admin/Reviews",
       },
       {
         source: "/admin/reviews/:path*",
-        destination: "/admin/Reviews/:path*",
+        destination: "/Admin/Reviews/:path*",
+      },
+      {
+        source: "/admin/:path*",
+        destination: "/Admin/:path*",
       },
       {
         source: "/api/:path*",

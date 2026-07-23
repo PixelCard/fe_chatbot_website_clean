@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Eye, SquarePen } from "lucide-react";
 
 import { AdminDetailAction } from "../../../_shared/components/AdminDetailAction";
+import { AdminStatusPill } from "../../../_shared/components/AdminStatusPill";
 import type { AccountItem } from "../../types/account.types";
 import {
-  getActiveBadge,
   getInitials,
   getRoleBadge,
   getRoleLabel,
@@ -74,14 +74,12 @@ export default function AccountMobileCard({ row, onViewDetail }: Props) {
               {getRoleLabel(row.role)}
             </span>
 
-            <span
-              className={[
-                "inline-flex rounded-full border px-2.5 py-1 text-xs font-bold",
-                getActiveBadge(row.isActive),
-              ].join(" ")}
+            <AdminStatusPill
+              tone={row.isActive ? "success" : "cancel"}
+              className="px-2.5 py-1"
             >
               {row.isActive ? "Hoạt động" : "Bị khóa"}
-            </span>
+            </AdminStatusPill>
           </div>
         </div>
       </div>
