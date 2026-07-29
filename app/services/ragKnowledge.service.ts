@@ -2,9 +2,12 @@ import { apiClient } from "@/app/services/apiClient";
 import type {
   RagChunkDetail,
   RagChunkListQuery,
+  ImportRagConversationPayload,
   RagDocumentChunksResponse,
   RagDocumentDetail,
   RagImportMetadataSuggestionResponse,
+  RagConversationCandidate,
+  RagConversationCandidateType,
   RagDocumentListItem,
   RagDocumentMutationResponse,
   RagDocumentStats,
@@ -20,6 +23,23 @@ export const ragKnowledgeService = {
 
   getRagDocuments() {
     return apiClient.get<RagDocumentListItem[]>(`${ADMIN_RAG_BASE}/documents`);
+  },
+
+  getConversationCandidates(query?: {
+    type?: RagConversationCandidateType;
+    search?: string;
+  }) {
+    return apiClient.get<RagConversationCandidate[]>(
+      `${ADMIN_RAG_BASE}/conversation-candidates`,
+      query,
+    );
+  },
+
+  importConversationCandidate(payload: ImportRagConversationPayload) {
+    return apiClient.post<RagDocumentMutationResponse>(
+      `${ADMIN_RAG_BASE}/import-conversation`,
+      payload,
+    );
   },
 
   importRagDocument(formData: FormData) {

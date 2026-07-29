@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   DatabaseZap,
   FileText,
+  MessageSquareText,
   RefreshCcw,
   Upload,
   type LucideIcon,
@@ -17,6 +18,7 @@ import { Pagination } from "@/app/components/Pagination";
 
 import AdminShell from "../dashboard/components/Action/AdminShell";
 import ChunkViewerPanel from "./components/ChunkViewerPanel";
+import ConversationReviewModal from "./components/ConversationReviewModal";
 import DocumentLifecycleGrid from "./components/DocumentLifecycleGrid";
 import KnowledgeActionDrawer from "./components/KnowledgeActionDrawer";
 import { RagKnowledgeFormModal } from "./components/RagKnowledgeFormModal";
@@ -42,7 +44,9 @@ export default function RagKnowledgePage() {
     getDocumentDetail,
     getDocumentChunks,
     getChunkDetail,
+    getConversationCandidates,
     importDocument,
+    importConversationCandidate,
     suggestImportMetadata,
     updateDocument,
     archiveDocument,
@@ -80,6 +84,8 @@ export default function RagKnowledgePage() {
   );
   const [busyDocumentId, setBusyDocumentId] = useState<number | null>(null);
   const chunkPanelRef = useRef<HTMLDivElement | null>(null);
+  const [isConversationReviewOpen, setIsConversationReviewOpen] =
+    useState(false);
 
   // States cho modal chỉnh sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -310,6 +316,14 @@ export default function RagKnowledgePage() {
             </div>
 
             <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setIsConversationReviewOpen(true)}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 text-sm font-bold text-cyan-700 transition hover:border-cyan-400/55 hover:bg-cyan-500/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-200"
+              >
+                <MessageSquareText className="h-4 w-4" />
+                Duyệt cuộc trò chuyện
+              </button>
               <button
                 type="button"
                 onClick={() => void refetch()}
@@ -552,6 +566,14 @@ export default function RagKnowledgePage() {
           }}
           onSubmit={handleSubmitEdit}
           isSubmitting={editSubmitting}
+        />
+
+        <ConversationReviewModal
+          open={isConversationReviewOpen}
+          isMutating={isMutating}
+          onClose={() => setIsConversationReviewOpen(false)}
+          onLoad={getConversationCandidates}
+          onImport={importConversationCandidate}
         />
       </div>
     </AdminShell>

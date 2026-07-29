@@ -179,6 +179,49 @@ export type RagChunkListQuery = {
   isActive?: boolean;
 };
 
+export type RagConversationCandidateType =
+  | "ALL"
+  | "CUSTOMER_5_STAR"
+  | "CUSTOMER_4_STAR"
+  | "AI_8_10"
+  | "AI_6_7";
+
+export type RagConversationImportSource =
+  | "CUSTOMER_REVIEW"
+  | "AI_CONCLUSION";
+
+export type RagConversationCandidate = {
+  sessionId: number;
+  sessionCode: string;
+  type: Exclude<RagConversationCandidateType, "ALL">;
+  sourceType: RagConversationImportSource;
+  customerName: string;
+  customerPhone: string;
+  deviceType: string | null;
+  brand: string | null;
+  modelCode: string | null;
+  symptom: string | null;
+  aiSummary: string | null;
+  customerRating: number | null;
+  aiScore: number | null;
+  aiConclusion: boolean;
+  evidenceLabel: string;
+  evidenceNote: string | null;
+  messageCount: number;
+  preview: string;
+  alreadyImported: boolean;
+  importedDocumentId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  evaluatedAt: string;
+};
+
+export type ImportRagConversationPayload = {
+  sessionId: number;
+  sourceType: RagConversationImportSource;
+  note?: string;
+};
+
 export type ImportRagDocumentFormValues = {
   file: File | null;
   title: string;

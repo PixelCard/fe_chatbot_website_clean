@@ -6,7 +6,9 @@ import type { ApiError } from "@/app/services/apiClient";
 import { ragKnowledgeService } from "@/app/services/ragKnowledge.service";
 
 import type {
+  ImportRagConversationPayload,
   RagChunkListQuery,
+  RagConversationCandidateType,
   RagImportMetadataSuggestionResponse,
   RagDocumentListItem,
   RagDocumentStats,
@@ -165,6 +167,20 @@ export function useRagKnowledgeApi() {
     },
     importDocument: (formData: FormData) =>
       runMutation(() => ragKnowledgeService.importRagDocument(formData)),
+    getConversationCandidates: async (query?: {
+      type?: RagConversationCandidateType;
+      search?: string;
+    }) => {
+      try {
+        return await ragKnowledgeService.getConversationCandidates(query);
+      } catch (error) {
+        throw normalizeRagError(error);
+      }
+    },
+    importConversationCandidate: (payload: ImportRagConversationPayload) =>
+      runMutation(() =>
+        ragKnowledgeService.importConversationCandidate(payload),
+      ),
     suggestImportMetadata: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
