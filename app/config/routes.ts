@@ -20,7 +20,6 @@ export const APP_ROUTES = {
   TECHNICIAN: {
     DASHBOARD: '/technician',
     Home: '/technician',
-    CHATS: '/technician/chats',
   },
 
 

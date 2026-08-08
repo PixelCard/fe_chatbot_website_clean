@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import type { ReviewItem } from "../../types/review.types";
@@ -77,24 +76,18 @@ export function ReviewDetailPanel({ review }: { review: ReviewItem | null }) {
           <CompactLine label="Mã ca" value={getSafeText(review.sessionCode, "Chưa có mã ca")} />
           <CompactLine label="Dịch vụ" value={getSafeText(review.repairServiceName, "Dịch vụ sửa chữa")} />
           <CompactLine label="Địa chỉ" value={getSafeText(review.address, "Chưa cập nhật địa chỉ")} multiline />
-
-          <LinkButton href="/admin/repair-sessions">Xem ca</LinkButton>
         </CompactCard>
 
         <CompactCard title="Khách hàng">
           <CompactLine label="Tên khách" value={getSafeText(review.customerName)} />
           <CompactLine label="SĐT" value={getSafeText(review.customerPhone, "Chưa có số điện thoại")} />
           <CompactLine label="User ID" value={String(review.userId)} />
-
-          <LinkButton href="/admin/accounts">Xem khách</LinkButton>
         </CompactCard>
 
         <CompactCard title="Thợ được đánh giá">
           <CompactLine label="Tên thợ" value={getSafeText(review.technicianName)} />
           <CompactLine label="SĐT" value={getSafeText(review.technicianPhone, "Chưa có số điện thoại")} />
           <CompactLine label="Technician ID" value={String(review.technicianId)} />
-
-          <LinkButton href="/admin/technicians">Xem thợ</LinkButton>
         </CompactCard>
       </section>
     </div>
@@ -143,23 +136,6 @@ function CompactLine({
         {value}
       </p>
     </div>
-  );
-}
-
-function LinkButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="mt-2 inline-flex h-10 items-center justify-center rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-4 text-sm font-bold text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)]"
-    >
-      {children}
-    </Link>
   );
 }
 

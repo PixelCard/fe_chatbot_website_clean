@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -15,7 +15,6 @@ import {
 } from "recharts";
 import {
   CalendarDays,
-  ExternalLink,
   RefreshCcw,
   Search,
   TrendingUp,
@@ -40,11 +39,11 @@ type DatePreset = "7d" | "30d" | "90d" | "month" | "year";
 type ActivePreset = DatePreset | "custom";
 
 const presets: Array<{ value: DatePreset; label: string }> = [
-  { value: "7d", label: "7 ngày" },
-  { value: "30d", label: "30 ngày" },
-  { value: "90d", label: "90 ngày" },
-  { value: "month", label: "Tháng này" },
-  { value: "year", label: "Năm nay" },
+  { value: "7d", label: "7 ngÃ y" },
+  { value: "30d", label: "30 ngÃ y" },
+  { value: "90d", label: "90 ngÃ y" },
+  { value: "month", label: "ThÃ¡ng nÃ y" },
+  { value: "year", label: "NÄƒm nay" },
 ];
 
 function toInputDate(date: Date) {
@@ -118,13 +117,13 @@ function formatCompactVnd(value: number) {
   if (value >= 1_000_000_000) {
     return `${new Intl.NumberFormat("vi-VN", {
       maximumFractionDigits: 1,
-    }).format(value / 1_000_000_000)} tỷ`;
+    }).format(value / 1_000_000_000)} tá»·`;
   }
 
   if (value >= 1_000_000) {
     return `${new Intl.NumberFormat("vi-VN", {
       maximumFractionDigits: 1,
-    }).format(value / 1_000_000)} triệu`;
+    }).format(value / 1_000_000)} triá»‡u`;
   }
 
   return formatVnd(value);
@@ -135,7 +134,7 @@ function getSafeError(error: unknown) {
     return String(error.message);
   }
 
-  return "Không tải được thống kê doanh thu.";
+  return "KhÃ´ng táº£i Ä‘Æ°á»£c thá»‘ng kÃª doanh thu.";
 }
 
 const initialQuery: RevenueReportQuery = getPresetRange("30d");
@@ -229,13 +228,13 @@ export default function AdminRevenueReportsPage() {
           <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#06B6D4]/25 bg-[#06B6D4]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]">
               <TrendingUp className="h-3.5 w-3.5" />
-              Thống kê doanh thu
+              Thá»‘ng kÃª doanh thu
             </div>
             <h1 className="mt-3 text-2xl font-bold tracking-tight text-[var(--admin-strong-text)]">
-              Doanh thu theo thời gian
+              Doanh thu theo thá»i gian
             </h1>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--admin-muted-text)]">
-              Chọn khoảng thời gian để theo dõi doanh thu từ báo giá đã được chấp nhận và số ca phát sinh trong hệ thống.
+              Chá»n khoáº£ng thá»i gian Ä‘á»ƒ theo dÃµi doanh thu tá»« bÃ¡o giÃ¡ Ä‘Ã£ Ä‘Æ°á»£c cháº¥p nháº­n vÃ  sá»‘ ca phÃ¡t sinh trong há»‡ thá»‘ng.
             </p>
           </div>
 
@@ -245,7 +244,7 @@ export default function AdminRevenueReportsPage() {
             className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-4 text-sm font-bold text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]"
           >
             <RefreshCcw className="h-4 w-4" />
-            Tải lại
+            Táº£i láº¡i
           </button>
         </div>
 
@@ -253,17 +252,17 @@ export default function AdminRevenueReportsPage() {
           <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
             <div className="mb-3">
               <p className="text-sm font-black text-[var(--admin-strong-text)]">
-                Khoảng thời gian tùy chọn
+                Khoáº£ng thá»i gian tÃ¹y chá»n
               </p>
               <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-                Chọn ngày bắt đầu, ngày kết thúc và cách gom dữ liệu.
+                Chá»n ngÃ y báº¯t Ä‘áº§u, ngÃ y káº¿t thÃºc vÃ  cÃ¡ch gom dá»¯ liá»‡u.
               </p>
             </div>
 
             <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_180px_150px]">
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-[var(--admin-strong-text)]">
-                  Từ ngày
+                  Tá»« ngÃ y
                 </span>
                 <input
                   type="date"
@@ -277,7 +276,7 @@ export default function AdminRevenueReportsPage() {
 
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-[var(--admin-strong-text)]">
-                  Đến ngày
+                  Äáº¿n ngÃ y
                 </span>
                 <input
                   type="date"
@@ -291,7 +290,7 @@ export default function AdminRevenueReportsPage() {
 
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-[var(--admin-strong-text)]">
-                  Gom dữ liệu
+                  Gom dá»¯ liá»‡u
                 </span>
                 <select
                   value={draft.groupBy ?? "day"}
@@ -303,9 +302,9 @@ export default function AdminRevenueReportsPage() {
                   }
                   className={inputClassName}
                 >
-                  <option value="day">Theo ngày</option>
-                  <option value="week">Theo tuần</option>
-                  <option value="month">Theo tháng</option>
+                  <option value="day">Theo ngÃ y</option>
+                  <option value="week">Theo tuáº§n</option>
+                  <option value="month">Theo thÃ¡ng</option>
                 </select>
               </label>
 
@@ -316,7 +315,7 @@ export default function AdminRevenueReportsPage() {
                   className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-[var(--admin-cta-shadow)] transition hover:brightness-105"
                 >
                   <Search className="h-4 w-4" />
-                  Áp dụng
+                  Ãp dá»¥ng
                 </button>
               </div>
             </div>
@@ -325,10 +324,10 @@ export default function AdminRevenueReportsPage() {
 
           <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
             <p className="text-sm font-black text-[var(--admin-strong-text)]">
-              Mốc nhanh
+              Má»‘c nhanh
             </p>
             <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-              Chọn nhanh khoảng thống kê thường dùng.
+              Chá»n nhanh khoáº£ng thá»‘ng kÃª thÆ°á»ng dÃ¹ng.
             </p>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -352,10 +351,10 @@ export default function AdminRevenueReportsPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <KpiCard label="Tổng doanh thu" value={formatVnd(summary.totalRevenue)} tone="orange" />
-          <KpiCard label="Số ca phát sinh" value={formatNumber(summary.totalJobs)} tone="cyan" />
-          <KpiCard label="Báo giá chấp nhận" value={formatNumber(summary.acceptedQuotes)} tone="green" />
-          <KpiCard label="Giá trị trung bình" value={formatVnd(summary.averageOrderValue)} tone="slate" />
+          <KpiCard label="Tá»•ng doanh thu" value={formatVnd(summary.totalRevenue)} tone="orange" />
+          <KpiCard label="Sá»‘ ca phÃ¡t sinh" value={formatNumber(summary.totalJobs)} tone="cyan" />
+          <KpiCard label="BÃ¡o giÃ¡ cháº¥p nháº­n" value={formatNumber(summary.acceptedQuotes)} tone="green" />
+          <KpiCard label="GiÃ¡ trá»‹ trung bÃ¬nh" value={formatVnd(summary.averageOrderValue)} tone="slate" />
         </div>
 
         <section className="overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)]">
@@ -363,21 +362,21 @@ export default function AdminRevenueReportsPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-bold text-[var(--admin-strong-text)]">
-                Biểu đồ doanh thu
+                Biá»ƒu Ä‘á»“ doanh thu
               </h2>
               <p className="mt-1 text-sm text-[var(--admin-muted-text)]">
                 {state.data
-                  ? `${state.data.from} đến ${state.data.to}`
-                  : "Đang chờ dữ liệu thống kê."}
+                  ? `${state.data.from} Ä‘áº¿n ${state.data.to}`
+                  : "Äang chá» dá»¯ liá»‡u thá»‘ng kÃª."}
               </p>
             </div>
             <div className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--admin-muted-text)]">
               <CalendarDays className="h-4 w-4" />
               {activeGroupBy === "month"
-                ? "Theo tháng"
+                ? "Theo thÃ¡ng"
                 : activeGroupBy === "week"
-                  ? "Theo tuần"
-                  : "Theo ngày"}
+                  ? "Theo tuáº§n"
+                  : "Theo ngÃ y"}
             </div>
           </div>
           </div>
@@ -394,21 +393,21 @@ export default function AdminRevenueReportsPage() {
             <div className="space-y-4 p-4">
               <div className="grid gap-3 md:grid-cols-3">
                 <InsightCard
-                  label="Mốc doanh thu cao nhất"
+                  label="Má»‘c doanh thu cao nháº¥t"
                   value={peakRevenuePoint.label}
                   detail={formatVnd(peakRevenuePoint.revenue)}
                   tone="orange"
                 />
                 <InsightCard
-                  label="Tỷ lệ báo giá chấp nhận"
+                  label="Tá»· lá»‡ bÃ¡o giÃ¡ cháº¥p nháº­n"
                   value={`${acceptedRate}%`}
-                  detail={`${formatNumber(summary.acceptedQuotes)} báo giá / ${formatNumber(summary.totalJobs)} ca`}
+                  detail={`${formatNumber(summary.acceptedQuotes)} bÃ¡o giÃ¡ / ${formatNumber(summary.totalJobs)} ca`}
                   tone="green"
                 />
                 <InsightCard
-                  label="Doanh thu trung bình"
+                  label="Doanh thu trung bÃ¬nh"
                   value={formatCompactVnd(summary.averageOrderValue)}
-                  detail="Tính trên báo giá đã chấp nhận"
+                  detail="TÃ­nh trÃªn bÃ¡o giÃ¡ Ä‘Ã£ cháº¥p nháº­n"
                   tone="cyan"
                 />
               </div>
@@ -416,7 +415,7 @@ export default function AdminRevenueReportsPage() {
               <div className="min-w-0 overflow-hidden rounded-2xl border border-[var(--admin-soft-panel-border)] bg-[linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.98))] p-3 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(7,17,31,0.98))]">
                 <div className="mb-3 flex justify-end px-1">
                   <span className="rounded-full border border-[var(--admin-soft-panel-border)] bg-[var(--admin-control-bg)] px-3 py-1 text-xs font-bold text-[var(--admin-muted-text)]">
-                    Đỉnh: {peakRevenuePoint.label} · {formatCompactVnd(peakRevenuePoint.revenue)}
+                    Äá»‰nh: {peakRevenuePoint.label} Â· {formatCompactVnd(peakRevenuePoint.revenue)}
                   </span>
                 </div>
                 <div className="h-[430px] min-w-0">
@@ -488,7 +487,7 @@ export default function AdminRevenueReportsPage() {
                     yAxisId="jobs"
                     type="monotone"
                     dataKey="jobs"
-                    name="Số ca"
+                    name="Sá»‘ ca"
                     stroke="#06B6D4"
                     strokeWidth={3}
                     dot={{ r: 3.5, strokeWidth: 2, fill: "#06B6D4" }}
@@ -498,7 +497,7 @@ export default function AdminRevenueReportsPage() {
                     yAxisId="jobs"
                     type="monotone"
                     dataKey="acceptedQuotes"
-                    name="Báo giá chấp nhận"
+                    name="BÃ¡o giÃ¡ cháº¥p nháº­n"
                     stroke="#22C55E"
                     strokeWidth={2.6}
                     dot={{ r: 3.25, strokeWidth: 2, fill: "#22C55E" }}
@@ -509,14 +508,14 @@ export default function AdminRevenueReportsPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap justify-center gap-3">
                   <ChartLegend tone="orange" label="Doanh thu" />
-                  <ChartLegend tone="cyan" label="Số ca" />
-                  <ChartLegend tone="green" label="Báo giá chấp nhận" />
+                  <ChartLegend tone="cyan" label="Sá»‘ ca" />
+                  <ChartLegend tone="green" label="BÃ¡o giÃ¡ cháº¥p nháº­n" />
                 </div>
               </div>
             </div>
           ) : (
             <div className="m-4 rounded-2xl border border-dashed border-[var(--admin-soft-panel-border)] bg-[var(--admin-soft-panel)] p-8 text-center text-sm font-semibold text-[var(--admin-muted-text)]">
-              Không có dữ liệu doanh thu trong khoảng thời gian đã chọn.
+              KhÃ´ng cÃ³ dá»¯ liá»‡u doanh thu trong khoáº£ng thá»i gian Ä‘Ã£ chá»n.
             </div>
           )}
         </section>
@@ -551,23 +550,23 @@ function RevenueDetailTable({
       <div className="flex flex-col gap-2 border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[var(--admin-strong-text)]">
-            Chi tiết đơn hàng
+            Chi tiáº¿t Ä‘Æ¡n hÃ ng
           </h2>
           <p className="mt-1 text-sm font-semibold text-[var(--admin-muted-text)]">
             {from && to
-              ? `Các ca sửa phát sinh từ ${from} đến ${to}`
-              : "Danh sách ca sửa phát sinh trong khoảng đang chọn."}
+              ? `CÃ¡c ca sá»­a phÃ¡t sinh tá»« ${from} Ä‘áº¿n ${to}`
+              : "Danh sÃ¡ch ca sá»­a phÃ¡t sinh trong khoáº£ng Ä‘ang chá»n."}
           </p>
         </div>
 
         <span className="w-fit rounded-full border border-[var(--admin-soft-panel-border)] bg-[var(--admin-control-bg)] px-3 py-1 text-xs font-black uppercase tracking-[0.1em] text-[var(--admin-muted-text)]">
-          {formatNumber(rows.length)} dòng
+          {formatNumber(rows.length)} dÃ²ng
         </span>
       </div>
 
       {error ? (
         <div className="m-4 rounded-2xl border border-rose-300/70 bg-rose-50 p-4 text-sm font-semibold text-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-400/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-200">
-          Không thể tải chi tiết doanh thu: {error}
+          KhÃ´ng thá»ƒ táº£i chi tiáº¿t doanh thu: {error}
         </div>
       ) : loading ? (
         <div className="space-y-3 p-4">
@@ -583,13 +582,13 @@ function RevenueDetailTable({
           <table className="w-full min-w-[980px] table-auto">
             <thead>
               <tr className="border-b border-[var(--admin-card-border)] text-left text-[11px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
-                <th className="px-4 py-3">Phiên / khách hàng</th>
-                <th className="px-4 py-3">Thiết bị</th>
-                <th className="px-4 py-3">Thợ phụ trách</th>
-                <th className="px-4 py-3">Báo giá</th>
-                <th className="px-4 py-3">Ngày tạo</th>
+                <th className="px-4 py-3">PhiÃªn / khÃ¡ch hÃ ng</th>
+                <th className="px-4 py-3">Thiáº¿t bá»‹</th>
+                <th className="px-4 py-3">Thá»£ phá»¥ trÃ¡ch</th>
+                <th className="px-4 py-3">BÃ¡o giÃ¡</th>
+                <th className="px-4 py-3">NgÃ y táº¡o</th>
                 <th className="px-4 py-3 text-right">Doanh thu</th>
-                <th className="px-4 py-3 text-right">Thao tác</th>
+                <th className="px-4 py-3 text-right">Thao tÃ¡c</th>
               </tr>
             </thead>
 
@@ -604,38 +603,38 @@ function RevenueDetailTable({
                       SE-{row.sessionId}
                     </p>
                     <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-                      {row.sessionStatus} · {row.customerName || "Khách hàng"} ·{" "}
-                      {row.customerPhone || "Chưa có SĐT"}
+                      {row.sessionStatus} Â· {row.customerName || "KhÃ¡ch hÃ ng"} Â·{" "}
+                      {row.customerPhone || "ChÆ°a cÃ³ SÄT"}
                     </p>
                   </td>
 
                   <td className="max-w-[260px] px-4 py-3">
                     <p className="truncate font-bold text-[var(--admin-strong-text)]">
-                      {row.deviceType || "Chưa rõ thiết bị"}
+                      {row.deviceType || "ChÆ°a rÃµ thiáº¿t bá»‹"}
                     </p>
                     <p className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--admin-muted-text)]">
-                      {row.symptom || "Chưa có mô tả sự cố"}
+                      {row.symptom || "ChÆ°a cÃ³ mÃ´ táº£ sá»± cá»‘"}
                     </p>
                   </td>
 
                   <td className="px-4 py-3">
                     <p className="font-bold text-[var(--admin-strong-text)]">
-                      {row.technicianName || "Chưa gán thợ"}
+                      {row.technicianName || "ChÆ°a gÃ¡n thá»£"}
                     </p>
                     <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-                      {row.technicianPhone || "Chưa có SĐT"}
+                      {row.technicianPhone || "ChÆ°a cÃ³ SÄT"}
                     </p>
                   </td>
 
                   <td className="px-4 py-3">
                     <p className="font-bold text-[var(--admin-strong-text)]">
                       {row.acceptedQuoteCount > 0
-                        ? `${formatNumber(row.acceptedQuoteCount)} đã chấp nhận`
-                        : "Chưa có"}
+                        ? `${formatNumber(row.acceptedQuoteCount)} Ä‘Ã£ cháº¥p nháº­n`
+                        : "ChÆ°a cÃ³"}
                     </p>
                     <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
                       {row.latestQuoteTitle ||
-                        (row.latestQuoteId ? `#${row.latestQuoteId}` : "Chưa phát sinh doanh thu")}
+                        (row.latestQuoteId ? `#${row.latestQuoteId}` : "ChÆ°a phÃ¡t sinh doanh thu")}
                     </p>
                   </td>
 
@@ -649,10 +648,10 @@ function RevenueDetailTable({
 
                   <td className="px-4 py-3 text-right">
                     <Link
-                      href={`/admin/chats?sessionId=${row.sessionId}`}
+                      href="/admin/chats"
                       className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 text-xs font-black text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]"
                     >
-                      Mở phiên
+                      Má»Ÿ phiÃªn
                       <ExternalLink className="h-3.5 w-3.5" />
                     </Link>
                   </td>
@@ -663,7 +662,7 @@ function RevenueDetailTable({
         </div>
       ) : (
         <div className="m-4 rounded-2xl border border-dashed border-[var(--admin-soft-panel-border)] bg-[var(--admin-soft-panel)] p-8 text-center text-sm font-semibold text-[var(--admin-muted-text)]">
-          Chưa có đơn hàng trong khoảng thời gian này.
+          ChÆ°a cÃ³ Ä‘Æ¡n hÃ ng trong khoáº£ng thá»i gian nÃ y.
         </div>
       )}
     </section>
@@ -810,3 +809,9 @@ function RevenueTooltip({
 
 const inputClassName =
   "h-10 w-full rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 text-sm font-semibold text-[var(--admin-theme-text)] outline-none transition hover:border-[var(--admin-control-hover-border)] focus:border-[#06B6D4]/70 focus:ring-2 focus:ring-[var(--admin-focus-ring)]";
+
+
+
+
+
+

@@ -1,94 +1,37 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { BookingModal } from "@/app/components/chatbot/BookingModal";
 import { ChatComposer } from "@/app/components/chatbot/ChatComposer";
 import { ChatHistorySidebar } from "@/app/components/chatbot/ChatHistorySidebar";
+import {
+  cleanDisplayValue,
+  getStoredProfileName,
+  INITIAL_ASSISTANT_MESSAGE,
+  isDeviceSwitchResult,
+  mapMessageToUi,
+} from "@/app/components/chatbot/chatbotPage.helpers";
 import { ChatMessageList } from "@/app/components/chatbot/ChatMessageList";
 import { ChatTopbar } from "@/app/components/chatbot/ChatTopbar";
 import { DiagnosticInfoPanel } from "@/app/components/chatbot/DiagnosticInfoPanel";
+import { useChatMediaPicker } from "@/app/hooks/chatbot/useChatMediaPicker";
 import {
   useChatbotApi,
   type ChatUiMessage,
-  type DeviceSwitchResult,
-  type UploadSessionMediaSuccess,
 } from "@/app/hooks/useChatbotApi";
 import { useChatHistoryApi } from "@/app/hooks/common/useChatHistoryApi";
 import { useCustomerBooking } from "@/app/hooks/useCustomerBooking";
 import type { ApiError } from "@/app/services/apiClient";
-import {
-  chatsService,
-  type ChatHistoryItem,
-  type ChatSessionItem,
-  type MessageItem,
-} from "@/app/services/common";
-
-const INITIAL_ASSISTANT_MESSAGE: ChatUiMessage = {
-  id: "assistant-welcome",
-  type: "text",
-  role: "assistant",
-  content:
-    "Chào bạn. Mô tả thiết bị và tình trạng lỗi, mình sẽ hỗ trợ chẩn đoán sơ bộ trước khi đặt thợ.",
-};
-
-function isDeviceSwitchResult(
-  value: UploadSessionMediaSuccess | DeviceSwitchResult,
-): value is DeviceSwitchResult {
-  return (value as DeviceSwitchResult).deviceSwitchDetected === true;
-}
-
-function revokeObjectUrl(value: string | null) {
-  if (value?.startsWith("blob:")) {
-    URL.revokeObjectURL(value);
-  }
-}
-
-function mapMessageToUi(
-  message: MessageItem,
-  session: Pick<ChatSessionItem, "userId">,
-): ChatUiMessage {
-  const role =
-    message.senderId && message.senderId === session.userId
-      ? "user"
-      : "assistant";
-
-  if (message.type === "IMAGE") {
-    return {
-      id: `message-${message.id}`,
-      type: "image",
-      role,
-      content:
-        typeof message.metadata?.fileName === "string" &&
-        message.metadata.fileName.trim()
-          ? message.metadata.fileName
-          : message.content,
-      mediaUrl: message.content,
-    };
-  }
-
-  if (message.type === "VIDEO") {
-    return {
-      id: `message-${message.id}`,
-      type: "video",
-      role,
-      content:
-        typeof message.metadata?.fileName === "string" &&
-        message.metadata.fileName.trim()
-          ? message.metadata.fileName
-          : message.content,
-      mediaUrl: message.content,
-    };
-  }
-
-  return {
-    id: `message-${message.id}`,
-    type: "text",
-    role,
-    content: message.content,
-  };
-}
+import type { ChatHistoryItem } from "@/app/services/common";
+import { chatbotWebSessionService } from "@/app/services/chatbotWebSession.service";
 
 export default function ChatInterface() {
   const router = useRouter();
@@ -98,37 +41,21 @@ export default function ChatInterface() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const [draft, setDraft] = useState("");
+
   const [messages, setMessages] = useState<ChatUiMessage[]>([
     INITIAL_ASSISTANT_MESSAGE,
   ]);
-  const [historyItems, setHistoryItems] = useState<ChatHistoryItem[]>([]);
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedFilePreview, setSelectedFilePreview] = useState<string | null>(
-    null,
-  );
-  const [mediaDeviceType, setMediaDeviceType] = useState("");
+  const [historyItems, setHistoryItems] = useState<ChatHistoryItem[]>([]);
   const [isSelectingSession, setIsSelectingSession] = useState(false);
+
   const [historyLoadError, setHistoryLoadError] = useState<ApiError | null>(
     null,
   );
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const [profileName] = useState(() => {
-    if (typeof window === "undefined") return "Khách hàng";
-
-    const savedProfile = window.localStorage.getItem("user_profile");
-    if (!savedProfile) return "Khách hàng";
-
-    try {
-      const parsed = JSON.parse(savedProfile) as { name?: string };
-      return parsed.name || "Khách hàng";
-    } catch {
-      return "Khách hàng";
-    }
-  });
+  const [profileName] = useState(getStoredProfileName);
 
   const {
     sessionId,
@@ -165,10 +92,30 @@ export default function ChatInterface() {
     createInitialValues(),
   );
 
+  const {
+    selectedFile,
+    selectedFilePreview,
+    mediaDeviceType,
+    setMediaDeviceType,
+    fileInputRef,
+    handleFileSelect,
+    clearSelectedFile,
+    resetMediaPicker,
+  } = useChatMediaPicker({
+    getDefaultDeviceType: () =>
+      cleanDisplayValue(bookingValues.deviceType) ||
+      cleanDisplayValue(conversationState?.device) ||
+      "",
+    onBeforeSelect: () => {
+      clearError();
+      setHistoryLoadError(null);
+    },
+  });
+
   const currentDeviceLabel = useMemo(
     () =>
-      bookingValues.deviceType?.trim() ||
-      conversationState?.device?.trim() ||
+      cleanDisplayValue(bookingValues.deviceType) ||
+      cleanDisplayValue(conversationState?.device) ||
       "Chưa xác định",
     [bookingValues.deviceType, conversationState?.device],
   );
@@ -182,21 +129,29 @@ export default function ChatInterface() {
   );
 
   const mediaDeviceInputValue =
-    mediaDeviceType ||
-    bookingValues.deviceType?.trim() ||
-    conversationState?.device?.trim() ||
+    cleanDisplayValue(mediaDeviceType) ||
+    cleanDisplayValue(bookingValues.deviceType) ||
+    cleanDisplayValue(conversationState?.device) ||
     "";
 
-  const showDangerBookingCta = conversationState?.risk === "RED";
+  const showDangerBookingCta =
+    conversationState?.canBook === true ||
+    conversationState?.phase === "READY_TO_BOOK";
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isSubmitting, isUploadingMedia]);
+    const scrollContainer = messagesEndRef.current?.closest(
+      '[data-chat-scroll-container="true"]',
+    );
 
-  useEffect(
-    () => () => revokeObjectUrl(selectedFilePreview),
-    [selectedFilePreview],
-  );
+    if (!(scrollContainer instanceof HTMLDivElement)) {
+      return;
+    }
+
+    scrollContainer.scrollTo({
+      top: scrollContainer.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, isSubmitting, isUploadingMedia]);
 
   useEffect(() => {
     let isMounted = true;
@@ -204,7 +159,12 @@ export default function ChatInterface() {
     void getHistory()
       .then((items) => {
         if (isMounted) {
-          setHistoryItems(items);
+          setHistoryItems(
+            items.map((item) => ({
+              ...item,
+              deviceType: cleanDisplayValue(item.deviceType),
+            })),
+          );
         }
       })
       .catch(() => {
@@ -218,138 +178,114 @@ export default function ChatInterface() {
     };
   }, [getHistory]);
 
-  const handleNewChat = () => {
+  const handleNewChat = useCallback(() => {
     clearError();
     clearBookingError();
     setHistoryLoadError(null);
+
     resetSession();
 
     setDraft("");
     setMessages([INITIAL_ASSISTANT_MESSAGE]);
     setBookingValues(createInitialValues());
 
-    revokeObjectUrl(selectedFilePreview);
-    setSelectedFile(null);
-    setSelectedFilePreview(null);
-    setMediaDeviceType("");
+    resetMediaPicker();
 
     setIsBookingModalOpen(false);
     setIsSidebarOpen(false);
     setIsDiagnosticOpen(false);
+  }, [
+    clearBookingError,
+    clearError,
+    createInitialValues,
+    resetMediaPicker,
+    resetSession,
+  ]);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const refreshHistory = async () => {
+  const refreshHistory = useCallback(async () => {
     try {
       const items = await getHistory();
-      setHistoryItems(items);
+
+      setHistoryItems(
+        items.map((item) => ({
+          ...item,
+          deviceType: cleanDisplayValue(item.deviceType),
+        })),
+      );
     } catch {
       // Hook handles error state separately; sidebar can keep old data.
     }
-  };
+  }, [getHistory]);
 
-  const handleSelectHistorySession = async (item: ChatHistoryItem) => {
-    if (!Number.isInteger(item.id) || item.id <= 0 || item.id === sessionId) {
-      return;
-    }
-
-    clearError();
-    clearBookingError();
-    setHistoryLoadError(null);
-    setIsSelectingSession(true);
-
-    try {
-      const [session, sessionMessages] = await Promise.all([
-        chatsService.getSessionById(item.id),
-        chatsService.getMessages(item.id),
-      ]);
-
-      const nextMessages = sessionMessages.length
-        ? sessionMessages.map((message) => mapMessageToUi(message, session))
-        : [INITIAL_ASSISTANT_MESSAGE];
-
-      hydrateSession({
-        id: session.id,
-        deviceType: session.deviceType,
-        symptom: session.symptom,
-        status: session.status,
-        latestAiLogId: session.latestAiLogId,
-        latestAiFeedback: session.latestAiFeedback,
-      });
-
-      setMessages(nextMessages);
-      setDraft("");
-
-      setBookingValues((prev) => ({
-        ...prev,
-        deviceType: session.deviceType?.trim() || "",
-        symptom: session.symptom?.trim() || "",
-      }));
-
-      setIsSidebarOpen(false);
-      setIsDiagnosticOpen(false);
-      setIsBookingModalOpen(false);
-
-      revokeObjectUrl(selectedFilePreview);
-      setSelectedFile(null);
-      setSelectedFilePreview(null);
-      setMediaDeviceType("");
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+  const handleSelectHistorySession = useCallback(
+    async (item: ChatHistoryItem) => {
+      if (!Number.isInteger(item.id) || item.id <= 0 || item.id === sessionId) {
+        return;
       }
-    } catch (error) {
-      const apiError = error as ApiError;
 
-      setHistoryLoadError({
-        message:
-          apiError?.message ||
-          "Không thể tải phiên chat cũ. Vui lòng thử lại.",
-        status: apiError?.status,
-        details: apiError?.details,
-      });
-    } finally {
-      setIsSelectingSession(false);
-    }
-  };
+      clearError();
+      clearBookingError();
+      setHistoryLoadError(null);
+      setIsSelectingSession(true);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
-    if (!file) return;
+      try {
+        const [session, sessionMessages] = await Promise.all([
+          chatbotWebSessionService.getSessionById(item.id),
+          chatbotWebSessionService.getMessages(item.id),
+        ]);
 
-    clearError();
-    setHistoryLoadError(null);
-    revokeObjectUrl(selectedFilePreview);
+        const nextMessages = sessionMessages.length
+          ? sessionMessages.map((message) => mapMessageToUi(message, session))
+          : [INITIAL_ASSISTANT_MESSAGE];
 
-    setSelectedFile(file);
+        hydrateSession({
+          id: session.id,
+          deviceType: session.deviceType,
+          symptom: session.symptom,
+          status: session.status,
+          latestAiLogId: session.latestAiLogId,
+          latestAiFeedback: session.latestAiFeedback,
+          aiStateSnapshot: session.aiStateSnapshot,
+        });
 
-    setSelectedFilePreview(
-      file.type.startsWith("image/") || file.type.startsWith("video/")
-        ? URL.createObjectURL(file)
-        : null,
-    );
+        setMessages(nextMessages);
+        setDraft("");
 
-    setMediaDeviceType(
-      (prev) =>
-        prev || bookingValues.deviceType || conversationState?.device || "",
-    );
-  };
+        setBookingValues((prev) => ({
+          ...prev,
+          deviceType: cleanDisplayValue(session.deviceType),
+          symptom: cleanDisplayValue(session.symptom),
+        }));
 
-  const clearSelectedFile = () => {
-    revokeObjectUrl(selectedFilePreview);
+        setIsSidebarOpen(false);
+        setIsDiagnosticOpen(false);
+        setIsBookingModalOpen(false);
 
-    setSelectedFile(null);
-    setSelectedFilePreview(null);
+        resetMediaPicker();
+      } catch (requestError) {
+        const apiError = requestError as ApiError;
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+        setHistoryLoadError({
+          message:
+            apiError?.message ||
+            "Không thể tải phiên chat cũ. Vui lòng thử lại.",
+          status: apiError?.status,
+          details: apiError?.details,
+        });
+      } finally {
+        setIsSelectingSession(false);
+      }
+    },
+    [
+      clearBookingError,
+      clearError,
+      hydrateSession,
+      resetMediaPicker,
+      sessionId,
+    ],
+  );
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     const trimmed = draft.trim();
 
     if (
@@ -395,6 +331,7 @@ export default function ChatInterface() {
         };
 
         setMessages((prev) => [...prev, mediaMessage]);
+
         clearSelectedFile();
       } catch {
         // Hook already handles error state.
@@ -429,8 +366,9 @@ export default function ChatInterface() {
 
       setBookingValues((prev) => ({
         ...prev,
-        deviceType: response.state?.device?.trim() || prev.deviceType,
-        symptom: response.state?.symptom?.trim() || prev.symptom,
+        deviceType:
+          cleanDisplayValue(response.state?.device) || prev.deviceType,
+        symptom: cleanDisplayValue(response.state?.symptom) || prev.symptom,
       }));
 
       await refreshHistory();
@@ -441,36 +379,71 @@ export default function ChatInterface() {
 
       setDraft(trimmed);
     }
-  };
+  }, [
+    bookingValues.symptom,
+    chatClosed,
+    clearError,
+    clearSelectedFile,
+    draft,
+    isSubmitting,
+    isUploadingMedia,
+    mediaDeviceType,
+    messages,
+    refreshHistory,
+    selectedFile,
+    sendMessage,
+    uploadSessionMedia,
+  ]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await handleSend();
-  };
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      await handleSend();
+    },
+    [handleSend],
+  );
 
-  const handleBookingChange = (
-    field: keyof typeof bookingValues,
-    value: string,
-  ) => {
-    if (bookingError) clearBookingError();
+  const handleBookingChange = useCallback(
+    (field: keyof typeof bookingValues, value: string) => {
+      if (bookingError) {
+        clearBookingError();
+      }
 
-    setBookingValues((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+      setBookingValues((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [bookingError, clearBookingError],
+  );
 
-  const handleOpenBookingModal = () => {
-    if (chatClosed) return;
+  const handleOpenBookingModal = useCallback(() => {
+    /*
+     * Guard phía FE:
+     * Không mở modal nếu phiên đã đóng hoặc risk không phải RED.
+     */
+    if (
+      chatClosed ||
+      (conversationState?.canBook !== true &&
+        conversationState?.phase !== "READY_TO_BOOK")
+    ) {
+      return;
+    }
 
     clearBookingError();
     setIsBookingModalOpen(true);
-  };
+  }, [
+    chatClosed,
+    clearBookingError,
+    conversationState?.canBook,
+    conversationState?.phase,
+  ]);
 
   return (
     <div className="client-theme client-page-shell relative flex h-[100dvh] min-h-0 w-full overflow-hidden font-sans text-[var(--client-text-primary)] transition-colors md:h-[calc(100vh-72px)]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-28 top-[-5rem] h-[260px] w-[260px] rounded-full bg-orange-300/10 blur-[90px] dark:bg-blue-600/14 sm:h-[340px] sm:w-[340px] sm:blur-[110px] lg:-left-32 lg:top-[-7rem] lg:h-[380px] lg:w-[380px] lg:blur-[120px]" />
+
         <div className="absolute bottom-[-7rem] right-[-5rem] h-[280px] w-[280px] rounded-full bg-amber-300/8 blur-[95px] dark:bg-cyan-500/8 sm:h-[340px] sm:w-[340px] sm:blur-[110px] lg:bottom-[-10rem] lg:right-[-6rem] lg:h-[400px] lg:w-[400px] lg:blur-[130px]" />
       </div>
 
@@ -483,17 +456,26 @@ export default function ChatInterface() {
         onClose={() => setIsBookingModalOpen(false)}
         onChange={handleBookingChange}
         onSubmit={async () => {
-          const bookedSession = await submitBooking(bookingValues, sessionId);
+          const bookedSession = await submitBooking(
+            bookingValues,
+            sessionId,
+          );
 
           markBookingConfirmed({
             id: bookedSession.id,
-            deviceType: bookedSession.deviceType ?? bookingValues.deviceType,
+            deviceType:
+              bookedSession.deviceType ?? bookingValues.deviceType,
             symptom: bookedSession.symptom ?? bookingValues.symptom,
             status: bookedSession.status,
           });
 
+          /*
+           * Không reset messages.
+           * Transcript hiện tại được giữ nguyên sau booking.
+           */
           setDraft("");
           clearSelectedFile();
+
           setIsBookingModalOpen(false);
           setIsDiagnosticOpen(false);
 
@@ -562,6 +544,7 @@ export default function ChatInterface() {
         symptom={currentSymptom}
         risk={conversationState?.risk}
         sessionId={sessionId}
+        chatClosed={chatClosed}
         showDangerBookingCta={showDangerBookingCta}
         onClose={() => setIsDiagnosticOpen(false)}
         onOpenBooking={handleOpenBookingModal}

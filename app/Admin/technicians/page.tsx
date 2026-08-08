@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import AdminShell from "../dashboard/components/Action/AdminShell";
 import TechnicianKpiGrid from "./components/card/TechnicianKpiGrid";
 import TechnicianFilters from "./components/filter/TechnicianFilters";
-import TechnicianHeader from "./components/TechnicianHeader";
 import TechnicianPagination from "./components/pagination/TechnicianPagination";
 import TechnicianTable from "./components/table/TechnicianTable";
 import { useTechnicians } from "./hooks";
@@ -140,8 +139,6 @@ export default function TechniciansPage() {
   return (
     <AdminShell>
       <div className="space-y-5">
-        <TechnicianHeader />
-
         {error ? (
           <section className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 sm:p-6">
             <p className="text-sm font-medium text-red-200">

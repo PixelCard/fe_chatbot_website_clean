@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useAsyncAction } from "@/app/hooks/common/useAsyncAction";
-import { aiService, chatsService, type ChatSessionItem } from "@/app/services/common";
 import type { TechnicianBookingFormValues } from "@/app/components/client/booking/booking.types";
+import { useAsyncAction } from "@/app/hooks/common/useAsyncAction";
+import { chatbotWebSessionService } from "@/app/services/chatbotWebSession.service";
+import type { ChatSessionItem } from "@/app/services/common";
 
 type UseCustomerBookingOptions = {
   initialSessionId?: number | null;
@@ -42,18 +43,14 @@ function readLocalUserProfile(): CustomerProfileDefaults {
   }
 }
 
-function buildBootstrapMessage(values: TechnicianBookingFormValues) {
-  const device = values.deviceType.trim();
-  const symptom = values.symptom.trim();
-
-  return `Tôi cần đặt thợ sửa chữa. Thiết bị: ${device}. Tình trạng lỗi: ${symptom}.`;
-}
-
 export function useCustomerBooking(options?: UseCustomerBookingOptions) {
   const defaults = useMemo(() => readLocalUserProfile(), []);
-  const [sessionId, setSessionId] = useState<number | null>(options?.initialSessionId ?? null);
+  const [sessionId, setSessionId] = useState<number | null>(
+    options?.initialSessionId ?? null,
+  );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [lastBookedSession, setLastBookedSession] = useState<ChatSessionItem | null>(null);
+  const [lastBookedSession, setLastBookedSession] =
+    useState<ChatSessionItem | null>(null);
   const { run, clearError, ...state } = useAsyncAction();
 
   const createInitialValues = useCallback(
@@ -68,7 +65,10 @@ export function useCustomerBooking(options?: UseCustomerBookingOptions) {
   );
 
   const submitBooking = useCallback(
-    async (values: TechnicianBookingFormValues, currentSessionId?: number | null) =>
+    async (
+      values: TechnicianBookingFormValues,
+      currentSessionId?: number | null,
+    ) =>
       run(async () => {
         setSuccessMessage(null);
 
@@ -76,31 +76,42 @@ export function useCustomerBooking(options?: UseCustomerBookingOptions) {
         let resolvedSessionId = normalizedSessionId ?? null;
 
         if (!values.deviceType.trim() || !values.symptom.trim()) {
-          throw { message: "Cần nhập loại thiết bị và mô tả lỗi trước khi đặt thợ." };
+          throw {
+            message: "Cần nhập loại thiết bị và mô tả lỗi trước khi đặt thợ.",
+          };
         }
 
         if (!resolvedSessionId) {
-          const aiResponse = await aiService.chat({
-            message: buildBootstrapMessage(values),
-            history: [],
+          const createdSession = await chatbotWebSessionService.createSession({
+            deviceType: values.deviceType.trim(),
+            symptom: values.symptom.trim(),
+            firstMessage: values.symptom.trim(),
           });
 
-          resolvedSessionId = aiResponse.sessionId ?? null;
+          resolvedSessionId = createdSession.id ?? null;
         }
 
         if (!resolvedSessionId) {
-          throw { message: "Không thể tạo phiên sửa chữa để đặt thợ. Vui lòng thử lại." };
+          throw {
+            message:
+              "Không thể tạo phiên sửa chữa để đặt thợ. Vui lòng thử lại.",
+          };
         }
 
-        const result = await chatsService.bookTechnician(resolvedSessionId, {
-          contactName: values.contactName?.trim(),
-          contactPhone: values.contactPhone?.trim(),
-          address: values.address?.trim(),
-        });
+        const result = await chatbotWebSessionService.bookTechnician(
+          resolvedSessionId,
+          {
+            contactName: values.contactName?.trim(),
+            contactPhone: values.contactPhone?.trim(),
+            address: values.address?.trim(),
+          },
+        );
 
         setSessionId(result.data.id);
         setLastBookedSession(result.data);
-        setSuccessMessage("Yêu cầu đã được tiếp nhận và đang tìm kỹ thuật viên phù hợp.");
+        setSuccessMessage(
+          "Yêu cầu đã được tiếp nhận và đang tìm kỹ thuật viên phù hợp.",
+        );
 
         return result.data;
       }),

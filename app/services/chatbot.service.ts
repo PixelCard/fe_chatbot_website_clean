@@ -49,6 +49,19 @@ export type ChatbotStatePayload = {
     safetySigns?: string | null;
     outdoorUnitStatus?: string | null;
   };
+  canBook?: boolean;
+  chatClosed?: boolean;
+  symptomLabel?: string | null;
+  symptomDetail?: string | null;
+  aiSummaryText?: string | null;
+  finalAiSummary?: {
+    headline?: string | null;
+    analysis?: string | null;
+    recommendation?: string | null;
+    symptomLabel?: string | null;
+    symptomDetail?: string | null;
+    risk?: "GREEN" | "YELLOW" | "RED" | "UNKNOWN" | null;
+  } | null;
 };
 
 export type ChatbotResponse = {
@@ -59,12 +72,38 @@ export type ChatbotResponse = {
   is_booking_triggered?: boolean;
 };
 
+export type ChatbotFeedbackPayload = {
+  feedback: "LIKE" | "DISLIKE";
+};
+
+export type ChatbotFeedbackResponse = {
+  success?: boolean;
+  feedback?: "LIKE" | "DISLIKE";
+  message?: string;
+};
+
 export const chatbotService = {
   sendMessage(payload: ChatbotMessagePayload, accessToken: string) {
-    return apiClient.post<ChatbotResponse>("/api/ai/chat", payload, {
+    return apiClient.post<ChatbotResponse>("/api/ai-web/chat", payload, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+  },
+
+  saveFeedback(
+    logId: number,
+    payload: ChatbotFeedbackPayload,
+    accessToken: string,
+  ) {
+    return apiClient.patch<ChatbotFeedbackResponse>(
+      `/api/ai-web/messages/${logId}/feedback`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
   },
 };
