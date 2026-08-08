@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
@@ -7,7 +7,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Eye,
   MapPin,
   Phone,
   UserPlus,
@@ -76,7 +75,7 @@ function getJobDetail(row: LiveJobExtra) {
     row.description ||
     row.issueDetail ||
     row.detail ||
-    `Khách hàng báo sự cố: ${row.issue}. Cần kiểm tra thiết bị, xác nhận tình trạng thực tế và phân công thợ phù hợp.`
+    `KhÃ¡ch hÃ ng bÃ¡o sá»± cá»‘: ${row.issue}. Cáº§n kiá»ƒm tra thiáº¿t bá»‹, xÃ¡c nháº­n tÃ¬nh tráº¡ng thá»±c táº¿ vÃ  phÃ¢n cÃ´ng thá»£ phÃ¹ há»£p.`
   );
 }
 
@@ -85,12 +84,12 @@ function getTechnicianName(row: LiveJobExtra) {
     row.technicianName ||
     row.technician ||
     row.assignedTechnician ||
-    "Chưa có thợ nhận"
+    "ChÆ°a cÃ³ thá»£ nháº­n"
   );
 }
 
 function getTechnicianPhone(row: LiveJobExtra) {
-  return row.technicianPhone || row.phone || "Chưa có số điện thoại";
+  return row.technicianPhone || row.phone || "ChÆ°a cÃ³ sá»‘ Ä‘iá»‡n thoáº¡i";
 }
 
 export default function LiveJobsTable({
@@ -141,7 +140,7 @@ export default function LiveJobsTable({
   if (error) {
     return (
       <div className="rounded-3xl border border-rose-400/30 bg-rose-400/10 p-4 text-sm text-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-200">
-        Không tải được đơn ưu tiên: {error}
+        KhÃ´ng táº£i Ä‘Æ°á»£c Ä‘Æ¡n Æ°u tiÃªn: {error}
       </div>
     );
   }
@@ -166,11 +165,11 @@ export default function LiveJobsTable({
 
             <div className="min-w-0">
               <h3 className="truncate text-lg font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white sm:text-xl">
-                Đơn cần xử lý ngay
+                ÄÆ¡n cáº§n xá»­ lÃ½ ngay
               </h3>
 
               <p className="mt-0.5 text-sm text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#9CA3AF]">
-                Bấm vào từng dòng để xem chi tiết và thao tác xử lý.
+                Báº¥m vÃ o tá»«ng dÃ²ng Ä‘á»ƒ xem chi tiáº¿t vÃ  thao tÃ¡c xá»­ lÃ½.
               </p>
             </div>
           </div>
@@ -183,16 +182,16 @@ export default function LiveJobsTable({
               }
               className="h-10 rounded-xl border border-[#D0D5DD] bg-[#F8FAFC] px-3 text-sm font-medium text-[#344054] outline-none transition focus:border-[#06B6D4]/60 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#D1D5DB]"
             >
-              <option value={5}>5 dòng</option>
-              <option value={10}>10 dòng</option>
-              <option value={15}>15 dòng</option>
+              <option value={5}>5 dÃ²ng</option>
+              <option value={10}>10 dÃ²ng</option>
+              <option value={15}>15 dÃ²ng</option>
             </select>
 
             <Link
               href="/admin/repair-sessions"
               className="inline-flex h-10 items-center rounded-xl border border-cyan-400/25 bg-cyan-400/8 px-4 text-sm font-semibold text-cyan-300 transition hover:border-cyan-400/40 hover:bg-cyan-400/12 hover:text-white"
             >
-              Xem tất cả
+              Xem táº¥t cáº£
             </Link>
           </div>
         </div>
@@ -209,10 +208,10 @@ export default function LiveJobsTable({
 
               <thead>
                 <tr className="border-b border-[#E4E7EC] bg-[#F2F4F7] text-xs uppercase tracking-[0.12em] text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#07111F]/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
-                  <th className="px-4 py-3 font-semibold">Mã đơn</th>
-                  <th className="px-4 py-3 font-semibold">Tên thiết bị</th>
-                  <th className="px-4 py-3 font-semibold">Sự cố</th>
-                  <th className="px-4 py-3 font-semibold">Trạng thái</th>
+                  <th className="px-4 py-3 font-semibold">MÃ£ Ä‘Æ¡n</th>
+                  <th className="px-4 py-3 font-semibold">TÃªn thiáº¿t bá»‹</th>
+                  <th className="px-4 py-3 font-semibold">Sá»± cá»‘</th>
+                  <th className="px-4 py-3 font-semibold">Tráº¡ng thÃ¡i</th>
                 </tr>
               </thead>
 
@@ -308,7 +307,7 @@ export default function LiveJobsTable({
                                   <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E]/80">
                                     <div className="flex items-center gap-2 text-sm font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
                                       <Wrench className="h-4 w-4 text-cyan-300" />
-                                      Mô tả chi tiết sự cố
+                                      MÃ´ táº£ chi tiáº¿t sá»± cá»‘
                                     </div>
 
                                     <p className="mt-3 text-sm leading-6 text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#9CA3AF]">
@@ -318,7 +317,7 @@ export default function LiveJobsTable({
                                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                                       <div className="rounded-xl bg-[#F2F4F7] px-3 py-2 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728]">
                                         <p className="text-xs text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
-                                          Mức độ
+                                          Má»©c Ä‘á»™
                                         </p>
                                         <p className="mt-1 text-sm font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
                                           {row.severity}
@@ -327,10 +326,10 @@ export default function LiveJobsTable({
 
                                       <div className="rounded-xl bg-[#F2F4F7] px-3 py-2 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728]">
                                         <p className="text-xs text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
-                                          Khách hàng
+                                          KhÃ¡ch hÃ ng
                                         </p>
                                         <p className="mt-1 truncate text-sm font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
-                                          {row.customerName || "Chưa có dữ liệu"}
+                                          {row.customerName || "ChÆ°a cÃ³ dá»¯ liá»‡u"}
                                         </p>
                                       </div>
                                     </div>
@@ -339,13 +338,13 @@ export default function LiveJobsTable({
                                   <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E]/80">
                                     <div className="flex items-center gap-2 text-sm font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
                                       <UserPlus className="h-4 w-4 text-cyan-300" />
-                                      Thợ nhận đơn
+                                      Thá»£ nháº­n Ä‘Æ¡n
                                     </div>
 
                                     <div className="mt-3 space-y-3">
                                       <div className="rounded-xl bg-[#F2F4F7] px-3 py-2 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728]">
                                         <p className="text-xs text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
-                                          Tên thợ
+                                          TÃªn thá»£
                                         </p>
                                         <p className="mt-1 truncate text-sm font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
                                           {technicianName}
@@ -355,7 +354,7 @@ export default function LiveJobsTable({
                                       <div className="rounded-xl bg-[#F2F4F7] px-3 py-2 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728]">
                                         <p className="flex items-center gap-1 text-xs text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
                                           <Phone className="h-3.5 w-3.5" />
-                                          Số điện thoại
+                                          Sá»‘ Ä‘iá»‡n thoáº¡i
                                         </p>
                                         <p className="mt-1 truncate text-sm font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
                                           {technicianPhone}
@@ -365,24 +364,17 @@ export default function LiveJobsTable({
                                       <div className="rounded-xl bg-[#F2F4F7] px-3 py-2 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728]">
                                         <p className="flex items-center gap-1 text-xs text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
                                           <MapPin className="h-3.5 w-3.5" />
-                                          Địa chỉ
+                                          Äá»‹a chá»‰
                                         </p>
                                         <p className="mt-1 line-clamp-2 text-sm font-semibold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
-                                          {row.address || "Chưa có dữ liệu"}
+                                          {row.address || "ChÆ°a cÃ³ dá»¯ liá»‡u"}
                                         </p>
                                       </div>
                                     </div>
                                   </div>
 
                                   <div className="flex flex-col gap-2 xl:w-[150px]">
-                                    <Link
-                                      href={`/admin/chats?sessionId=${jobId}`}
-                                      onClick={(event) => event.stopPropagation()}
-                                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#D0D5DD] bg-white px-3 text-sm font-medium text-[#344054] transition hover:border-cyan-400/35 hover:text-cyan-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#07111F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#D1D5DB] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:hover:text-cyan-300"
-                                    >
-                                      <Eye className="h-4 w-4" />
-                                      Chi tiết
-                                    </Link>
+
 
                                     <Link
                                       href={`/admin/dispatch?sessionId=${jobId}`}
@@ -390,16 +382,10 @@ export default function LiveJobsTable({
                                       className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-cyan-400/25 bg-cyan-400/8 px-3 text-sm font-semibold text-cyan-300 transition hover:border-cyan-400/40 hover:bg-cyan-400/12 hover:text-white"
                                     >
                                       <UserPlus className="h-4 w-4" />
-                                      Gán thợ
+                                      GÃ¡n thá»£
                                     </Link>
 
-                                    <Link
-                                      href={`/admin/chats?sessionId=${jobId}`}
-                                      onClick={(event) => event.stopPropagation()}
-                                      className="inline-flex h-10 items-center justify-center rounded-xl border border-amber-400/25 bg-amber-400/8 px-3 text-sm font-semibold text-amber-300 transition hover:border-amber-400/40 hover:bg-amber-400/12 hover:text-white"
-                                    >
-                                      Theo dõi
-                                    </Link>
+
                                   </div>
                                 </div>
                               </div>
@@ -424,7 +410,7 @@ export default function LiveJobsTable({
               className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#D0D5DD] bg-white px-3 text-xs font-medium text-[#667085] transition hover:border-cyan-400/35 hover:text-cyan-600 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-[#D0D5DD] disabled:hover:text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#9CA3AF] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:hover:text-white [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:disabled:hover:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:disabled:hover:text-[#9CA3AF]"
             >
               <ChevronLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Trước</span>
+              <span className="hidden sm:inline">TrÆ°á»›c</span>
             </button>
 
             {visiblePages.map((pageNumber, index) => {
@@ -468,4 +454,9 @@ export default function LiveJobsTable({
     </article>
   );
 }
+
+
+
+
+
 

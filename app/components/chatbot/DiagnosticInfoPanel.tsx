@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { LucideIcon } from "lucide-react";
 import {
@@ -20,6 +20,7 @@ type DiagnosticInfoPanelProps = {
   symptom: string;
   risk?: string | null;
   sessionId: number | null;
+  chatClosed: boolean;
   showDangerBookingCta: boolean;
   onClose: () => void;
   onOpenBooking: () => void;
@@ -58,8 +59,164 @@ function hasDetailedSymptom(symptom: string) {
   return symptom.trim().length >= 10;
 }
 
-function inferRiskFromSymptom(symptom: string, risk?: string | null): RiskLevel {
-  if (risk === "RED" || risk === "YELLOW" || risk === "GREEN") return risk;
+function getCompactSymptom(symptom: string) {
+  const value = symptom.trim().replace(/\s+/g, " ");
+
+  if (!value) {
+    return "Chưa có mô tả lỗi. Hãy nhập nội dung trong khung chat.";
+  }
+
+  const normalized = value.toLowerCase();
+
+  const includesAny = (keywords: string[]) =>
+    keywords.some((keyword) => normalized.includes(keyword));
+
+  if (
+    includesAny([
+      "bốc khói",
+      "có khói",
+      "mùi khét",
+      "có mùi khét",
+      "cháy khét",
+      "khét",
+    ])
+  ) {
+    return "Có khói hoặc mùi khét";
+  }
+
+  if (includesAny(["rò điện", "điện giật", "bị giật điện"])) {
+    return "Rò điện";
+  }
+
+  if (includesAny(["rò gas", "xì gas", "mùi gas"])) {
+    return "Rò gas";
+  }
+
+  if (includesAny(["rò nước", "chảy nước", "rỉ nước"])) {
+    return "Rò nước";
+  }
+
+  if (
+    includesAny([
+      "không làm nóng",
+      "không nóng",
+      "ko nóng",
+      "kh nóng",
+      "vẫn nguội",
+      "đồ ăn nguội",
+      "đồ ăn vẫn nguội",
+      "quay xong vẫn nguội",
+    ])
+  ) {
+    return "Không nóng";
+  }
+
+  if (
+    includesAny([
+      "không làm lạnh",
+      "không lạnh",
+      "ko lạnh",
+      "kh lạnh",
+      "không mát",
+      "ko mát",
+      "kh mát",
+      "chẳng thấy mát",
+    ])
+  ) {
+    return "Không lạnh";
+  }
+
+  if (
+    includesAny([
+      "bị nóng",
+      "phòng vẫn nóng",
+      "phòng nóng",
+      "phòng hầm hầm",
+      "hầm hầm",
+      "nóng mặc dù",
+    ])
+  ) {
+    return "Bị nóng";
+  }
+
+  if (
+    includesAny([
+      "không vắt",
+      "ko vắt",
+      "kh vắt",
+      "không chịu vắt",
+      "đồ còn sũng nước",
+      "quần áo sũng nước",
+      "đồ sũng nước",
+    ])
+  ) {
+    return "Không vắt";
+  }
+
+  if (
+    includesAny([
+      "không lên nguồn",
+      "ko lên nguồn",
+      "kh lên nguồn",
+      "không vào điện",
+      "ko vào điện",
+      "mất nguồn",
+    ])
+  ) {
+    return "Không lên nguồn";
+  }
+
+  if (includesAny(["tự tắt", "tự ngắt", "đang dùng thì tắt"])) {
+    return "Tự tắt";
+  }
+
+  if (includesAny(["không chạy", "ko chạy", "không hoạt động"])) {
+    return "Không hoạt động";
+  }
+
+  if (includesAny(["mã lỗi", "báo lỗi", "hiện lỗi"])) {
+    return "Báo lỗi";
+  }
+
+  if (
+    includesAny([
+      "kêu rè",
+      "rè rè",
+      "tiếng kêu lạ",
+      "kêu bất thường",
+      "phát tiếng lạ",
+    ])
+  ) {
+    return "Kêu bất thường";
+  }
+
+  if (includesAny(["không sạc", "ko sạc", "không vào pin"])) {
+    return "Không sạc";
+  }
+
+  if (includesAny(["chạy yếu", "hoạt động yếu", "lạnh yếu", "gió yếu"])) {
+    return "Hoạt động yếu";
+  }
+
+  const firstSegment =
+    value
+      .split(/[\n.!?;]|,\s*(?:nhưng|mặc dù|tuy nhiên|và)\s+/i)[0]
+      ?.trim() || value;
+
+  if (firstSegment.length <= 48) {
+    return firstSegment;
+  }
+
+  return `${firstSegment.slice(0, 45).trimEnd()}...`;
+}
+
+function inferRiskFromSymptom(
+  symptom: string,
+  risk?: string | null,
+): RiskLevel {
+  if (risk === "RED" || risk === "YELLOW" || risk === "GREEN") {
+    return risk;
+  }
 
   const text = symptom.trim().toLowerCase();
 
@@ -94,9 +251,17 @@ function inferRiskFromSymptom(symptom: string, risk?: string | null): RiskLevel 
     "không vào điện",
   ];
 
-  if (dangerKeywords.some((keyword) => text.includes(keyword))) return "RED";
-  if (warningKeywords.some((keyword) => text.includes(keyword))) return "YELLOW";
-  if (text.length >= 24) return "GREEN";
+  if (dangerKeywords.some((keyword) => text.includes(keyword))) {
+    return "RED";
+  }
+
+  if (warningKeywords.some((keyword) => text.includes(keyword))) {
+    return "YELLOW";
+  }
+
+  if (text.length >= 24) {
+    return "GREEN";
+  }
 
   return null;
 }
@@ -105,6 +270,7 @@ function getRiskLabel(risk: RiskLevel) {
   if (risk === "RED") return "Rủi ro cao";
   if (risk === "YELLOW") return "Cần kiểm tra thêm";
   if (risk === "GREEN") return "Có thể tư vấn sơ bộ";
+
   return "Chưa đánh giá";
 }
 
@@ -128,32 +294,57 @@ function getDiagnosticState({
   currentDeviceLabel,
   symptom,
   risk,
+  chatClosed,
   showDangerBookingCta,
 }: {
   currentDeviceLabel: string;
   symptom: string;
   risk?: string | null;
+  chatClosed: boolean;
   showDangerBookingCta: boolean;
 }): DiagnosticState {
   const hasDevice = isKnownDevice(currentDeviceLabel);
   const hasSymptom = hasUsefulSymptom(symptom);
   const isDetailed = hasDetailedSymptom(symptom);
   const inferredRisk = inferRiskFromSymptom(symptom, risk);
-  const isDanger = showDangerBookingCta || inferredRisk === "RED";
 
-  if (isDanger && (hasDevice || hasSymptom)) {
+  /*
+   * Business rule:
+   * Chỉ backend risk RED mới được phép mở booking.
+   * Không dùng độ dài symptom hoặc trạng thái đủ dữ liệu để cho gọi thợ.
+   */
+  const canBook =
+    showDangerBookingCta && chatClosed === false;
+
+  if (chatClosed) {
+    return {
+      hasDevice,
+      hasSymptom,
+      risk: inferredRisk,
+      progress: 100,
+      canBook: false,
+      statusLabel: "Phiên đã kết thúc",
+      title: "Yêu cầu gọi thợ đã được ghi nhận",
+      description:
+        "Phiên tư vấn AI đã kết thúc sau khi người dùng đặt kỹ thuật viên.",
+      bookingLabel: "Đã gọi thợ",
+      tone: "ready",
+    };
+  }
+
+  if (canBook) {
     return {
       hasDevice,
       hasSymptom,
       risk: inferredRisk,
       progress: 100,
       canBook: true,
-      statusLabel: "Nên gọi thợ",
-      title: "Có dấu hiệu cần kiểm tra trực tiếp",
+      statusLabel: "Sẵn sàng đặt thợ",
+      title: "Có thể chuyển sang bước đặt thợ",
       description:
-        "Thông tin hiện tại đã đủ để đặt kỹ thuật viên. Không nên tự tháo hoặc tự xử lý nếu có dấu hiệu nguy hiểm.",
-      bookingLabel: "Gọi thợ ngay",
-      tone: "danger",
+        "AI đã ghi nhận đủ thông tin cơ bản và bạn có thể tạo yêu cầu đặt thợ nếu muốn kiểm tra trực tiếp.",
+      bookingLabel: "Đặt thợ",
+      tone: "ready",
     };
   }
 
@@ -166,8 +357,9 @@ function getDiagnosticState({
       canBook: false,
       statusLabel: "Chưa đủ dữ liệu",
       title: "AI chưa thể kết luận",
-      description: "Hãy mô tả thiết bị và lỗi đang gặp để AI bắt đầu chẩn đoán.",
-      bookingLabel: "Cần thêm thông tin",
+      description:
+        "Hãy mô tả thiết bị và lỗi đang gặp để AI bắt đầu chẩn đoán.",
+      bookingLabel: "Chưa thể gọi thợ",
       tone: "idle",
     };
   }
@@ -183,7 +375,7 @@ function getDiagnosticState({
       title: "Đã nhận diện thiết bị",
       description:
         "Cần thêm triệu chứng, thời điểm lỗi hoặc dấu hiệu bất thường để AI đánh giá chính xác hơn.",
-      bookingLabel: "Cần thêm triệu chứng",
+      bookingLabel: "Chưa thể gọi thợ",
       tone: "collecting",
     };
   }
@@ -199,23 +391,29 @@ function getDiagnosticState({
       title: "Đã có triệu chứng lỗi",
       description:
         "Cần xác định thiết bị cụ thể để AI đề xuất hướng xử lý phù hợp.",
-      bookingLabel: "Cần xác định thiết bị",
+      bookingLabel: "Chưa thể gọi thợ",
       tone: "collecting",
     };
   }
 
-  if (hasDevice && (isDetailed || inferredRisk === "YELLOW")) {
+  if (
+    hasDevice &&
+    (isDetailed ||
+      inferredRisk === "YELLOW" ||
+      inferredRisk === "GREEN" ||
+      inferredRisk === "RED")
+  ) {
     return {
       hasDevice,
       hasSymptom,
       risk: inferredRisk,
       progress: inferredRisk === "YELLOW" ? 90 : 85,
-      canBook: true,
+      canBook: false,
       statusLabel: "Đã đủ thông tin",
-      title: "Có thể chuyển sang đặt thợ",
+      title: "AI đã có dữ liệu để tư vấn",
       description:
-        "AI đã có thiết bị và triệu chứng chính. Người dùng có thể đặt thợ nếu cần kiểm tra trực tiếp.",
-      bookingLabel: "Gọi thợ",
+        "AI đã có thiết bị và triệu chứng chính. Hãy tiếp tục trao đổi để nhận hướng dẫn chẩn đoán sơ bộ.",
+      bookingLabel: "Tiếp tục trao đổi",
       tone: "ready",
     };
   }
@@ -230,7 +428,7 @@ function getDiagnosticState({
     title: "Thông tin gần đủ",
     description:
       "Hãy mô tả rõ hơn: lỗi xảy ra khi nào, có âm thanh lạ, mã lỗi hoặc hiện tượng bất thường không.",
-    bookingLabel: "Cần thêm mô tả",
+    bookingLabel: "Chưa thể gọi thợ",
     tone: "collecting",
   };
 }
@@ -331,6 +529,7 @@ function PanelContent({
   symptom,
   risk,
   sessionId,
+  chatClosed,
   showDangerBookingCta,
   onOpenBooking,
 }: Omit<DiagnosticInfoPanelProps, "isOpen" | "onClose">) {
@@ -338,13 +537,23 @@ function PanelContent({
     currentDeviceLabel,
     symptom,
     risk,
+    chatClosed,
     showDangerBookingCta,
   });
 
-  const toneClasses = getToneClasses(state.tone);
+  if (state.canBook) {
+    state.statusLabel = "Sẵn sàng đặt thợ";
+    state.title = "Có thể chuyển sang bước đặt thợ";
+    state.description =
+      "AI đã ghi nhận đủ thông tin cơ bản và bạn có thể tạo yêu cầu đặt thợ nếu muốn kiểm tra trực tiếp.";
+    state.bookingLabel = "Đặt thợ";
+    state.tone = "ready";
+  } else if (!chatClosed && state.tone === "ready") {
+    state.bookingLabel = "Tiếp tục trao đổi";
+  }
 
-  const symptomText =
-    symptom.trim() || "Chưa có mô tả lỗi. Hãy nhập nội dung trong khung chat.";
+  const toneClasses = getToneClasses(state.tone);
+  const symptomText = getCompactSymptom(symptom);
 
   return (
     <div className="space-y-3">
@@ -373,7 +582,11 @@ function PanelContent({
               value={currentDeviceLabel}
             />
 
-            <div className={`rounded-[18px] border p-3 ${getRiskClass(state.risk)}`}>
+            <div
+              className={`rounded-[18px] border p-3 ${getRiskClass(
+                state.risk,
+              )}`}
+            >
               <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.12em]">
                 <AlertTriangle className="h-4 w-4" />
                 Rủi ro
@@ -457,13 +670,19 @@ function PanelContent({
             done={state.hasDevice}
             text="Đã xác định thiết bị cần sửa."
           />
+
           <StepCheck
             done={state.hasSymptom}
             text="Đã có mô tả lỗi hoặc triệu chứng."
           />
+
           <StepCheck
             done={state.canBook}
-            text="Đủ thông tin để tạo yêu cầu kỹ thuật viên."
+            text={
+              state.canBook
+                ? "AI đã sẵn sàng chuyển sang bước đặt thợ nếu bạn cần."
+                : "AI sẽ mở bước đặt thợ khi cuộc trao đổi đã đủ điều kiện."
+            }
           />
         </div>
 
@@ -478,7 +697,12 @@ function PanelContent({
               : "cursor-not-allowed border border-[var(--client-muted-border)] bg-[var(--client-muted-bg)] text-[var(--client-text-muted)] opacity-55",
           ].join(" ")}
         >
-          {state.canBook ? state.bookingLabel : "Gọi thợ khi đủ thông tin"}
+          {state.canBook
+            ? state.bookingLabel
+            : chatClosed
+              ? "Đã gọi thợ"
+              : "Tiếp tục trao đổi để mở đặt thợ"}
+
           <ChevronRight className="h-5 w-5" />
         </button>
       </div>
@@ -499,6 +723,7 @@ export function DiagnosticInfoPanel(props: DiagnosticInfoPanelProps) {
     symptom,
     risk,
     sessionId,
+    chatClosed,
     showDangerBookingCta,
     onOpenBooking,
   } = props;
@@ -512,6 +737,7 @@ export function DiagnosticInfoPanel(props: DiagnosticInfoPanelProps) {
             symptom={symptom}
             risk={risk}
             sessionId={sessionId}
+            chatClosed={chatClosed}
             showDangerBookingCta={showDangerBookingCta}
             onOpenBooking={onOpenBooking}
           />
@@ -549,6 +775,7 @@ export function DiagnosticInfoPanel(props: DiagnosticInfoPanelProps) {
                 symptom={symptom}
                 risk={risk}
                 sessionId={sessionId}
+                chatClosed={chatClosed}
                 showDangerBookingCta={showDangerBookingCta}
                 onOpenBooking={onOpenBooking}
               />

@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { Eye, Lock, ShieldCheck, Unlock, Wrench } from "lucide-react";
+﻿import type { ReactNode } from "react";
+import { Eye, Lock, ShieldCheck, Unlock } from "lucide-react";
 
 import { ActionButton } from "@/app/components/common/action-button/ActionButton";
 
@@ -21,20 +21,20 @@ export default function TechnicianExpandedPanel({
     <div className="border-t border-[#D0D5DD] bg-[#F8FAFC] px-4 py-4 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E]">
       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_1fr_auto]">
         <PanelCard
-          title="Thông tin cá nhân"
+          title="ThÃ´ng tin cÃ¡ nhÃ¢n"
           titleClass="text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
         >
-          <InfoText label="Họ tên" value={technician.fullName} strong />
-          <InfoText label="Số điện thoại" value={technician.phoneNumber} />
+          <InfoText label="Há» tÃªn" value={technician.fullName} strong />
+          <InfoText label="Sá»‘ Ä‘iá»‡n thoáº¡i" value={technician.phoneNumber} />
           <InfoText label="Email" value={technician.email} breakWords />
         </PanelCard>
 
         <PanelCard
-          title="Trạng thái & hiệu suất"
+          title="Tráº¡ng thÃ¡i & hiá»‡u suáº¥t"
           titleClass="text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
         >
           <InfoText
-            label="Trực tuyến"
+            label="Trá»±c tuyáº¿n"
             value={technician.isOnline ? "Online" : "Offline"}
             valueClass={
               technician.isOnline
@@ -44,8 +44,8 @@ export default function TechnicianExpandedPanel({
           />
 
           <InfoText
-            label="Xác minh"
-            value={technician.isVerified ? "Đã xác minh" : "Chưa xác minh"}
+            label="XÃ¡c minh"
+            value={technician.isVerified ? "ÄÃ£ xÃ¡c minh" : "ChÆ°a xÃ¡c minh"}
             valueClass={
               technician.isVerified
                 ? "text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
@@ -54,8 +54,8 @@ export default function TechnicianExpandedPanel({
           />
 
           <InfoText
-            label="Tài khoản"
-            value={technician.isActive ? "Đang hoạt động" : "Bị khóa"}
+            label="TÃ i khoáº£n"
+            value={technician.isActive ? "Äang hoáº¡t Ä‘á»™ng" : "Bá»‹ khÃ³a"}
             valueClass={
               technician.isActive
                 ? "text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
@@ -64,27 +64,27 @@ export default function TechnicianExpandedPanel({
           />
 
           <OrderSummaryRow
-            label="Đơn"
+            label="ÄÆ¡n"
             processingCount={technician.activeJobCount}
             completedCount={technician.completedJobCount}
           />
 
           <InfoText
-            label="Đánh giá"
+            label="ÄÃ¡nh giÃ¡"
             value={`${formatRating(technician.averageRating)} sao`}
           />
         </PanelCard>
 
         <PanelCard
-          title="Đơn hiện tại"
+          title="ÄÆ¡n hiá»‡n táº¡i"
           titleClass="text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]"
         >
           {technician.currentJob ? (
             <>
-              <InfoText label="Mã đơn" value={technician.currentJob.id} strong />
+              <InfoText label="MÃ£ Ä‘Æ¡n" value={technician.currentJob.id} strong />
 
               <InfoText
-                label="Trạng thái"
+                label="Tráº¡ng thÃ¡i"
                 value={
                   jobStatusLabel[technician.currentJob.status] ??
                   technician.currentJob.status
@@ -92,31 +92,31 @@ export default function TechnicianExpandedPanel({
               />
 
               <InfoText
-                label="Thiết bị"
+                label="Thiáº¿t bá»‹"
                 value={technician.currentJob.deviceType}
               />
 
               <InfoText
-                label="Triệu chứng"
+                label="Triá»‡u chá»©ng"
                 value={technician.currentJob.symptom}
                 breakWords
               />
             </>
           ) : (
             <div className="rounded-xl border border-[#22C55E]/25 bg-[#F0FDF4] px-3 py-2 text-sm font-semibold text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#22C55E]/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
-              Chưa nhận đơn nào.
+              ChÆ°a nháº­n Ä‘Æ¡n nÃ o.
             </div>
           )}
         </PanelCard>
 
         <article className="flex flex-col gap-2.5 rounded-2xl border border-[#D0D5DD] bg-white p-4 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728] xl:w-[180px]">
           <h4 className="mb-1 text-base font-extrabold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
-            Hành động
+            HÃ nh Ä‘á»™ng
           </h4>
 
           <ActionButton
             href={`/admin/accounts/${technician.id}`}
-            label="Chi tiết"
+            label="Chi tiáº¿t"
             fullWidth
             className={technicianActionClass("neutral")}
             icon={<Eye className="h-4 w-4" strokeWidth={2.6} />}
@@ -124,7 +124,7 @@ export default function TechnicianExpandedPanel({
 
           {!technician.isVerified ? (
             <ActionButton
-              label="Xác minh"
+              label="XÃ¡c minh"
               fullWidth
               tone="info"
               disabled={!onVerify || actionLoading}
@@ -136,7 +136,7 @@ export default function TechnicianExpandedPanel({
           ) : null}
 
           <ActionButton
-            label={technician.isActive ? "Khóa" : "Mở khóa"}
+            label={technician.isActive ? "KhÃ³a" : "Má»Ÿ khÃ³a"}
             fullWidth
             tone={technician.isActive ? "danger" : "success"}
             disabled={!onToggleActive || actionLoading}
@@ -154,18 +154,7 @@ export default function TechnicianExpandedPanel({
             }
           />
 
-          <ActionButton
-            label="Xem đơn"
-            fullWidth
-            tone="warning"
-            disabled={!technician.currentJob}
-            onClick={() => {
-              if (!technician.currentJob) return;
-              window.location.href = `/admin/chats?sessionId=${technician.currentJob.id}`;
-            }}
-            className={technicianActionClass("warning")}
-            icon={<Wrench className="h-4 w-4" strokeWidth={2.6} />}
-          />
+
         </article>
       </div>
     </div>
@@ -221,7 +210,7 @@ function InfoText({
           valueClass ||
             "text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white",
           breakWords ? "break-words [overflow-wrap:anywhere]" : "truncate",
-          displayValue === "Chưa cập nhật"
+          displayValue === "ChÆ°a cáº­p nháº­t"
             ? "italic text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#94A3B8]"
             : "",
         ].join(" ")}
@@ -252,7 +241,7 @@ function OrderSummaryRow({
 
       <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[15px] font-extrabold leading-6">
         <span className="text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]">
-          {processing} đang xử lý
+          {processing} Ä‘ang xá»­ lÃ½
         </span>
 
         <span className="text-[#98A2B3] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
@@ -260,14 +249,14 @@ function OrderSummaryRow({
         </span>
 
         <span className="text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
-          {completed} hoàn thành
+          {completed} hoÃ n thÃ nh
         </span>
       </div>
     </div>
   );
 }
 
-// Giữ khác biệt màu cho từng action nhưng thống nhất cấu trúc qua shared button.
+// Giá»¯ khÃ¡c biá»‡t mÃ u cho tá»«ng action nhÆ°ng thá»‘ng nháº¥t cáº¥u trÃºc qua shared button.
 function technicianActionClass(
   tone: "neutral" | "info" | "danger" | "success" | "warning",
 ) {
@@ -291,13 +280,13 @@ function technicianActionClass(
 }
 
 function getDisplayValue(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return "Chưa cập nhật";
+  if (value === null || value === undefined) return "ChÆ°a cáº­p nháº­t";
 
   if (typeof value === "number") {
-    return Number.isFinite(value) ? String(value) : "Chưa cập nhật";
+    return Number.isFinite(value) ? String(value) : "ChÆ°a cáº­p nháº­t";
   }
 
-  return value.trim() ? value : "Chưa cập nhật";
+  return value.trim() ? value : "ChÆ°a cáº­p nháº­t";
 }
 
 function formatCount(value?: number | null) {
@@ -309,3 +298,6 @@ function formatRating(value?: number | null) {
   if (typeof value !== "number" || Number.isNaN(value)) return "0.0";
   return value.toFixed(1);
 }
+
+
+

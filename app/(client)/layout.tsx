@@ -14,7 +14,6 @@ export default function ClientLayout({
   const pathname = usePathname();
   const isHideBottomNav =
     pathname?.startsWith('/chatbot') ||
-    pathname?.startsWith('/faqchat') ||
     pathname?.startsWith('/chats');
   return (
     <div className="client-theme client-ripple-theme-shell min-h-screen">

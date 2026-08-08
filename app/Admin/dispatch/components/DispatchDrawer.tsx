@@ -8,8 +8,6 @@ import {
   History,
   MapPin,
   Phone,
-  RotateCw,
-  Sliders,
   Star,
   User,
   UserCheck,
@@ -54,7 +52,7 @@ type DispatchDrawerProps = {
   ) => Promise<void> | void;
 };
 
-type ModalTab = "technicians" | "history" | "simulation";
+type ModalTab = "technicians" | "history";
 
 export default function DispatchDrawer({
   session,
@@ -65,12 +63,10 @@ export default function DispatchDrawer({
   onAssign,
   onUnassign,
   onReject,
-  onSimulateTimeout,
 }: DispatchDrawerProps) {
   const [activeTab, setActiveTab] = useState<ModalTab>("technicians");
   const [cancelReason, setCancelReason] = useState("");
   const [showCancelInput, setShowCancelInput] = useState(false);
-  const [simulateConflict, setSimulateConflict] = useState(false);
 
   const sessionHistory = useMemo(() => {
     if (!session) return [];
@@ -103,9 +99,7 @@ export default function DispatchDrawer({
     session.status === "EN_ROUTE" ||
     session.status === "ARRIVED";
 
-  const versionForAction = simulateConflict
-    ? session.version - 1
-    : session.version;
+  const versionForAction = session.version;
 
   const handleAssignClick = (techId: string) => {
     void onAssign(session.id, techId, versionForAction);
@@ -128,10 +122,6 @@ export default function DispatchDrawer({
       "Khách hàng báo bận/yêu cầu đổi thợ",
       versionForAction,
     );
-  };
-
-  const handleTimeoutClick = () => {
-    void onSimulateTimeout(session.id, versionForAction);
   };
 
   return (
@@ -301,7 +291,7 @@ export default function DispatchDrawer({
                 Chọn kỹ thuật viên phù hợp để điều phối cho ca này.
               </p>
 
-              <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-1.5 shadow-sm [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-white/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#16233d]">
+              <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-1.5 shadow-sm [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-white/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#16233d]">
                 <TabButton
                   active={activeTab === "technicians"}
                   onClick={() => setActiveTab("technicians")}
@@ -863,3 +853,4 @@ function formatTime(dateStr: string) {
     return dateStr;
   }
 }
+

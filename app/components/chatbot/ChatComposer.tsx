@@ -1,12 +1,26 @@
 "use client";
 
-import { Camera, Loader2, Paperclip, Send, Upload, X } from "lucide-react";
+import {
+  Camera,
+  CheckCircle2,
+  Loader2,
+  Paperclip,
+  Send,
+  Upload,
+  X,
+} from "lucide-react";
 import type React from "react";
 import { useEffect, useRef } from "react";
 
 function formatFileSize(size: number) {
-  if (size < 1024) return `${size} B`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  if (size < 1024) {
+    return `${size} B`;
+  }
+
+  if (size < 1024 * 1024) {
+    return `${(size / 1024).toFixed(1)} KB`;
+  }
+
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
@@ -48,21 +62,51 @@ export function ChatComposer({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const isInputDisabled = chatClosed || isUploadingMedia;
-  const isActionDisabled = chatClosed || isSubmitting || isUploadingMedia;
-  const canSubmit = Boolean(draft.trim() || selectedFile) && !isActionDisabled;
+  const isActionDisabled =
+    chatClosed || isSubmitting || isUploadingMedia;
+
+  const canSubmit =
+    Boolean(draft.trim() || selectedFile) && !isActionDisabled;
 
   useEffect(() => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+
+    if (!textarea) {
+      return;
+    }
 
     textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 132)}px`;
+    textarea.style.height = `${Math.min(
+      textarea.scrollHeight,
+      132,
+    )}px`;
   }, [draft]);
 
   useEffect(() => {
-    if (isSubmitting || isUploadingMedia) return;
+    if (chatClosed || isSubmitting || isUploadingMedia) {
+      return;
+    }
+
     textareaRef.current?.focus();
-  }, [isSubmitting, isUploadingMedia]);
+  }, [chatClosed, isSubmitting, isUploadingMedia]);
+
+  if (chatClosed) {
+    return (
+      <div className="sticky bottom-0 z-20 shrink-0 border-t border-[var(--client-card-border)] bg-white/94 px-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_28px_rgba(255,138,31,0.05)] backdrop-blur-2xl dark:bg-[#07111f]/94 dark:shadow-[0_-10px_28px_rgba(0,0,0,0.20)] sm:px-4 md:pb-2">
+        <div className="mx-auto w-full max-w-[960px]">
+          <div className="flex min-h-[54px] items-center gap-3 rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300">
+              <CheckCircle2 className="h-5 w-5" />
+            </span>
+
+            <p className="text-[14px] font-black leading-6">
+              Phiên tư vấn đã kết thúc sau khi đặt thợ.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sticky bottom-0 z-20 shrink-0 border-t border-[var(--client-card-border)] bg-white/94 px-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_28px_rgba(255,138,31,0.05)] backdrop-blur-2xl dark:bg-[#07111f]/94 dark:shadow-[0_-10px_28px_rgba(0,0,0,0.20)] sm:px-4 md:pb-2">
@@ -173,7 +217,10 @@ export function ChatComposer({
             value={draft}
             rows={1}
             onChange={(event) => {
-              if (hasError) onClearError();
+              if (hasError) {
+                onClearError();
+              }
+
               onDraftChange(event.target.value);
             }}
             onKeyDown={(event) => {
@@ -183,11 +230,9 @@ export function ChatComposer({
               }
             }}
             placeholder={
-              chatClosed
-                ? "Phiên tư vấn đã kết thúc sau khi đặt thợ."
-                : selectedFile
-                  ? "Thêm ghi chú cho ảnh/video nếu cần..."
-                  : "Mô tả sự cố thiết bị của bạn..."
+              selectedFile
+                ? "Thêm ghi chú cho ảnh/video nếu cần..."
+                : "Mô tả sự cố thiết bị của bạn..."
             }
             className="max-h-[104px] min-h-[38px] w-full resize-none overflow-y-auto bg-transparent px-2.5 py-2 text-[14px] font-semibold leading-5 text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 sm:max-h-[120px] sm:min-h-[40px] sm:px-3 sm:py-2.5 sm:text-[15px] sm:leading-6"
             disabled={isInputDisabled}
@@ -215,24 +260,24 @@ export function ChatComposer({
           </button>
         </form>
 
-        <div className={isSubmitting || isUploadingMedia ? "mt-1 flex min-h-3 items-center justify-center sm:min-h-4" : "hidden"}>
-          {isSubmitting || isUploadingMedia ? (
-            <div className="inline-flex items-center gap-2 text-[12px] font-bold text-orange-600 dark:text-blue-300">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-70 dark:bg-blue-400" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500 dark:bg-blue-400" />
-              </span>
+        <div
+          className={
+            isSubmitting || isUploadingMedia
+              ? "mt-1 flex min-h-3 items-center justify-center sm:min-h-4"
+              : "hidden"
+          }
+        >
+          <div className="inline-flex items-center gap-2 text-[12px] font-bold text-orange-600 dark:text-blue-300">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-70 dark:bg-blue-400" />
 
-              {isUploadingMedia
-                ? "Đang tải ảnh/video lên..."
-                : "AI đang phản hồi..."}
-            </div>
-          ) : (
-            <p className="hidden text-center text-[12px] font-semibold text-slate-500 dark:text-slate-400">
-              AI Diagnostic chỉ hỗ trợ chẩn đoán sơ bộ. Vui lòng đặt lịch thợ để
-              kiểm tra chính xác.
-            </p>
-          )}
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500 dark:bg-blue-400" />
+            </span>
+
+            {isUploadingMedia
+              ? "Đang tải ảnh/video lên..."
+              : "AI đang phản hồi..."}
+          </div>
         </div>
       </div>
     </div>

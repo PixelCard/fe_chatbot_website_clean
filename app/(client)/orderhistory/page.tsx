@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   XCircle,
   MapPin,
-  MessageSquare,
   ChevronRight,
   FileText,
   Loader2,
@@ -566,19 +565,6 @@ export default function OrderHistoryPage() {
                         )}
 
                         <div className="flex flex-col gap-2 min-[390px]:flex-row">
-                          {order.canChat ? (
-                            <Link
-                              href={`/chats/${order.id}`}
-                              className="client-accent-gradient client-accent-shadow flex h-11 flex-1 items-center justify-center gap-2 rounded-lg px-4 text-sm font-extrabold text-[var(--client-cta-text)] transition-all duration-200 ease-out hover:opacity-90 active:scale-[0.98] sm:rounded-xl sm:text-base lg:flex-none"
-                            >
-                              <MessageSquare
-                                className="h-4.5 w-4.5 sm:h-5 sm:w-5"
-                                strokeWidth={2.5}
-                              />
-                              Chat ngay
-                            </Link>
-                          ) : null}
-
                           <button
                             type="button"
                             className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-[var(--client-control-border)] bg-[var(--client-control-bg)] px-4 text-sm font-extrabold text-[var(--client-text-primary)] transition-all duration-200 ease-out hover:border-[var(--client-primary-soft-border)] hover:bg-[var(--client-control-hover-bg)] active:scale-[0.98] sm:rounded-xl sm:text-base lg:flex-none"

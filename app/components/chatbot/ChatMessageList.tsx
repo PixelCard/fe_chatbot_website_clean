@@ -1,7 +1,12 @@
 "use client";
 
 import type { RefObject } from "react";
-import { AlertTriangle, Bot, FileWarning, Zap } from "lucide-react";
+import {
+  AlertTriangle,
+  Bot,
+  FileWarning,
+  Zap,
+} from "lucide-react";
 
 import type { ChatUiMessage } from "@/app/hooks/useChatbotApi";
 import type { ApiError } from "@/app/services/apiClient";
@@ -40,7 +45,11 @@ function TypingIndicator() {
   );
 }
 
-function DeviceSwitchBubble({ message }: { message: ChatUiMessage }) {
+function DeviceSwitchBubble({
+  message,
+}: {
+  message: ChatUiMessage;
+}) {
   return (
     <div className="mx-auto w-full max-w-3xl rounded-[18px] border border-amber-200 bg-amber-50 px-3.5 py-3 text-amber-900 shadow-[0_10px_26px_rgba(245,158,11,0.08)] dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-100 sm:rounded-[24px] sm:px-5 sm:py-4">
       <div className="flex items-start gap-2.5 sm:gap-3">
@@ -60,12 +69,14 @@ function DeviceSwitchBubble({ message }: { message: ChatUiMessage }) {
           <div className="mt-2.5 grid gap-2 text-[12px] font-bold sm:mt-3 sm:grid-cols-2 sm:text-[13px]">
             <div className="rounded-lg bg-white/70 px-2.5 py-2 dark:bg-black/20 sm:rounded-xl sm:px-3">
               Thiết bị hiện tại:{" "}
-              {message.deviceSwitch?.currentDevice || "Chưa xác định"}
+              {message.deviceSwitch?.currentDevice ||
+                "Chưa xác định"}
             </div>
 
             <div className="rounded-lg bg-white/70 px-2.5 py-2 dark:bg-black/20 sm:rounded-xl sm:px-3">
               Thiết bị phát hiện:{" "}
-              {message.deviceSwitch?.detectedDevice || "Chưa xác định"}
+              {message.deviceSwitch?.detectedDevice ||
+                "Chưa xác định"}
             </div>
           </div>
 
@@ -87,7 +98,11 @@ function DeviceSwitchBubble({ message }: { message: ChatUiMessage }) {
   );
 }
 
-function UserBubble({ message }: { message: ChatUiMessage }) {
+function UserBubble({
+  message,
+}: {
+  message: ChatUiMessage;
+}) {
   return (
     <div className="flex w-full justify-end">
       <div className="max-w-[90%] overflow-hidden rounded-[18px] rounded-br-md border border-orange-300/40 bg-gradient-to-br from-orange-500 via-orange-500 to-amber-400 px-4 py-2.5 text-[14px] font-bold leading-6 text-white shadow-[0_12px_28px_rgba(255,122,0,0.18)] dark:border-blue-400/20 dark:bg-gradient-to-br dark:from-blue-600 dark:via-blue-600 dark:to-cyan-500 dark:shadow-[0_12px_28px_rgba(37,99,235,0.26)] sm:max-w-[78%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
@@ -130,8 +145,14 @@ function UserBubble({ message }: { message: ChatUiMessage }) {
   );
 }
 
-function AssistantBubble({ message }: { message: ChatUiMessage }) {
-  const contentLines = message.content.split("\n").filter((line) => line.trim());
+function AssistantBubble({
+  message,
+}: {
+  message: ChatUiMessage;
+}) {
+  const contentLines = message.content
+    .split("\n")
+    .filter((line) => line.trim());
 
   return (
     <div className="flex w-full justify-start gap-2 sm:gap-3">
@@ -173,7 +194,9 @@ type ChatMessageListProps = {
   isUploadingMedia: boolean;
   error: ApiError | null;
   messagesEndRef: RefObject<HTMLDivElement | null>;
-  onSubmitFeedback: (feedback: "LIKE" | "DISLIKE") => Promise<unknown>;
+  onSubmitFeedback: (
+    feedback: "LIKE" | "DISLIKE",
+  ) => Promise<unknown>;
 };
 
 export function ChatMessageList({
@@ -189,10 +212,17 @@ export function ChatMessageList({
   messagesEndRef,
   onSubmitFeedback,
 }: ChatMessageListProps) {
+  const shouldShowFeedbackPanel =
+    chatClosed && (feedbackPending || feedbackSubmitted);
+
   return (
-    <div className="relative min-h-0 flex-1 overscroll-contain overflow-y-auto scroll-smooth bg-[#f8fafc] dark:bg-[#07111f]">
+    <div
+      data-chat-scroll-container="true"
+      className="relative min-h-0 flex-1 overscroll-contain overflow-y-auto scroll-smooth bg-[#f8fafc] dark:bg-[#07111f]"
+    >
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-20 top-8 h-56 w-56 rounded-full bg-orange-200/14 blur-[100px] dark:bg-blue-500/10" />
+
         <div className="absolute bottom-8 right-[-2rem] h-64 w-64 rounded-full bg-blue-200/10 blur-[110px] dark:bg-cyan-500/8" />
       </div>
 
@@ -223,17 +253,34 @@ export function ChatMessageList({
 
         {messages.map((message) => {
           if (message.type === "device-switch") {
-            return <DeviceSwitchBubble key={message.id} message={message} />;
+            return (
+              <DeviceSwitchBubble
+                key={message.id}
+                message={message}
+              />
+            );
           }
 
           if (message.role === "user") {
-            return <UserBubble key={message.id} message={message} />;
+            return (
+              <UserBubble
+                key={message.id}
+                message={message}
+              />
+            );
           }
 
-          return <AssistantBubble key={message.id} message={message} />;
+          return (
+            <AssistantBubble
+              key={message.id}
+              message={message}
+            />
+          );
         })}
 
-        {isSubmitting || isUploadingMedia ? <TypingIndicator /> : null}
+        {isSubmitting || isUploadingMedia ? (
+          <TypingIndicator />
+        ) : null}
 
         {error ? (
           <div className="rounded-[16px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] font-bold text-red-600 shadow-sm dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300 sm:rounded-[22px] sm:px-5 sm:py-4 sm:text-[14px]">
@@ -244,7 +291,7 @@ export function ChatMessageList({
           </div>
         ) : null}
 
-        {chatClosed && (feedbackPending || feedbackSubmitted) ? (
+        {shouldShowFeedbackPanel ? (
           <div className="rounded-[18px] border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)] dark:border-slate-700/80 dark:bg-[#102036] dark:shadow-[0_12px_28px_rgba(0,0,0,0.20)] sm:rounded-[24px] sm:px-5 sm:py-5">
             <p className="text-[15px] font-black text-slate-900 dark:text-slate-50 sm:text-[16px]">
               Đoạn tư vấn này có hữu ích không?
@@ -259,7 +306,9 @@ export function ChatMessageList({
                 <button
                   type="button"
                   disabled={isSubmittingFeedback}
-                  onClick={() => void onSubmitFeedback("LIKE")}
+                  onClick={() =>
+                    void onSubmitFeedback("LIKE")
+                  }
                   className={[
                     "rounded-[13px] border px-3 py-2.5 text-[13px] font-black transition sm:rounded-[16px] sm:px-4 sm:text-[14px]",
                     feedbackChoice === "LIKE"
@@ -273,7 +322,9 @@ export function ChatMessageList({
                 <button
                   type="button"
                   disabled={isSubmittingFeedback}
-                  onClick={() => void onSubmitFeedback("DISLIKE")}
+                  onClick={() =>
+                    void onSubmitFeedback("DISLIKE")
+                  }
                   className={[
                     "rounded-[13px] border px-3 py-2.5 text-[13px] font-black transition sm:rounded-[16px] sm:px-4 sm:text-[14px]",
                     feedbackChoice === "DISLIKE"

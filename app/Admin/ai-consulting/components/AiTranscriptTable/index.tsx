@@ -1,7 +1,6 @@
-"use client";
+﻿"use client";
 
-import Link from "next/link";
-import { Eye, MessageSquareText, Phone, ScrollText, Wrench } from "lucide-react";
+import { Eye, MessageSquareText, Phone, Wrench } from "lucide-react";
 
 import type { AiQualitySessionItem } from "../../types";
 
@@ -24,11 +23,11 @@ export default function AiQualityReviewTable({
         </span>
 
         <h3 className="mt-4 text-xl font-black text-[var(--admin-strong-text)]">
-          Chưa có phiên AI tư vấn
+          ChÆ°a cÃ³ phiÃªn AI tÆ° váº¥n
         </h3>
 
         <p className="mt-2 max-w-md text-sm font-medium leading-6 text-[var(--admin-muted-text)]">
-          Hiện chưa có phiên nào cần đánh giá chất lượng AI.
+          Hiá»‡n chÆ°a cÃ³ phiÃªn nÃ o cáº§n Ä‘Ã¡nh giÃ¡ cháº¥t lÆ°á»£ng AI.
         </p>
       </section>
     );
@@ -39,23 +38,23 @@ export default function AiQualityReviewTable({
       <header className="flex flex-col gap-3 border-b border-[var(--admin-card-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h2 className="text-xl font-black tracking-tight text-[var(--admin-strong-text)]">
-            Hàng đợi đánh giá AI
+            HÃ ng Ä‘á»£i Ä‘Ã¡nh giÃ¡ AI
           </h2>
         </div>
 
         <span className="inline-flex h-9 w-fit shrink-0 items-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 text-sm font-black text-[var(--admin-strong-text)]">
-          {items.length} phiên
+          {items.length} phiÃªn
         </span>
       </header>
 
       <div className="hidden lg:block">
         <div className="grid grid-cols-[1.15fr_0.95fr_minmax(0,1.65fr)_1fr_1.1fr_1.05fr] items-center border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-3 text-xs font-black uppercase tracking-[0.08em] text-[var(--admin-muted-text)]">
-          <div>Khách hàng</div>
-          <div>Thiết bị</div>
-          <div>Vấn đề</div>
-          <div>Đánh giá AI</div>
-          <div>Gợi ý xử lý</div>
-          <div className="text-right">Thao tác</div>
+          <div>KhÃ¡ch hÃ ng</div>
+          <div>Thiáº¿t bá»‹</div>
+          <div>Váº¥n Ä‘á»</div>
+          <div>ÄÃ¡nh giÃ¡ AI</div>
+          <div>Gá»£i Ã½ xá»­ lÃ½</div>
+          <div className="text-right">Thao tÃ¡c</div>
         </div>
 
         <div className="max-h-[calc(100vh-370px)] min-h-[430px] divide-y divide-[var(--admin-card-border)] overflow-y-auto">
@@ -109,24 +108,10 @@ export default function AiQualityReviewTable({
                     className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-3 text-sm font-black text-[#0891B2] transition hover:bg-[#06B6D4]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
                   >
                     <Eye className="h-4 w-4" strokeWidth={2.5} />
-                    Phân tích
+                    PhÃ¢n tÃ­ch
                   </button>
 
-                  <Link
-                    href={`/admin/chats?sessionId=${item.id}`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-strong-text)] transition hover:bg-[var(--admin-control-hover-bg)]"
-                    title="Mở phiên chat"
-                  >
-                    <MessageSquareText className="h-4 w-4" />
-                  </Link>
 
-                  <Link
-                    href={`/admin/ai-reasoning-logs?sessionId=${item.id}`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-strong-text)] transition hover:bg-[var(--admin-control-hover-bg)]"
-                    title="Xem log suy luận"
-                  >
-                    <ScrollText className="h-4 w-4" />
-                  </Link>
                 </div>
               </div>
             );
@@ -154,7 +139,7 @@ export default function AiQualityReviewTable({
                 </h3>
 
                 <p className="mt-1 truncate text-sm font-semibold text-[var(--admin-muted-text)]">
-                  {item.deviceType} · {item.customerPhone}
+                  {item.deviceType} Â· {item.customerPhone}
                 </p>
               </button>
 
@@ -176,15 +161,10 @@ export default function AiQualityReviewTable({
                 className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-3 text-sm font-black text-[#0891B2] transition hover:bg-[#06B6D4]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
               >
                 <Eye className="h-4 w-4" strokeWidth={2.5} />
-                Phân tích
+                PhÃ¢n tÃ­ch
               </button>
 
-              <Link
-                href={`/admin/chats?sessionId=${item.id}`}
-                className="inline-flex h-9 items-center justify-center rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 text-sm font-black text-[var(--admin-strong-text)]"
-              >
-                Chat
-              </Link>
+
             </div>
           </article>
         ))}
@@ -220,3 +200,6 @@ function QualityBadge({
     </span>
   );
 }
+
+
+

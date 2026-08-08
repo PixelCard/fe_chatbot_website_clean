@@ -227,6 +227,20 @@ export type ChatSessionItem = {
   latestAiLogId?: number | null;
   latestAiFeedback?: "LIKE" | "DISLIKE" | null;
   bookingTriggered?: boolean;
+  aiStateSnapshot?: AiConversationState | null;
+  risk?: AiConversationRisk | null;
+  canBook?: boolean | null;
+  chatClosed?: boolean | null;
+  symptomLabel?: string | null;
+  symptomDetail?: string | null;
+  finalAiSummary?: {
+    headline?: string | null;
+    analysis?: string | null;
+    recommendation?: string | null;
+    symptomLabel?: string | null;
+    symptomDetail?: string | null;
+    risk?: AiConversationRisk | null;
+  } | null;
 };
 
 export type DeviceItem = {
@@ -402,6 +416,19 @@ export type AiConversationState = {
   contextQuestionSet?: string | null;
   contextAnswers?: AiConversationContextAnswers;
   askedFollowupKey?: string | null;
+  canBook?: boolean;
+  chatClosed?: boolean;
+  symptomLabel?: string | null;
+  symptomDetail?: string | null;
+  aiSummaryText?: string | null;
+  finalAiSummary?: {
+    headline?: string | null;
+    analysis?: string | null;
+    recommendation?: string | null;
+    symptomLabel?: string | null;
+    symptomDetail?: string | null;
+    risk?: AiConversationRisk | null;
+  } | null;
 };
 
 export type AiChatPayload = {

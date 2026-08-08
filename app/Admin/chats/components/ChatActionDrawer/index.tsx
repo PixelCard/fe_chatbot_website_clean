@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  AlertTriangle,
-  BookmarkCheck,
-  ChevronRight,
+  AlertTriangle,  ChevronRight,
   Flag,
   LayoutGrid,
   ShieldAlert,
@@ -197,3 +195,4 @@ function StatusPill({
     </span>
   );
 }
+

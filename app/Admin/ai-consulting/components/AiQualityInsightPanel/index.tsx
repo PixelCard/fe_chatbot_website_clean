@@ -1,11 +1,8 @@
-"use client";
+﻿"use client";
 
-import Link from "next/link";
 import {
     AlertTriangle,
     DatabaseZap,
-    MessageSquareText,
-    ScrollText,
     X,
 } from "lucide-react";
 
@@ -37,7 +34,7 @@ export default function AiQualityInsightPanel({
         <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 py-6">
             <button
                 type="button"
-                aria-label="Đóng phân tích chất lượng AI"
+                aria-label="ÄÃ³ng phÃ¢n tÃ­ch cháº¥t lÆ°á»£ng AI"
                 className="absolute inset-0 cursor-default bg-[#020817]/70 backdrop-blur-[6px]"
                 onClick={onClose}
             />
@@ -46,7 +43,7 @@ export default function AiQualityInsightPanel({
                 <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--admin-card-border)] px-5 py-4">
                     <div className="min-w-0">
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
-                            Phân tích chất lượng AI
+                            PhÃ¢n tÃ­ch cháº¥t lÆ°á»£ng AI
                         </p>
 
                         <h2 className="mt-1 truncate text-2xl font-black tracking-tight text-[var(--admin-strong-text)]">
@@ -54,7 +51,7 @@ export default function AiQualityInsightPanel({
                         </h2>
 
                         <p className="mt-1 truncate text-sm font-semibold text-[var(--admin-muted-text)]">
-                            {session.deviceType} · {session.customerPhone}
+                            {session.deviceType} Â· {session.customerPhone}
                         </p>
                     </div>
 
@@ -62,7 +59,7 @@ export default function AiQualityInsightPanel({
                         type="button"
                         onClick={onClose}
                         className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)] transition hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-strong-text)]"
-                        aria-label="Đóng"
+                        aria-label="ÄÃ³ng"
                     >
                         <X className="h-5 w-5" strokeWidth={2.5} />
                     </button>
@@ -71,25 +68,25 @@ export default function AiQualityInsightPanel({
                 <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--admin-control-bg)]/35 px-5 py-4">
                     <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                         <InfoCard
-                            label="Đánh giá"
+                            label="ÄÃ¡nh giÃ¡"
                             value={session.qualityLabel}
                             tone={getQualityTone(session.qualityStatus)}
                         />
 
                         <InfoCard
-                            label="Mức rủi ro"
+                            label="Má»©c rá»§i ro"
                             value={session.riskLabel}
                             tone={getRiskTone(session.riskLevel)}
                         />
 
                         <InfoCard
-                            label="Tin nhắn"
+                            label="Tin nháº¯n"
                             value={String(session.messageCount)}
                             tone="blue"
                         />
 
                         <InfoCard
-                            label="Cập nhật"
+                            label="Cáº­p nháº­t"
                             value={formatDateTime(session.updatedAt)}
                             tone="slate"
                         />
@@ -101,7 +98,7 @@ export default function AiQualityInsightPanel({
                                 <span className="h-2.5 w-2.5 rounded-full bg-[#64748B]" />
 
                                 <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
-                                    Vấn đề chính
+                                    Váº¥n Ä‘á» chÃ­nh
                                 </h3>
                             </div>
 
@@ -115,7 +112,7 @@ export default function AiQualityInsightPanel({
                                 <span className="h-2.5 w-2.5 rounded-full bg-[#06B6D4]" />
 
                                 <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
-                                    Tóm tắt AI
+                                    TÃ³m táº¯t AI
                                 </h3>
                             </div>
 
@@ -133,7 +130,7 @@ export default function AiQualityInsightPanel({
                                 </span>
 
                                 <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
-                                    Lý do đánh giá
+                                    LÃ½ do Ä‘Ã¡nh giÃ¡
                                 </h3>
                             </div>
 
@@ -157,7 +154,7 @@ export default function AiQualityInsightPanel({
                                 </span>
 
                                 <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
-                                    Gợi ý xử lý
+                                    Gá»£i Ã½ xá»­ lÃ½
                                 </h3>
                             </div>
 
@@ -174,24 +171,10 @@ export default function AiQualityInsightPanel({
                         onClick={onClose}
                         className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-4 text-sm font-bold text-[var(--admin-strong-text)] transition hover:bg-[var(--admin-control-hover-bg)]"
                     >
-                        Đóng
+                        ÄÃ³ng
                     </button>
 
-                    <Link
-                        href={`/admin/chats?sessionId=${session.id}`}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-4 text-sm font-bold text-[#0891B2] transition hover:bg-[#06B6D4]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
-                    >
-                        <MessageSquareText className="h-4 w-4" />
-                        Mở chat
-                    </Link>
 
-                    <Link
-                        href={`/admin/ai-reasoning-logs?sessionId=${session.id}`}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-4 text-sm font-bold text-[var(--admin-strong-text)] transition hover:bg-[var(--admin-control-hover-bg)]"
-                    >
-                        <ScrollText className="h-4 w-4" />
-                        Xem log
-                    </Link>
                 </footer>
             </section>
         </div>
@@ -270,3 +253,5 @@ function formatDateTime(value?: string) {
 
     return date.toLocaleString("vi-VN");
 }
+
+

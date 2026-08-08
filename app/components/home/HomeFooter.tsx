@@ -40,7 +40,7 @@ export function HomeFooter() {
             </Link>
 
             <Link
-              href={APP_ROUTES.CLIENT.CHATS}
+              href={APP_ROUTES.CLIENT.ORDER_HISTORY}
               className="transition hover:text-orange-600 dark:hover:text-blue-300"
             >
               Lịch sử đơn hàng
