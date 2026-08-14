@@ -92,17 +92,10 @@ export function ChatComposer({
 
   if (chatClosed) {
     return (
-      <div className="sticky bottom-0 z-20 shrink-0 border-t border-[var(--client-card-border)] bg-white/94 px-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_28px_rgba(255,138,31,0.05)] backdrop-blur-2xl dark:bg-[#07111f]/94 dark:shadow-[0_-10px_28px_rgba(0,0,0,0.20)] sm:px-4 md:pb-2">
-        <div className="mx-auto w-full max-w-[960px]">
-          <div className="flex min-h-[54px] items-center gap-3 rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300">
-              <CheckCircle2 className="h-5 w-5" />
-            </span>
-
-            <p className="text-[14px] font-black leading-6">
-              Phiên tư vấn đã kết thúc sau khi đặt thợ.
-            </p>
-          </div>
+      <div className="sticky bottom-0 z-20 shrink-0 border-t border-[var(--client-card-border)] bg-white/94 px-3 py-3 shadow-sm backdrop-blur-2xl dark:bg-[#07111f]/94 sm:px-4">
+        <div className="mx-auto flex max-w-[960px] items-center justify-center gap-2.5 rounded-[18px] border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-center text-xs font-black text-emerald-800 dark:text-emerald-300">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <span>Phiên tư vấn đã kết thúc sau khi hoàn tất đặt thợ.</span>
         </div>
       </div>
     );

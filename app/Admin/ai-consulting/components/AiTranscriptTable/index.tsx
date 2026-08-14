@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Eye, MessageSquareText, Phone, Wrench } from "lucide-react";
 
@@ -23,11 +23,11 @@ export default function AiQualityReviewTable({
         </span>
 
         <h3 className="mt-4 text-xl font-black text-[var(--admin-strong-text)]">
-          ChÆ°a cÃ³ phiÃªn AI tÆ° váº¥n
+          Chưa có phiên AI tư vấn
         </h3>
 
         <p className="mt-2 max-w-md text-sm font-medium leading-6 text-[var(--admin-muted-text)]">
-          Hiá»‡n chÆ°a cÃ³ phiÃªn nÃ o cáº§n Ä‘Ã¡nh giÃ¡ cháº¥t lÆ°á»£ng AI.
+          Hiện chưa có phiên nào cần đánh giá chất lượng AI.
         </p>
       </section>
     );
@@ -38,23 +38,23 @@ export default function AiQualityReviewTable({
       <header className="flex flex-col gap-3 border-b border-[var(--admin-card-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h2 className="text-xl font-black tracking-tight text-[var(--admin-strong-text)]">
-            HÃ ng Ä‘á»£i Ä‘Ã¡nh giÃ¡ AI
+            Hàng đợi đánh giá AI
           </h2>
         </div>
 
         <span className="inline-flex h-9 w-fit shrink-0 items-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 text-sm font-black text-[var(--admin-strong-text)]">
-          {items.length} phiÃªn
+          {items.length} phiên
         </span>
       </header>
 
       <div className="hidden lg:block">
         <div className="grid grid-cols-[1.15fr_0.95fr_minmax(0,1.65fr)_1fr_1.1fr_1.05fr] items-center border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-3 text-xs font-black uppercase tracking-[0.08em] text-[var(--admin-muted-text)]">
-          <div>KhÃ¡ch hÃ ng</div>
-          <div>Thiáº¿t bá»‹</div>
-          <div>Váº¥n Ä‘á»</div>
-          <div>ÄÃ¡nh giÃ¡ AI</div>
-          <div>Gá»£i Ã½ xá»­ lÃ½</div>
-          <div className="text-right">Thao tÃ¡c</div>
+          <div>Khách hàng</div>
+          <div>Thiết bị</div>
+          <div>Vấn đề</div>
+          <div>Đánh giá AI</div>
+          <div>Gợi ý xử lý</div>
+          <div className="text-right">Thao tác</div>
         </div>
 
         <div className="max-h-[calc(100vh-370px)] min-h-[430px] divide-y divide-[var(--admin-card-border)] overflow-y-auto">
@@ -108,10 +108,8 @@ export default function AiQualityReviewTable({
                     className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-3 text-sm font-black text-[#0891B2] transition hover:bg-[#06B6D4]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
                   >
                     <Eye className="h-4 w-4" strokeWidth={2.5} />
-                    PhÃ¢n tÃ­ch
+                    Phân tích
                   </button>
-
-
                 </div>
               </div>
             );
@@ -139,7 +137,7 @@ export default function AiQualityReviewTable({
                 </h3>
 
                 <p className="mt-1 truncate text-sm font-semibold text-[var(--admin-muted-text)]">
-                  {item.deviceType} Â· {item.customerPhone}
+                  {item.deviceType} · {item.customerPhone}
                 </p>
               </button>
 
@@ -161,10 +159,8 @@ export default function AiQualityReviewTable({
                 className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-3 text-sm font-black text-[#0891B2] transition hover:bg-[#06B6D4]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
               >
                 <Eye className="h-4 w-4" strokeWidth={2.5} />
-                PhÃ¢n tÃ­ch
+                Phân tích
               </button>
-
-
             </div>
           </article>
         ))}
@@ -182,17 +178,17 @@ function QualityBadge({
 }) {
   const className =
     status === "CRITICAL"
-      ? "border-[#FF7A00]/35 bg-[#FF7A00]/10 text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FFB366]"
+      ? "border-[#EA580C] bg-[#EA580C] text-white"
       : status === "OUT_OF_SCOPE"
-        ? "border-[#A855F7]/35 bg-[#A855F7]/10 text-[#7E22CE] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#C084FC]"
+        ? "border-[#7C3AED] bg-[#7C3AED] text-white"
         : status === "NEEDS_RAG"
-          ? "border-[#22C55E]/35 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
-          : "border-[#06B6D4]/35 bg-[#06B6D4]/10 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]";
+          ? "border-[#D97706] bg-[#D97706] text-white"
+          : "border-[#059669] bg-[#059669] text-white";
 
   return (
     <span
       className={[
-        "inline-flex h-8 w-fit items-center rounded-full border px-3 text-xs font-black",
+        "inline-flex h-8 w-fit items-center rounded-full border px-3.5 text-xs font-bold text-white shadow-sm",
         className,
       ].join(" ")}
     >

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import type { ReactNode } from "react";
@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 
 import { aiReasoningAdminService } from "../services";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 import type {
   AiFeedback,
   AiReasoningLogItem,
@@ -62,6 +65,12 @@ export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
   const [reviewNote, setReviewNote] = useState(log.humanUsefulnessNote ?? "");
   const [isSavingReview, setIsSavingReview] = useState(false);
   const [reviewError, setReviewError] = useState("");
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const detail = currentLog as ExtendedLog;
 
@@ -104,12 +113,14 @@ export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
       setCurrentLog(updatedLog);
       setSelectedLabel(updatedLog.humanUsefulnessLabel ?? selectedLabel);
       setReviewNote(updatedLog.humanUsefulnessNote ?? "");
+      pushToast("success", "Đã lưu đánh giá thủ công của quản trị viên thành công!");
     } catch (error) {
       const message =
         error && typeof error === "object" && "message" in error
           ? String(error.message)
           : "Không lưu được đánh giá thủ công.";
       setReviewError(message);
+      pushToast("error", message);
     } finally {
       setIsSavingReview(false);
     }
@@ -236,6 +247,13 @@ export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
           />
         </SideSection>
       </aside>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </div>
   );
 }
@@ -576,7 +594,7 @@ function StateTabButton({
 
 function CodeBlock({ value }: { value: unknown }) {
   return (
-    <pre className="max-h-[360px] overflow-auto rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4 text-sm font-medium leading-7 text-[var(--admin-strong-text)]">
+    <pre className="max-h-[380px] overflow-auto rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4 text-xs sm:text-sm font-mono font-medium leading-6 text-[var(--admin-strong-text)]">
       {formatJson(value)}
     </pre>
   );

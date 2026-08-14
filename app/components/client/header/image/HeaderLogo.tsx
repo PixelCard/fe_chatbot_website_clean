@@ -5,7 +5,8 @@ export function HeaderLogo() {
   return (
     <Link
       href="/"
-      className="group flex shrink-0 items-center gap-3"
+      prefetch={true}
+      className="group flex shrink-0 items-center gap-3 transform-gpu"
       aria-label="Về trang chủ SMARTELEC"
     >
       <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#FF7A00] text-white shadow-[0_12px_26px_rgba(255,122,0,0.24)] transition-transform duration-200 group-hover:-translate-y-0.5">

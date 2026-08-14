@@ -25,7 +25,9 @@ function applyTheme(theme: ThemeMode) {
 
   root.classList.toggle('dark', theme === 'dark');
   root.dataset.theme = theme;
+  root.setAttribute('data-admin-theme', theme);
   window.localStorage.setItem(STORAGE_KEY, theme);
+  window.localStorage.setItem('smartelec-admin-theme', theme);
 }
 
 function getMaxRadiusFromPoint(x: number, y: number) {

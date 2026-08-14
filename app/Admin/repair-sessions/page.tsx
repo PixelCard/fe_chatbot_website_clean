@@ -8,9 +8,18 @@ import { RepairSessionFilterBar } from "./components/filter/RepairSessionFilterB
 import { useRepairSessionFilters } from "./hooks/useRepairSessionFilters";
 import { useRepairSessionsApi } from "./hooks/useRepairSessionsApi";
 import type { Technician } from "./types/repairSession.types";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 export default function RepairSessionsPage() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const {
     items: sessions,
@@ -90,15 +99,51 @@ export default function RepairSessionsPage() {
                 onSelectSession={(session) => setSelectedSessionId(session.id)}
                 onReassign={async (technicianId, _reason) => {
                   if (!selectedSession) return;
-                  await reassign(selectedSession.id, technicianId);
+                  try {
+                    await reassign(selectedSession.id, technicianId);
+                    pushToast(
+                      "success",
+                      `Đã điều phối lại thợ cho ca #${selectedSession.id}!`,
+                    );
+                  } catch (err) {
+                    const msg =
+                      err instanceof Error
+                        ? err.message
+                        : "Điều phối thợ thất bại.";
+                    pushToast("error", msg);
+                  }
                 }}
                 onUnassign={async (_reason) => {
                   if (!selectedSession) return;
-                  await unassign(selectedSession.id);
+                  try {
+                    await unassign(selectedSession.id);
+                    pushToast(
+                      "warning",
+                      `Đã ngắt gán thợ khỏi ca #${selectedSession.id}.`,
+                    );
+                  } catch (err) {
+                    const msg =
+                      err instanceof Error
+                        ? err.message
+                        : "Hủy gán thợ thất bại.";
+                    pushToast("error", msg);
+                  }
                 }}
                 onCancel={async (_reason) => {
                   if (!selectedSession) return;
-                  await cancel(selectedSession.id);
+                  try {
+                    await cancel(selectedSession.id);
+                    pushToast(
+                      "error",
+                      `Đã hủy ca sửa chữa #${selectedSession.id}!`,
+                    );
+                  } catch (err) {
+                    const msg =
+                      err instanceof Error
+                        ? err.message
+                        : "Hủy ca sửa chữa thất bại.";
+                    pushToast("error", msg);
+                  }
                 }}
                 submitting={isMutating}
               />
@@ -106,6 +151,13 @@ export default function RepairSessionsPage() {
           ) : null}
         </div>
       </main>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </AdminShell>
   );
 }

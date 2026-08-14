@@ -30,15 +30,10 @@ export default function AiReasoningLogDetailPage({
   return (
     <AdminShell>
       <div className="w-full min-w-0 space-y-5 px-4 py-4 sm:px-5 lg:px-6 xl:px-8">
-        <section className="relative overflow-hidden rounded-3xl border border-[var(--admin-card-border)] bg-[image:linear-gradient(135deg,var(--admin-card-bg)_0%,var(--admin-card-soft-bg)_100%)] px-5 py-5 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] sm:px-6 lg:px-7">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 w-64 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.2),transparent_68%)]"
-          />
-
+        <section className="admin-card relative overflow-hidden rounded-2xl p-5 sm:p-6">
           <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--admin-muted-text)]">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.16em]">
                 <Link
                   href="/admin/ai-reasoning-logs"
                   className="inline-flex items-center gap-1.5 rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 py-1.5 text-[var(--admin-strong-text)] transition hover:border-[var(--admin-accent)] hover:text-[var(--admin-accent)]"
@@ -47,7 +42,7 @@ export default function AiReasoningLogDetailPage({
                   Log suy luận AI
                 </Link>
 
-                <span className="inline-flex items-center rounded-full border border-[#06B6D4]/20 bg-[#06B6D4]/10 px-3 py-1.5 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]">
+                <span className="inline-flex items-center rounded-full border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-3 py-1.5 font-extrabold text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]">
                   LOG-{id}
                 </span>
               </div>
@@ -74,7 +69,7 @@ export default function AiReasoningLogDetailPage({
 
               <Link
                 href="/admin/ai-reasoning-logs"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-[var(--admin-cta-shadow)] transition hover:brightness-105"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-4 text-sm font-bold text-[#0891B2] transition hover:bg-[#06B6D4]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Quay lại

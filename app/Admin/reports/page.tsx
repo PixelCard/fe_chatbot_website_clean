@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { Pagination } from "@/app/components/Pagination";
 import {
   Area,
   Bar,
@@ -15,6 +16,7 @@ import {
 } from "recharts";
 import {
   CalendarDays,
+  ExternalLink,
   RefreshCcw,
   Search,
   TrendingUp,
@@ -39,11 +41,11 @@ type DatePreset = "7d" | "30d" | "90d" | "month" | "year";
 type ActivePreset = DatePreset | "custom";
 
 const presets: Array<{ value: DatePreset; label: string }> = [
-  { value: "7d", label: "7 ngÃ y" },
-  { value: "30d", label: "30 ngÃ y" },
-  { value: "90d", label: "90 ngÃ y" },
-  { value: "month", label: "ThÃ¡ng nÃ y" },
-  { value: "year", label: "NÄƒm nay" },
+  { value: "7d", label: "7 ngày" },
+  { value: "30d", label: "30 ngày" },
+  { value: "90d", label: "90 ngày" },
+  { value: "month", label: "Tháng này" },
+  { value: "year", label: "Năm nay" },
 ];
 
 function toInputDate(date: Date) {
@@ -117,13 +119,13 @@ function formatCompactVnd(value: number) {
   if (value >= 1_000_000_000) {
     return `${new Intl.NumberFormat("vi-VN", {
       maximumFractionDigits: 1,
-    }).format(value / 1_000_000_000)} tá»·`;
+    }).format(value / 1_000_000_000)} tỷ`;
   }
 
   if (value >= 1_000_000) {
     return `${new Intl.NumberFormat("vi-VN", {
       maximumFractionDigits: 1,
-    }).format(value / 1_000_000)} triá»‡u`;
+    }).format(value / 1_000_000)} triệu`;
   }
 
   return formatVnd(value);
@@ -134,7 +136,7 @@ function getSafeError(error: unknown) {
     return String(error.message);
   }
 
-  return "KhÃ´ng táº£i Ä‘Æ°á»£c thá»‘ng kÃª doanh thu.";
+  return "Không tải được thống kê doanh thu.";
 }
 
 const initialQuery: RevenueReportQuery = getPresetRange("30d");
@@ -228,13 +230,13 @@ export default function AdminRevenueReportsPage() {
           <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#06B6D4]/25 bg-[#06B6D4]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]">
               <TrendingUp className="h-3.5 w-3.5" />
-              Thá»‘ng kÃª doanh thu
+              Thống kê doanh thu
             </div>
             <h1 className="mt-3 text-2xl font-bold tracking-tight text-[var(--admin-strong-text)]">
-              Doanh thu theo thá»i gian
+              Doanh thu theo thời gian
             </h1>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--admin-muted-text)]">
-              Chá»n khoáº£ng thá»i gian Ä‘á»ƒ theo dÃµi doanh thu tá»« bÃ¡o giÃ¡ Ä‘Ã£ Ä‘Æ°á»£c cháº¥p nháº­n vÃ  sá»‘ ca phÃ¡t sinh trong há»‡ thá»‘ng.
+              Chọn khoảng thời gian để theo dõi doanh thu từ báo giá đã được chấp nhận và số ca phát sinh trong hệ thống.
             </p>
           </div>
 
@@ -244,7 +246,7 @@ export default function AdminRevenueReportsPage() {
             className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-4 text-sm font-bold text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]"
           >
             <RefreshCcw className="h-4 w-4" />
-            Táº£i láº¡i
+            Tải lại
           </button>
         </div>
 
@@ -252,17 +254,17 @@ export default function AdminRevenueReportsPage() {
           <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
             <div className="mb-3">
               <p className="text-sm font-black text-[var(--admin-strong-text)]">
-                Khoáº£ng thá»i gian tÃ¹y chá»n
+                Khoảng thời gian tùy chọn
               </p>
               <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-                Chá»n ngÃ y báº¯t Ä‘áº§u, ngÃ y káº¿t thÃºc vÃ  cÃ¡ch gom dá»¯ liá»‡u.
+                Chọn ngày bắt đầu, ngày kết thúc và cách gom dữ liệu.
               </p>
             </div>
 
             <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_180px_150px]">
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-[var(--admin-strong-text)]">
-                  Tá»« ngÃ y
+                  Từ ngày
                 </span>
                 <input
                   type="date"
@@ -276,7 +278,7 @@ export default function AdminRevenueReportsPage() {
 
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-[var(--admin-strong-text)]">
-                  Äáº¿n ngÃ y
+                  Đến ngày
                 </span>
                 <input
                   type="date"
@@ -290,7 +292,7 @@ export default function AdminRevenueReportsPage() {
 
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-[var(--admin-strong-text)]">
-                  Gom dá»¯ liá»‡u
+                  Gom dữ liệu
                 </span>
                 <select
                   value={draft.groupBy ?? "day"}
@@ -302,9 +304,9 @@ export default function AdminRevenueReportsPage() {
                   }
                   className={inputClassName}
                 >
-                  <option value="day">Theo ngÃ y</option>
-                  <option value="week">Theo tuáº§n</option>
-                  <option value="month">Theo thÃ¡ng</option>
+                  <option value="day">Theo ngày</option>
+                  <option value="week">Theo tuần</option>
+                  <option value="month">Theo tháng</option>
                 </select>
               </label>
 
@@ -315,7 +317,7 @@ export default function AdminRevenueReportsPage() {
                   className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-[var(--admin-cta-shadow)] transition hover:brightness-105"
                 >
                   <Search className="h-4 w-4" />
-                  Ãp dá»¥ng
+                  Áp dụng
                 </button>
               </div>
             </div>
@@ -324,10 +326,10 @@ export default function AdminRevenueReportsPage() {
 
           <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
             <p className="text-sm font-black text-[var(--admin-strong-text)]">
-              Má»‘c nhanh
+              Mốc nhanh
             </p>
             <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-              Chá»n nhanh khoáº£ng thá»‘ng kÃª thÆ°á»ng dÃ¹ng.
+              Chọn nhanh khoảng thống kê thường dùng.
             </p>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -351,10 +353,10 @@ export default function AdminRevenueReportsPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <KpiCard label="Tá»•ng doanh thu" value={formatVnd(summary.totalRevenue)} tone="orange" />
-          <KpiCard label="Sá»‘ ca phÃ¡t sinh" value={formatNumber(summary.totalJobs)} tone="cyan" />
-          <KpiCard label="BÃ¡o giÃ¡ cháº¥p nháº­n" value={formatNumber(summary.acceptedQuotes)} tone="green" />
-          <KpiCard label="GiÃ¡ trá»‹ trung bÃ¬nh" value={formatVnd(summary.averageOrderValue)} tone="slate" />
+          <KpiCard label="Tổng doanh thu" value={formatVnd(summary.totalRevenue)} tone="orange" />
+          <KpiCard label="Số ca phát sinh" value={formatNumber(summary.totalJobs)} tone="cyan" />
+          <KpiCard label="Báo giá chấp nhận" value={formatNumber(summary.acceptedQuotes)} tone="green" />
+          <KpiCard label="Giá trị trung bình" value={formatVnd(summary.averageOrderValue)} tone="slate" />
         </div>
 
         <section className="overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)]">
@@ -362,21 +364,21 @@ export default function AdminRevenueReportsPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-bold text-[var(--admin-strong-text)]">
-                Biá»ƒu Ä‘á»“ doanh thu
+                Biểu đồ doanh thu
               </h2>
               <p className="mt-1 text-sm text-[var(--admin-muted-text)]">
                 {state.data
-                  ? `${state.data.from} Ä‘áº¿n ${state.data.to}`
-                  : "Äang chá» dá»¯ liá»‡u thá»‘ng kÃª."}
+                  ? `${state.data.from} đến ${state.data.to}`
+                  : "Đang chờ dữ liệu thống kê."}
               </p>
             </div>
             <div className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--admin-muted-text)]">
               <CalendarDays className="h-4 w-4" />
               {activeGroupBy === "month"
-                ? "Theo thÃ¡ng"
+                ? "Theo tháng"
                 : activeGroupBy === "week"
-                  ? "Theo tuáº§n"
-                  : "Theo ngÃ y"}
+                  ? "Theo tuần"
+                  : "Theo ngày"}
             </div>
           </div>
           </div>
@@ -393,21 +395,21 @@ export default function AdminRevenueReportsPage() {
             <div className="space-y-4 p-4">
               <div className="grid gap-3 md:grid-cols-3">
                 <InsightCard
-                  label="Má»‘c doanh thu cao nháº¥t"
+                  label="Mốc doanh thu cao nhất"
                   value={peakRevenuePoint.label}
                   detail={formatVnd(peakRevenuePoint.revenue)}
                   tone="orange"
                 />
                 <InsightCard
-                  label="Tá»· lá»‡ bÃ¡o giÃ¡ cháº¥p nháº­n"
+                  label="Tỷ lệ báo giá chấp nhận"
                   value={`${acceptedRate}%`}
-                  detail={`${formatNumber(summary.acceptedQuotes)} bÃ¡o giÃ¡ / ${formatNumber(summary.totalJobs)} ca`}
+                  detail={`${formatNumber(summary.acceptedQuotes)} báo giá / ${formatNumber(summary.totalJobs)} ca`}
                   tone="green"
                 />
                 <InsightCard
-                  label="Doanh thu trung bÃ¬nh"
+                  label="Doanh thu trung bình"
                   value={formatCompactVnd(summary.averageOrderValue)}
-                  detail="TÃ­nh trÃªn bÃ¡o giÃ¡ Ä‘Ã£ cháº¥p nháº­n"
+                  detail="Tính trên báo giá đã chấp nhận"
                   tone="cyan"
                 />
               </div>
@@ -415,7 +417,7 @@ export default function AdminRevenueReportsPage() {
               <div className="min-w-0 overflow-hidden rounded-2xl border border-[var(--admin-soft-panel-border)] bg-[linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.98))] p-3 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(7,17,31,0.98))]">
                 <div className="mb-3 flex justify-end px-1">
                   <span className="rounded-full border border-[var(--admin-soft-panel-border)] bg-[var(--admin-control-bg)] px-3 py-1 text-xs font-bold text-[var(--admin-muted-text)]">
-                    Äá»‰nh: {peakRevenuePoint.label} Â· {formatCompactVnd(peakRevenuePoint.revenue)}
+                    Đỉnh: {peakRevenuePoint.label} · {formatCompactVnd(peakRevenuePoint.revenue)}
                   </span>
                 </div>
                 <div className="h-[430px] min-w-0">
@@ -487,7 +489,7 @@ export default function AdminRevenueReportsPage() {
                     yAxisId="jobs"
                     type="monotone"
                     dataKey="jobs"
-                    name="Sá»‘ ca"
+                    name="Số ca"
                     stroke="#06B6D4"
                     strokeWidth={3}
                     dot={{ r: 3.5, strokeWidth: 2, fill: "#06B6D4" }}
@@ -497,7 +499,7 @@ export default function AdminRevenueReportsPage() {
                     yAxisId="jobs"
                     type="monotone"
                     dataKey="acceptedQuotes"
-                    name="BÃ¡o giÃ¡ cháº¥p nháº­n"
+                    name="Báo giá chấp nhận"
                     stroke="#22C55E"
                     strokeWidth={2.6}
                     dot={{ r: 3.25, strokeWidth: 2, fill: "#22C55E" }}
@@ -508,14 +510,14 @@ export default function AdminRevenueReportsPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap justify-center gap-3">
                   <ChartLegend tone="orange" label="Doanh thu" />
-                  <ChartLegend tone="cyan" label="Sá»‘ ca" />
-                  <ChartLegend tone="green" label="BÃ¡o giÃ¡ cháº¥p nháº­n" />
+                  <ChartLegend tone="cyan" label="Số ca" />
+                  <ChartLegend tone="green" label="Báo giá chấp nhận" />
                 </div>
               </div>
             </div>
           ) : (
             <div className="m-4 rounded-2xl border border-dashed border-[var(--admin-soft-panel-border)] bg-[var(--admin-soft-panel)] p-8 text-center text-sm font-semibold text-[var(--admin-muted-text)]">
-              KhÃ´ng cÃ³ dá»¯ liá»‡u doanh thu trong khoáº£ng thá»i gian Ä‘Ã£ chá»n.
+              Không có dữ liệu doanh thu trong khoảng thời gian đã chọn.
             </div>
           )}
         </section>
@@ -545,28 +547,41 @@ function RevenueDetailTable({
   from: string;
   to: string;
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows, from, to]);
+
+  const totalPages = Math.ceil(rows.length / pageSize);
+  const paginatedRows = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return rows.slice(start, start + pageSize);
+  }, [rows, currentPage, pageSize]);
+
   return (
     <section className="overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)]">
       <div className="flex flex-col gap-2 border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[var(--admin-strong-text)]">
-            Chi tiáº¿t Ä‘Æ¡n hÃ ng
+            Chi tiết đơn hàng
           </h2>
           <p className="mt-1 text-sm font-semibold text-[var(--admin-muted-text)]">
             {from && to
-              ? `CÃ¡c ca sá»­a phÃ¡t sinh tá»« ${from} Ä‘áº¿n ${to}`
-              : "Danh sÃ¡ch ca sá»­a phÃ¡t sinh trong khoáº£ng Ä‘ang chá»n."}
+              ? `Các ca sửa phát sinh từ ${from} đến ${to}`
+              : "Danh sách ca sửa phát sinh trong khoảng đang chọn."}
           </p>
         </div>
 
         <span className="w-fit rounded-full border border-[var(--admin-soft-panel-border)] bg-[var(--admin-control-bg)] px-3 py-1 text-xs font-black uppercase tracking-[0.1em] text-[var(--admin-muted-text)]">
-          {formatNumber(rows.length)} dÃ²ng
+          {formatNumber(rows.length)} dòng
         </span>
       </div>
 
       {error ? (
         <div className="m-4 rounded-2xl border border-rose-300/70 bg-rose-50 p-4 text-sm font-semibold text-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-400/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-500/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-200">
-          KhÃ´ng thá»ƒ táº£i chi tiáº¿t doanh thu: {error}
+          Không thể tải chi tiết doanh thu: {error}
         </div>
       ) : loading ? (
         <div className="space-y-3 p-4">
@@ -578,91 +593,108 @@ function RevenueDetailTable({
           ))}
         </div>
       ) : rows.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] table-auto">
-            <thead>
-              <tr className="border-b border-[var(--admin-card-border)] text-left text-[11px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
-                <th className="px-4 py-3">PhiÃªn / khÃ¡ch hÃ ng</th>
-                <th className="px-4 py-3">Thiáº¿t bá»‹</th>
-                <th className="px-4 py-3">Thá»£ phá»¥ trÃ¡ch</th>
-                <th className="px-4 py-3">BÃ¡o giÃ¡</th>
-                <th className="px-4 py-3">NgÃ y táº¡o</th>
-                <th className="px-4 py-3 text-right">Doanh thu</th>
-                <th className="px-4 py-3 text-right">Thao tÃ¡c</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-[var(--admin-card-border)]">
-              {rows.map((row) => (
-                <tr
-                  key={row.sessionId}
-                  className="text-sm text-[var(--admin-theme-text)] transition hover:bg-[var(--admin-row-hover)]"
-                >
-                  <td className="px-4 py-3">
-                    <p className="font-bold text-[var(--admin-strong-text)]">
-                      SE-{row.sessionId}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-                      {row.sessionStatus} Â· {row.customerName || "KhÃ¡ch hÃ ng"} Â·{" "}
-                      {row.customerPhone || "ChÆ°a cÃ³ SÄT"}
-                    </p>
-                  </td>
-
-                  <td className="max-w-[260px] px-4 py-3">
-                    <p className="truncate font-bold text-[var(--admin-strong-text)]">
-                      {row.deviceType || "ChÆ°a rÃµ thiáº¿t bá»‹"}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--admin-muted-text)]">
-                      {row.symptom || "ChÆ°a cÃ³ mÃ´ táº£ sá»± cá»‘"}
-                    </p>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <p className="font-bold text-[var(--admin-strong-text)]">
-                      {row.technicianName || "ChÆ°a gÃ¡n thá»£"}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-                      {row.technicianPhone || "ChÆ°a cÃ³ SÄT"}
-                    </p>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <p className="font-bold text-[var(--admin-strong-text)]">
-                      {row.acceptedQuoteCount > 0
-                        ? `${formatNumber(row.acceptedQuoteCount)} Ä‘Ã£ cháº¥p nháº­n`
-                        : "ChÆ°a cÃ³"}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
-                      {row.latestQuoteTitle ||
-                        (row.latestQuoteId ? `#${row.latestQuoteId}` : "ChÆ°a phÃ¡t sinh doanh thu")}
-                    </p>
-                  </td>
-
-                  <td className="px-4 py-3 text-sm font-semibold text-[var(--admin-muted-text)]">
-                    {formatDateTime(row.createdAt)}
-                  </td>
-
-                  <td className="px-4 py-3 text-right text-sm font-black text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]">
-                    {formatVnd(row.acceptedRevenue)}
-                  </td>
-
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href="/admin/chats"
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 text-xs font-black text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]"
-                    >
-                      Má»Ÿ phiÃªn
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
-                  </td>
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[980px] table-auto">
+              <thead>
+                <tr className="border-b border-[var(--admin-card-border)] text-left text-[11px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
+                  <th className="px-4 py-3">Phiên / khách hàng</th>
+                  <th className="px-4 py-3">Thiết bị</th>
+                  <th className="px-4 py-3">Thợ phụ trách</th>
+                  <th className="px-4 py-3">Báo giá</th>
+                  <th className="px-4 py-3">Ngày tạo</th>
+                  <th className="px-4 py-3 text-right">Doanh thu</th>
+                  <th className="px-4 py-3 text-right">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody className="divide-y divide-[var(--admin-card-border)]">
+                {paginatedRows.map((row) => (
+                  <tr
+                    key={row.sessionId}
+                    className="text-sm text-[var(--admin-theme-text)] transition hover:bg-[var(--admin-row-hover)]"
+                  >
+                    <td className="px-4 py-3">
+                      <p className="font-bold text-[var(--admin-strong-text)]">
+                        SE-{row.sessionId}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
+                        {row.sessionStatus} · {row.customerName || "Khách hàng"} ·{" "}
+                        {row.customerPhone || "Chưa có SĐT"}
+                      </p>
+                    </td>
+
+                    <td className="max-w-[260px] px-4 py-3">
+                      <p className="truncate font-bold text-[var(--admin-strong-text)]">
+                        {row.deviceType || "Chưa rõ thiết bị"}
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--admin-muted-text)]">
+                        {row.symptom || "Chưa có mô tả sự cố"}
+                      </p>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <p className="font-bold text-[var(--admin-strong-text)]">
+                        {row.technicianName || "Chưa gán thợ"}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
+                        {row.technicianPhone || "Chưa có SĐT"}
+                      </p>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <p className="font-bold text-[var(--admin-strong-text)]">
+                        {row.acceptedQuoteCount > 0
+                          ? `${formatNumber(row.acceptedQuoteCount)} đã chấp nhận`
+                          : "Chưa có"}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
+                        {row.latestQuoteTitle ||
+                          (row.latestQuoteId ? `#${row.latestQuoteId}` : "Chưa phát sinh doanh thu")}
+                      </p>
+                    </td>
+
+                    <td className="px-4 py-3 text-sm font-semibold text-[var(--admin-muted-text)]">
+                      {formatDateTime(row.createdAt)}
+                    </td>
+
+                    <td className="px-4 py-3 text-right text-sm font-black text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]">
+                      {formatVnd(row.acceptedRevenue)}
+                    </td>
+
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href="/admin/chats"
+                        className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 text-xs font-black text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]"
+                      >
+                        Mở phiên
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 ? (
+            <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-4 py-4 sm:flex-row sm:px-6">
+              <p className="text-sm font-semibold text-[var(--admin-muted-text)]">
+                Trang {currentPage}/{totalPages} · Hiển thị {paginatedRows.length}/{rows.length} đơn hàng
+              </p>
+              <div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </div>
+          ) : null}
+        </>
       ) : (
         <div className="m-4 rounded-2xl border border-dashed border-[var(--admin-soft-panel-border)] bg-[var(--admin-soft-panel)] p-8 text-center text-sm font-semibold text-[var(--admin-muted-text)]">
-          ChÆ°a cÃ³ Ä‘Æ¡n hÃ ng trong khoáº£ng thá»i gian nÃ y.
+          Chưa có đơn hàng trong khoảng thời gian này.
         </div>
       )}
     </section>
@@ -678,21 +710,27 @@ function KpiCard({
   value: string;
   tone: "orange" | "cyan" | "green" | "slate";
 }) {
-  const toneClass = {
-    orange:
-      "border-[#FDBA74]/70 bg-[#FFF7ED] text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F97316]/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#23160B] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]",
-    cyan:
-      "border-[#A5F3FC]/70 bg-[#ECFEFF] text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#06B6D4]/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#061A28] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
-    green:
-      "border-[#BBF7D0]/70 bg-[#F0FDF4] text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#22C55E]/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#08210F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
-    slate:
-      "border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] text-[var(--admin-strong-text)]",
+  const accentBar = {
+    orange: "bg-[#F97316]",
+    cyan: "bg-[#06B6D4]",
+    green: "bg-[#22C55E]",
+    slate: "bg-slate-400 dark:bg-slate-600",
+  }[tone];
+
+  const valueColor = {
+    orange: "text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]",
+    cyan: "text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
+    green: "text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
+    slate: "text-[var(--admin-strong-text)]",
   }[tone];
 
   return (
-    <article className={["rounded-2xl border p-4", toneClass].join(" ")}>
-      <p className="text-sm font-bold opacity-80">{label}</p>
-      <p className="mt-2 break-words text-2xl font-black tracking-tight">
+    <article className="admin-card relative overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4 sm:p-5 shadow-sm transition-all hover:border-[var(--admin-control-hover-border)] hover:shadow-md">
+      <span aria-hidden="true" className={["absolute inset-x-0 top-0 h-1", accentBar].join(" ")} />
+      <p className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--admin-muted-text)]">
+        {label}
+      </p>
+      <p className={["mt-2 break-words text-2xl font-black tracking-tight sm:text-3xl", valueColor].join(" ")}>
         {value}
       </p>
     </article>
@@ -731,24 +769,30 @@ function InsightCard({
   detail: string;
   tone: "orange" | "cyan" | "green";
 }) {
-  const toneClass = {
-    orange:
-      "border-[#FDBA74]/70 bg-[#FFF7ED] text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F97316]/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#23160B] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]",
-    cyan:
-      "border-[#A5F3FC]/70 bg-[#ECFEFF] text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#06B6D4]/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#061A28] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
-    green:
-      "border-[#BBF7D0]/70 bg-[#F0FDF4] text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#22C55E]/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#08210F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
+  const accentBar = {
+    orange: "bg-[#F97316]",
+    cyan: "bg-[#06B6D4]",
+    green: "bg-[#22C55E]",
+  }[tone];
+
+  const valueColor = {
+    orange: "text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FDBA74]",
+    cyan: "text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
+    green: "text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
   }[tone];
 
   return (
-    <article className={["rounded-2xl border p-4", toneClass].join(" ")}>
-      <p className="text-xs font-black uppercase tracking-[0.12em] opacity-75">
+    <article className="admin-card relative overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4 sm:p-5 shadow-sm transition-all hover:border-[var(--admin-control-hover-border)] hover:shadow-md">
+      <span aria-hidden="true" className={["absolute inset-x-0 top-0 h-1", accentBar].join(" ")} />
+      <p className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--admin-muted-text)]">
         {label}
       </p>
-      <p className="mt-3 break-words text-2xl font-black tracking-tight">
+      <p className={["mt-2 break-words text-2xl font-black tracking-tight sm:text-3xl", valueColor].join(" ")}>
         {value}
       </p>
-      <p className="mt-2 text-sm font-bold opacity-80">{detail}</p>
+      <p className="mt-2 text-xs font-semibold text-[var(--admin-subtle-text)]">
+        {detail}
+      </p>
     </article>
   );
 }
@@ -809,9 +853,3 @@ function RevenueTooltip({
 
 const inputClassName =
   "h-10 w-full rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 text-sm font-semibold text-[var(--admin-theme-text)] outline-none transition hover:border-[var(--admin-control-hover-border)] focus:border-[#06B6D4]/70 focus:ring-2 focus:ring-[var(--admin-focus-ring)]";
-
-
-
-
-
-

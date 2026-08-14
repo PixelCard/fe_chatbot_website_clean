@@ -271,11 +271,11 @@ function ViewButton({
       type="button"
       onClick={onClick}
       className={[
-        "inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 font-bold text-cyan-300 transition hover:bg-cyan-500/20",
-        compact ? "h-10 px-4 text-sm" : "h-11 px-5 text-base",
+        "inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/35 bg-cyan-500/15 font-bold text-[#0891B2] transition hover:bg-cyan-500/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-cyan-400/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-cyan-500/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
+        compact ? "h-9 px-3.5 text-xs sm:text-sm" : "h-10 px-4 text-sm",
       ].join(" ")}
     >
-      <Eye className={compact ? "h-4 w-4" : "h-5 w-5"} strokeWidth={2.5} />
+      <Eye className={compact ? "h-4 w-4" : "h-4 w-4"} strokeWidth={2.3} />
       Chi tiết
     </button>
   );

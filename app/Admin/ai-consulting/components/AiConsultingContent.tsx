@@ -12,6 +12,9 @@ import AiConsultingPagination from "./AiConsultingPagination";
 import AiKpiDashboard from "./AiKpiDashboard";
 import AiQualityInsightPanel from "./AiQualityInsightPanel";
 import AiQualityReviewTable from "./AiQualityReviewTable";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 type AiConsultingContentProps = {
     title: string;
@@ -27,6 +30,12 @@ export default function AiConsultingContent({
     const [page, setPage] = useState(1);
     const [selectedSession, setSelectedSession] =
         useState<AiQualitySessionItem | null>(null);
+    const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+    const pushToast = (type: AdminToast["type"], text: string) => {
+        const id = `${Date.now()}-${Math.random()}`;
+        setToasts((prev) => [...prev, { id, type, text }]);
+    };
 
     const { items, isLoading, error, refetch } = useAiConsultingApi();
 
@@ -83,6 +92,13 @@ export default function AiConsultingContent({
             <AiQualityInsightPanel
                 session={selectedSession}
                 onClose={() => setSelectedSession(null)}
+            />
+
+            <AdminToastStack
+                toasts={toasts}
+                onRemove={(id) =>
+                    setToasts((prev) => prev.filter((item) => item.id !== id))
+                }
             />
         </AdminShell>
     );

@@ -5,7 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronDown, Layers, LogOut, User } from "lucide-react";
 
-import { clearClientSession } from "@/app/auth/utils/session";
+import { clearClientSession, getClientTokenFromDocument } from "@/app/auth/utils/session";
+import { authService } from "@/app/auth/services/auth.service";
+import { apiClient } from "@/app/services/apiClient";
 import { APP_ROUTES } from "@/app/config/routes";
 
 import { AdminRippleThemeToggle } from "../Theme/AdminRippleTheme";
@@ -180,11 +182,12 @@ const defaultMeta: RouteMeta = {
 type AdminProfileState = {
   name: string;
   email: string;
+  avatarUrl?: string;
 };
 
 const DEFAULT_ADMIN_PROFILE: AdminProfileState = {
-  name: "Quản trị viên",
-  email: "admin@smartelec.vn",
+  name: "Nguyễn Trường Quý",
+  email: "quy1chatgpt@gmail.com",
 };
 
 function getRouteMeta(pathname: string): RouteMeta {
@@ -222,12 +225,17 @@ function readAdminProfile(): AdminProfileState {
 
     const parsed = JSON.parse(rawProfile) as {
       name?: string;
+      fullName?: string;
       email?: string;
+      avatarUrl?: string;
+      avatar_url?: string;
+      avatar?: string;
     };
 
     return {
-      name: parsed.name?.trim() || DEFAULT_ADMIN_PROFILE.name,
+      name: parsed.fullName?.trim() || parsed.name?.trim() || DEFAULT_ADMIN_PROFILE.name,
       email: parsed.email?.trim() || DEFAULT_ADMIN_PROFILE.email,
+      avatarUrl: (parsed.avatarUrl || parsed.avatar_url || parsed.avatar)?.trim(),
     };
   } catch {
     return DEFAULT_ADMIN_PROFILE;
@@ -245,12 +253,28 @@ export default function AdminTopbar() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
-      setMounted(true);
-      setProfile(readAdminProfile());
-    });
+    setMounted(true);
+    const localProfile = readAdminProfile();
+    setProfile(localProfile);
 
-    return () => window.cancelAnimationFrame(frameId);
+    const token = getClientTokenFromDocument();
+    if (token) {
+      authService
+        .getProfile(token)
+        .then((res) => {
+          if (res && typeof res === "object") {
+            const name = res.fullName?.trim() || localProfile.name;
+            const email = res.email?.trim() || localProfile.email;
+            const avatarUrl = res.avatarUrl?.trim() || localProfile.avatarUrl;
+            const updated: AdminProfileState = { name, email, avatarUrl };
+            setProfile(updated);
+            try {
+              window.localStorage.setItem("user_profile", JSON.stringify(updated));
+            } catch {}
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const displayProfile = mounted ? profile : DEFAULT_ADMIN_PROFILE;
@@ -262,7 +286,7 @@ export default function AdminTopbar() {
   };
 
   return (
-    <header className="admin-card relative z-20 overflow-visible rounded-2xl px-5 py-4 sm:px-6">
+    <header className="admin-card relative z-20 overflow-visible rounded-2xl px-6 py-5 sm:px-7 sm:py-6">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--admin-accent)]/30 to-transparent"
@@ -287,39 +311,47 @@ export default function AdminTopbar() {
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 self-start xl:self-center">
+        <div className="flex shrink-0 items-center gap-4 self-start xl:self-center">
           <AdminRippleThemeToggle />
 
           <div className="group relative shrink-0 py-1">
             <button
               type="button"
-              className="admin-profile-button min-w-0 max-w-[340px]"
+              className="admin-profile-button min-w-0 max-w-[400px] !py-2.5 !px-4 hover:scale-[1.01] transition-transform"
               aria-label="Mở menu quản trị viên"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--admin-accent)] text-sm font-bold text-[var(--admin-avatar-text)]">
-                {getInitials(displayProfile.name)}
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-[var(--admin-accent)]/40 bg-[image:var(--admin-cta-bg)] text-xl font-black text-white shadow-lg shadow-[#06B6D4]/15">
+                {displayProfile.avatarUrl ? (
+                  <img
+                    src={displayProfile.avatarUrl}
+                    alt={displayProfile.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  getInitials(displayProfile.name)
+                )}
               </div>
 
               <div className="hidden min-w-0 text-left sm:block">
-                <p className="truncate text-sm font-bold text-[var(--admin-strong-text)]">
+                <p className="truncate text-base font-black text-[var(--admin-strong-text)]">
                   {displayProfile.name}
                 </p>
 
-                <p className="truncate text-xs font-semibold text-[var(--admin-theme-text)]">
+                <p className="truncate text-xs font-semibold text-[var(--admin-muted-text)] mt-0.5">
                   Phiên quản trị đang hoạt động
                 </p>
               </div>
 
-              <ChevronDown className="hidden h-4 w-4 shrink-0 text-[var(--admin-theme-text)] transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180 sm:block" />
+              <ChevronDown className="hidden h-5 w-5 shrink-0 text-[var(--admin-theme-text)] transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180 sm:block" />
             </button>
 
-            <div className="invisible absolute right-0 top-full z-50 w-[min(280px,calc(100vw-24px))] translate-y-2 rounded-2xl border border-[var(--admin-soft-panel-border)] bg-[var(--admin-card-bg)] py-2 opacity-0 shadow-[0_24px_60px_-28px_rgba(15,23,42,0.38)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#07111F]">
-              <div className="border-b border-[var(--admin-soft-panel-border)] px-4 py-3 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F]">
-                <p className="truncate text-sm font-bold text-[var(--admin-strong-text)]">
+            <div className="invisible absolute right-0 top-full z-[100] mt-2 w-[min(280px,calc(100vw-24px))] translate-y-2 rounded-2xl border border-slate-200 bg-white p-1.5 opacity-0 shadow-[0_24px_70px_rgba(0,0,0,0.4)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0B1424]">
+              <div className="rounded-xl border-b border-slate-100 bg-slate-50 px-4 py-3 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0F192B]">
+                <p className="truncate text-sm font-bold text-slate-900 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
                   {displayProfile.name}
                 </p>
 
-                <p className="mt-0.5 truncate text-xs font-medium text-[var(--admin-theme-text)]">
+                <p className="mt-0.5 truncate text-xs font-semibold text-slate-500 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#CBD5E1]">
                   {displayProfile.email}
                 </p>
               </div>
@@ -327,9 +359,9 @@ export default function AdminTopbar() {
               <div className="py-1">
                 <Link
                   href={APP_ROUTES.Auth.UPDATE_PROFILE}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--admin-strong-text)] transition-colors hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)]"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-100 hover:text-orange-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-[#132039] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:text-[#22D3EE]"
                 >
-                  <User className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <User className="h-4 w-4 shrink-0 text-slate-400 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#94A3B8]" aria-hidden="true" />
                   Thông tin cá nhân
                 </Link>
               </div>
@@ -337,7 +369,7 @@ export default function AdminTopbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 border-t border-[var(--admin-soft-panel-border)] px-4 py-2.5 text-left text-sm font-semibold text-[#EF4444] transition-colors hover:bg-[#EF4444]/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]"
+                className="flex w-full items-center gap-3 rounded-xl border-t border-slate-100 px-4 py-2.5 text-left text-sm font-semibold text-rose-600 transition-colors hover:bg-rose-50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-rose-500/10"
               >
                 <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
                 Đăng xuất

@@ -67,7 +67,10 @@ export default function ChunkViewerPanel({
   const [draft, setDraft] = useState(searchValue);
   const [copied, setCopied] = useState(false);
 
-  const visibleChunks = useMemo(() => data?.chunks ?? [], [data?.chunks]);
+  const visibleChunks = useMemo(() => {
+    const raw = data?.chunks ?? [];
+    return raw.slice(0, 10);
+  }, [data?.chunks]);
   const pagination = data?.pagination;
 
   const originalFileName =
@@ -116,8 +119,8 @@ export default function ChunkViewerPanel({
   };
 
   return (
-    <section className="admin-card overflow-hidden rounded-[28px] border border-[var(--admin-card-border)] shadow-sm">
-      <header className="border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-5 sm:px-6">
+    <section className="admin-card w-full overflow-hidden rounded-[28px] border border-[var(--admin-card-border)] shadow-sm">
+      <header className="border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-5 sm:px-8">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex min-w-0 items-start gap-4">
             <IconBox tone="cyan">
@@ -170,7 +173,7 @@ export default function ChunkViewerPanel({
         </div>
       </header>
 
-      <div className="border-b border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-5 py-4 sm:px-6">
+      <div className="border-b border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-5 py-4 sm:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <label className="relative block flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--admin-muted-text)]" />
@@ -197,55 +200,43 @@ export default function ChunkViewerPanel({
         </div>
       </div>
 
-      <div className="min-w-0">
+      <div className="min-w-0 bg-[var(--admin-card-soft-bg)]">
         {isLoading ? (
           <ChunkListSkeleton />
         ) : visibleChunks.length > 0 ? (
-          <div className="divide-y divide-[var(--admin-card-border)]">
+          <div className="grid grid-cols-1 gap-4 p-5 sm:p-6 lg:grid-cols-2 2xl:grid-cols-3">
             {visibleChunks.map((chunk) => (
               <article
                 key={chunk.id}
-                className="group px-5 py-5 transition hover:bg-[var(--admin-control-hover-bg)] sm:px-6"
+                onClick={() => handleViewChunk(chunk.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") handleViewChunk(chunk.id);
+                }}
+                className="group flex h-full cursor-pointer flex-col rounded-[20px] border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--admin-accent)] hover:shadow-md focus-visible:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-[var(--admin-accent)]"
               >
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <TagPill tone="cyan">
-                        Đoạn #{chunk.chunkIndex + 1}
-                      </TagPill>
+                <div className="flex flex-wrap items-center gap-2">
+                  <TagPill tone="cyan">Đoạn #{chunk.chunkIndex + 1}</TagPill>
 
-                      <TagPill tone={chunk.hasEmbedding ? "green" : "slate"}>
-                        {chunk.hasEmbedding
-                          ? "Đã có embedding"
-                          : "Chưa embedding"}
-                      </TagPill>
+                  <TagPill tone={chunk.hasEmbedding ? "green" : "slate"}>
+                    {chunk.hasEmbedding ? "Đã có embedding" : "Chưa embedding"}
+                  </TagPill>
 
-                      <TagPill tone={chunk.isActive ? "green" : "red"}>
-                        {chunk.isActive ? "Hoạt động" : "Tạm khóa"}
-                      </TagPill>
-                    </div>
-
-                    <h3 className="mt-3 line-clamp-2 text-[18px] font-black leading-7 text-[var(--admin-strong-text)]">
-                      {chunk.title ||
-                        chunk.section ||
-                        "Không có tiêu đề đoạn"}
-                    </h3>
-
-                    <p className="mt-3 line-clamp-4 whitespace-pre-wrap break-words text-[15px] font-semibold leading-7 text-[var(--admin-muted-text)]">
-                      {chunk.content}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleViewChunk(chunk.id)}
-                    className="inline-flex h-11 shrink-0 items-center justify-center rounded-[14px] border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-4 text-[14px] font-black text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)] active:scale-95"
-                  >
-                    Xem chi tiết
-                  </button>
+                  <TagPill tone={chunk.isActive ? "green" : "red"}>
+                    {chunk.isActive ? "Hoạt động" : "Tạm khóa"}
+                  </TagPill>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2.5">
+                <h3 className="mt-3 line-clamp-2 text-[17px] font-black leading-6 text-[var(--admin-strong-text)]">
+                  {chunk.title || chunk.section || "Không có tiêu đề đoạn"}
+                </h3>
+
+                <p className="mt-2 line-clamp-4 flex-1 whitespace-pre-wrap break-words text-[14px] font-semibold leading-6 text-[var(--admin-muted-text)]">
+                  {chunk.content}
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--admin-card-border)] pt-3">
                   <TagPill>
                     <Hash className="h-3.5 w-3.5 text-[var(--admin-muted-text)]" />
                     {chunk.charCount ?? 0} ký tự
@@ -270,6 +261,11 @@ export default function ChunkViewerPanel({
                     </TagPill>
                   ) : null}
                 </div>
+
+                <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-black text-[var(--admin-accent)] opacity-0 transition group-hover:opacity-100">
+                  Xem chi tiết
+                  <ChevronRight className="h-4 w-4" />
+                </span>
               </article>
             ))}
           </div>
@@ -278,7 +274,7 @@ export default function ChunkViewerPanel({
         )}
 
         {pagination && pagination.totalPages > 1 ? (
-          <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--admin-card-border)] px-5 py-5 lg:flex-row sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-5 py-5 lg:flex-row sm:px-8">
             <p className="text-[15px] font-semibold text-[var(--admin-muted-text)]">
               Trang {pagination.page}/{pagination.totalPages} ·{" "}
               {pagination.total} kết quả
@@ -331,13 +327,13 @@ function ChunkDetailModal({
   onNavigate: (chunkId: number) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-[3px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/55 px-3 py-4 backdrop-blur-sm">
       <button
         type="button"
         onClick={() => previousChunk && onNavigate(previousChunk.id)}
         disabled={!previousChunk || isChunkLoading}
         aria-label="Xem chunk trước"
-        className="absolute left-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white text-[#111827] shadow-2xl transition hover:bg-white/90 disabled:pointer-events-none disabled:opacity-30 md:flex"
+        className="absolute left-3 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] text-[var(--admin-strong-text)] shadow-2xl transition hover:bg-[var(--admin-control-hover-bg)] disabled:pointer-events-none disabled:opacity-30 md:flex"
       >
         <ChevronLeft className="h-6 w-6" />
       </button>
@@ -347,13 +343,13 @@ function ChunkDetailModal({
         onClick={() => nextChunk && onNavigate(nextChunk.id)}
         disabled={!nextChunk || isChunkLoading}
         aria-label="Xem chunk kế tiếp"
-        className="absolute right-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white text-[#111827] shadow-2xl transition hover:bg-white/90 disabled:pointer-events-none disabled:opacity-30 md:flex"
+        className="absolute right-3 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] text-[var(--admin-strong-text)] shadow-2xl transition hover:bg-[var(--admin-control-hover-bg)] disabled:pointer-events-none disabled:opacity-30 md:flex"
       >
         <ChevronRight className="h-6 w-6" />
       </button>
 
-      <div className="admin-card flex max-h-[calc(100dvh-32px)] w-[min(1180px,calc(100vw-32px))] flex-col overflow-hidden rounded-[24px] shadow-2xl">
-        <header className="shrink-0 border-b border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-5 py-5 sm:px-6">
+      <div className="admin-card flex max-h-[calc(100dvh-32px)] w-[min(1080px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl shadow-2xl">
+        <header className="shrink-0 border-b border-[var(--admin-soft-panel-border)] bg-[var(--admin-soft-panel)] px-5 py-5 sm:px-8">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -378,28 +374,50 @@ function ChunkDetailModal({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Đóng chi tiết chunk"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)] active:scale-95"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              {/* Nút điều hướng dạng inline cho tablet/mobile, thay cho nút nổi 2 bên */}
+              <button
+                type="button"
+                onClick={() => previousChunk && onNavigate(previousChunk.id)}
+                disabled={!previousChunk || isChunkLoading}
+                aria-label="Xem chunk trước"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-strong-text)] transition hover:bg-[var(--admin-control-hover-bg)] disabled:cursor-not-allowed disabled:opacity-30 md:hidden"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => nextChunk && onNavigate(nextChunk.id)}
+                disabled={!nextChunk || isChunkLoading}
+                aria-label="Xem chunk kế tiếp"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-strong-text)] transition hover:bg-[var(--admin-control-hover-bg)] disabled:cursor-not-allowed disabled:opacity-30 md:hidden"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Đóng chi tiết chunk"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)] active:scale-95"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--admin-card-bg)]">
           {isChunkLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-4 p-5 sm:p-8">
               <div className="h-12 animate-pulse rounded-2xl bg-[var(--admin-card-soft-bg)]" />
               <div className="h-[360px] animate-pulse rounded-2xl bg-[var(--admin-card-soft-bg)]" />
             </div>
           ) : (
-            <div className="grid gap-5">
-              <MetadataSection selectedChunk={selectedChunk} compact />
-
-              <section>
+            <div>
+              {/* Cột trái: nội dung chunk + JSON raw, cuộn độc lập */}
+              <div className="p-5 sm:p-8">
                 <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <h4 className="flex items-center gap-2 text-[13px] font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
                     <FileText className="h-4 w-4" />
@@ -430,28 +448,33 @@ function ChunkDetailModal({
                   </button>
                 </div>
 
-                <div className="max-h-[48vh] overflow-y-auto whitespace-pre-wrap break-words rounded-[22px] border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5 text-[16px] font-medium leading-8 text-[var(--admin-strong-text)] sm:text-[17px]">
+                <div className="whitespace-pre-wrap break-words rounded-[22px] border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5 text-[16px] font-medium leading-8 text-[var(--admin-strong-text)] sm:text-[17px]">
                   {selectedChunk.content}
                 </div>
-              </section>
 
-              <details className="rounded-[22px] border border-dashed border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
-                <summary className="flex cursor-pointer items-center gap-2 text-[13px] font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
-                  <Database className="h-4 w-4" />
-                  Dữ liệu JSON raw metadata
-                </summary>
+                <details className="mt-5 rounded-[22px] border border-dashed border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
+                  <summary className="flex cursor-pointer items-center gap-2 text-[13px] font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
+                    <Database className="h-4 w-4" />
+                    Dữ liệu JSON raw metadata
+                  </summary>
 
-                <pre className="mt-4 max-h-[220px] overflow-auto whitespace-pre-wrap break-words rounded-[18px] border border-neutral-800 bg-neutral-950 p-4 font-mono text-[13px] leading-7 text-zinc-300">
-                  {JSON.stringify(selectedChunk.metadata || {}, null, 2)}
-                </pre>
-              </details>
+                  <pre className="mt-4 max-h-[260px] overflow-auto whitespace-pre-wrap break-words rounded-[18px] border border-neutral-800 bg-neutral-950 p-4 font-mono text-[13px] leading-7 text-zinc-300">
+                    {JSON.stringify(selectedChunk.metadata || {}, null, 2)}
+                  </pre>
+                </details>
+              </div>
+
+              {/* Cột phải: metadata dạng sidebar, cuộn độc lập, dính khi cần */}
+              <aside className="border-t border-[var(--admin-card-border)] bg-[var(--admin-soft-panel)] p-5 sm:p-6">
+                <MetadataSection selectedChunk={selectedChunk} layout="stack" />
+              </aside>
             </div>
           )}
         </div>
 
-        <footer className="shrink-0 border-t border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-5 py-4 sm:px-6">
+        <footer className="shrink-0 border-t border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-5 py-4 sm:px-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="grid grid-cols-2 gap-2 sm:flex">
+            <div className="hidden gap-2 sm:flex">
               <button
                 type="button"
                 onClick={() => previousChunk && onNavigate(previousChunk.id)}
@@ -489,10 +512,10 @@ function ChunkDetailModal({
 
 function MetadataSection({
   selectedChunk,
-  compact = false,
+  layout = "grid",
 }: {
   selectedChunk: RagChunkDetail;
-  compact?: boolean;
+  layout?: "grid" | "stack";
 }) {
   const primaryMetadata = [
     {
@@ -555,40 +578,55 @@ function MetadataSection({
       ? selectedChunk.tags
       : [];
 
+  const isStack = layout === "stack";
+
   return (
     <section
       className={
-        compact
-          ? ""
+        isStack
+          ? "space-y-6"
           : "rounded-[24px] border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-5"
       }
     >
-      {!compact ? (
-      <div className="flex flex-col gap-2 border-b border-[var(--admin-card-border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h4 className="flex items-center gap-2 text-[14px] font-black uppercase tracking-[0.12em] text-[var(--admin-strong-text)]">
-            <Info className="h-4 w-4 text-[var(--admin-accent)]" />
-            Thông tin metadata
-          </h4>
+      {!isStack ? (
+        <div className="flex flex-col gap-2 border-b border-[var(--admin-card-border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h4 className="flex items-center gap-2 text-[14px] font-black uppercase tracking-[0.12em] text-[var(--admin-strong-text)]">
+              <Info className="h-4 w-4 text-[var(--admin-accent)]" />
+              Thông tin metadata
+            </h4>
 
-          <p className="mt-1 text-[13px] font-semibold text-[var(--admin-muted-text)]">
-            Đã chia nhóm để dễ phân biệt thông tin chính, ngữ cảnh và thông tin
-            phụ.
-          </p>
+            <p className="mt-1 text-[13px] font-semibold text-[var(--admin-muted-text)]">
+              Đã chia nhóm để dễ phân biệt thông tin chính, ngữ cảnh và thông tin
+              phụ.
+            </p>
+          </div>
+
+          <span className="w-fit rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 py-1 text-[12px] font-black uppercase tracking-[0.1em] text-[var(--admin-muted-text)]">
+            Không gồm vector embedding
+          </span>
         </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <h4 className="flex items-center gap-2 text-[13px] font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
+            <Info className="h-4 w-4 text-[var(--admin-accent)]" />
+            Metadata
+          </h4>
+        </div>
+      )}
 
-        <span className="w-fit rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 py-1 text-[12px] font-black uppercase tracking-[0.1em] text-[var(--admin-muted-text)]">
-          Không gồm vector embedding
-        </span>
-      </div>
-      ) : null}
-
-      <div className={compact ? "" : "mt-5"}>
+      <div className={isStack ? "" : "mt-5"}>
         <p className="mb-3 text-[12px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
           Thông tin chính
         </p>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div
+          className={
+            isStack
+              ? "grid grid-cols-2 gap-3"
+              : "grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          }
+        >
           {primaryMetadata.map((item) => (
             <PriorityMetadataCard
               key={item.label}
@@ -601,12 +639,18 @@ function MetadataSection({
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className={isStack ? "" : "mt-6"}>
         <p className="mb-3 text-[12px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
           Ngữ cảnh tài liệu
         </p>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div
+          className={
+            isStack
+              ? "grid grid-cols-2 gap-3"
+              : "grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
+          }
+        >
           {contextMetadata.map((item) => (
             <CompactMetadataCard
               key={item.label}
@@ -617,7 +661,13 @@ function MetadataSection({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 xl:grid-cols-[1fr_260px_260px]">
+      <div
+        className={
+          isStack
+            ? "space-y-3"
+            : "mt-6 grid gap-3 xl:grid-cols-[1fr_260px_260px]"
+        }
+      >
         <div className="rounded-[18px] border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4">
           <p className="text-[12px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
             Tags
@@ -641,17 +691,19 @@ function MetadataSection({
           )}
         </div>
 
-        <CompactMetadataCard
-          label="Ngày tạo"
-          value={formatDateTime(selectedChunk.createdAt)}
-          large
-        />
+        <div className={isStack ? "grid grid-cols-2 gap-3" : "contents"}>
+          <CompactMetadataCard
+            label="Ngày tạo"
+            value={formatDateTime(selectedChunk.createdAt)}
+            large
+          />
 
-        <CompactMetadataCard
-          label="Cập nhật cuối"
-          value={formatDateTime(selectedChunk.updatedAt)}
-          large
-        />
+          <CompactMetadataCard
+            label="Cập nhật cuối"
+            value={formatDateTime(selectedChunk.updatedAt)}
+            large
+          />
+        </div>
       </div>
     </section>
   );
@@ -669,30 +721,42 @@ function PriorityMetadataCard({
   tone?: "slate" | "cyan" | "amber";
 }) {
   const toneClass = {
-    slate: "border-slate-600 bg-slate-700 shadow-slate-900/20",
-    cyan: "border-cyan-500 bg-cyan-700 shadow-cyan-900/25",
-    amber: "border-orange-500 bg-orange-600 shadow-orange-900/25",
+    slate: "border-slate-400/20 bg-slate-500/10 shadow-sm",
+    cyan: "border-cyan-500 bg-cyan-800 shadow-sm",
+    amber: "border-amber-500 bg-amber-800 shadow-sm",
   }[tone];
 
   const valueClass = {
-    slate: "text-white",
-    cyan: "text-cyan-50",
-    amber: "text-orange-50",
+    slate: "text-[var(--admin-strong-text)]",
+    cyan: "text-cyan-100",
+    amber: "text-amber-100",
+  }[tone];
+
+  const labelClass = {
+    slate: "text-[var(--admin-muted-text)]",
+    cyan: "text-cyan-200/80",
+    amber: "text-amber-200/80",
+  }[tone];
+
+  const helperClass = {
+    slate: "text-[var(--admin-subtle-text)]",
+    cyan: "text-cyan-300/60",
+    amber: "text-amber-300/60",
   }[tone];
 
   return (
     <div
-      className={["min-h-[118px] rounded-[20px] border p-4 shadow-sm", toneClass].join(
+      className={["min-h-[100px] rounded-[20px] border p-4 shadow-sm", toneClass].join(
         " ",
       )}
     >
-      <p className="text-[12px] font-black uppercase tracking-[0.14em] text-white/80">
+      <p className={["text-[12px] font-black uppercase tracking-[0.14em]", labelClass].join(" ")}>
         {label}
       </p>
 
       <p
         className={[
-          "mt-3 line-clamp-2 text-[22px] font-black leading-7",
+          "mt-3 line-clamp-2 text-[20px] font-black leading-7",
           valueClass,
         ].join(" ")}
         title={value}
@@ -700,7 +764,7 @@ function PriorityMetadataCard({
         {value}
       </p>
 
-      <p className="mt-2 line-clamp-2 text-[13px] font-semibold leading-5 text-white/85">
+      <p className={["mt-2 line-clamp-2 text-[13px] font-semibold leading-5", helperClass].join(" ")}>
         {helper}
       </p>
     </div>
@@ -719,7 +783,7 @@ function CompactMetadataCard({
   return (
     <div
       className={[
-        "rounded-[18px] border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4",
+        "rounded-[18px] border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4",
         large ? "min-h-[92px]" : "min-h-[82px]",
       ].join(" ")}
     >
@@ -739,11 +803,11 @@ function CompactMetadataCard({
 
 function ChunkListSkeleton() {
   return (
-    <div className="space-y-4 p-5 sm:p-6">
-      {Array.from({ length: 3 }).map((_, index) => (
+    <div className="grid grid-cols-1 gap-4 p-5 sm:p-6 lg:grid-cols-2 2xl:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={index}
-          className="h-32 animate-pulse rounded-[22px] bg-[var(--admin-card-soft-bg)]"
+          className="h-52 animate-pulse rounded-[20px] bg-[var(--admin-card-bg)]"
         />
       ))}
     </div>
@@ -752,8 +816,8 @@ function ChunkListSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="px-5 py-14 text-center sm:px-6">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-[22px] bg-[var(--admin-card-soft-bg)] text-[var(--admin-muted-text)]">
+    <div className="px-5 py-14 text-center sm:px-8">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-[22px] bg-[var(--admin-card-bg)] text-[var(--admin-muted-text)]">
         <FileSearch className="h-8 w-8" />
       </div>
 
@@ -777,8 +841,8 @@ function IconBox({
 }) {
   const toneClass =
     tone === "cyan"
-      ? "border-cyan-500/25 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300"
-      : "border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] text-[var(--admin-muted-text)]";
+      ? "border-cyan-500/35 bg-cyan-500/15 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-cyan-400/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-cyan-500/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
+      : "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)]";
 
   return (
     <span
@@ -801,11 +865,11 @@ function TagPill({
 }) {
   const toneClass = {
     slate:
-      "border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] text-[var(--admin-strong-text)]",
-    cyan: "border-cyan-500/20 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
+      "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-strong-text)]",
+    cyan: "border-cyan-500/35 bg-cyan-500/15 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-cyan-400/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-cyan-500/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
     green:
-      "border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-300",
-    red: "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300",
+      "border-emerald-500/35 bg-emerald-500/15 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-400/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-500/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
+    red: "border-red-500/35 bg-red-500/15 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-red-400/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-red-500/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]",
   }[tone];
 
   return (

@@ -13,10 +13,19 @@ import {
   type QuoteFilterState,
   type QuoteItem,
 } from "./types/quote.types";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 export default function AdminQuotesPage() {
   const [filters, setFilters] = useState<QuoteFilterState>(defaultQuoteFilters);
   const [selectedQuote, setSelectedQuote] = useState<QuoteItem | null>(null);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const query = useMemo<QuoteListQuery>(
     () => ({
@@ -118,6 +127,13 @@ export default function AdminQuotesPage() {
         open={Boolean(selectedQuote)}
         quote={selectedQuote}
         onClose={() => setSelectedQuote(null)}
+      />
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
       />
     </AdminShell>
   );

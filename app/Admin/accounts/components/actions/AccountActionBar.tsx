@@ -92,15 +92,15 @@ function ActionItem({
 
 function getStrongActionClass(tone: Tone) {
   if (tone === "success") {
-    return "border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-600/20 hover:border-emerald-700 hover:bg-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-500 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-emerald-700";
+    return "border border-emerald-600 bg-emerald-600 text-white shadow-sm hover:border-emerald-700 hover:bg-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-500/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-600/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-300 [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-emerald-600/30 font-bold";
   }
 
   if (tone === "danger") {
-    return "border-rose-600 bg-rose-600 text-white shadow-sm shadow-rose-600/20 hover:border-rose-700 hover:bg-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-500 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-rose-700";
+    return "border border-rose-600 bg-rose-600 text-white shadow-sm hover:border-rose-700 hover:bg-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-500/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-600/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-300 [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-rose-600/30 font-bold";
   }
 
   if (tone === "warning") {
-    return "border-amber-500 bg-amber-500 text-white shadow-sm shadow-amber-500/20 hover:border-amber-600 hover:bg-amber-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-400 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-500 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-amber-400";
+    return "border border-amber-600 bg-amber-500 text-white shadow-sm hover:border-amber-700 hover:bg-amber-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-400/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-500/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-300 [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-amber-500/30 font-bold";
   }
 
   return "";

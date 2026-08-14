@@ -9,12 +9,15 @@ import {
   ArrowLeft,
   Camera,
   CheckCircle2,
+  Eye,
   Loader2,
   LockKeyhole,
   Mail,
   MapPin,
   Phone,
   Save,
+  ShieldAlert,
+  ShieldCheck,
   User,
   VenusAndMars,
   X,
@@ -25,6 +28,9 @@ import type { UserProfileResponse } from "@/app/auth/services/auth.service";
 import { APP_ROUTES } from "@/app/config/routes";
 import { ClientHeader } from "@/app/components/client/header/navigation/ClientHeader";
 import { useUploadApi } from "@/app/hooks/common/useUploadApi";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 type ProfileFormState = {
   fullName: string;
@@ -97,10 +103,10 @@ function FieldLabel({
   required?: boolean;
 }) {
   return (
-    <label className="mb-2 flex items-center gap-2 text-[14px] font-semibold text-slate-700 dark:text-slate-200">
-      <Icon className="h-4 w-4 text-orange-500 dark:text-blue-300" />
+    <label className="mb-2.5 flex items-center gap-2 text-[17px] font-black text-slate-900 dark:text-slate-100">
+      <Icon className="h-5 w-5 text-orange-500 dark:text-cyan-400" strokeWidth={2.3} />
       <span>{children}</span>
-      {required ? <span className="font-bold text-red-500">*</span> : null}
+      {required ? <span className="font-bold text-rose-500">*</span> : null}
     </label>
   );
 }
@@ -117,19 +123,19 @@ function FormMessage({
   return (
     <div
       className={[
-        "flex items-start gap-3 rounded-2xl border px-4 py-3",
+        "flex items-start gap-3 rounded-2xl border px-4 py-3.5 shadow-sm transition-all",
         isSuccess
-          ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
-          : "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300",
+          ? "border-emerald-200 bg-emerald-50/90 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+          : "border-rose-200 bg-rose-50/90 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300",
       ].join(" ")}
     >
       {isSuccess ? (
-        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
       ) : (
-        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" />
       )}
 
-      <p className="text-[14px] font-semibold leading-6">{children}</p>
+      <p className="text-sm font-bold leading-6">{children}</p>
     </div>
   );
 }
@@ -153,56 +159,55 @@ export default function UpdateProfilePage() {
     clearError: clearUploadError,
   } = useUploadApi();
 
+  const [initialProfile, setInitialProfile] =
+    useState<UserProfileResponse | null>(null);
   const [form, setForm] = useState<ProfileFormState>(EMPTY_FORM);
   const [completionForm, setCompletionForm] = useState<CompletionFormState>(
     EMPTY_COMPLETION_FORM,
   );
-  const [initialProfile, setInitialProfile] =
-    useState<UserProfileResponse | null>(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [emailOtp, setEmailOtp] = useState("");
   const [emailOtpRequested, setEmailOtpRequested] = useState(false);
-  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [pageError, setPageError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   useEffect(() => {
-    const token = window.localStorage.getItem("accessToken");
-
-    if (!token) {
-      router.replace(APP_ROUTES.Auth.LOGIN);
-      return;
-    }
-
     let isMounted = true;
 
     const loadProfile = async () => {
-      setIsLoadingProfile(true);
-      setPageError(null);
+      const token = window.localStorage.getItem("accessToken");
+
+      if (!token) {
+        router.replace(APP_ROUTES.Auth.LOGIN);
+        return;
+      }
 
       try {
-        const profile = await getProfile(token);
+        setIsLoadingProfile(true);
+        setPageError(null);
+
+        const profileData = await getProfile(token);
 
         if (!isMounted) return;
 
-        setInitialProfile(profile);
-        setForm(toFormState(profile));
-        setCompletionForm({
-          phoneNumber: hasTemporarySocialPhone(profile.phoneNumber)
-            ? ""
-            : profile.phoneNumber ?? "",
-          newPassword: "",
-          confirmPassword: "",
-        });
-        setAvatarUrl(normalizeAvatarUrl(profile.avatarUrl));
-      } catch (loadError) {
+        setInitialProfile(profileData);
+        setForm(toFormState(profileData));
+        setAvatarUrl(normalizeAvatarUrl(profileData.avatarUrl));
+      } catch (nextError) {
         if (!isMounted) return;
 
         const message =
-          loadError instanceof Error
-            ? loadError.message
-            : "Không tải được thông tin tài khoản.";
+          nextError instanceof Error
+            ? nextError.message
+            : "Không thể tải thông tin cá nhân. Vui lòng đăng nhập lại.";
 
         setPageError(message);
       } finally {
@@ -219,25 +224,40 @@ export default function UpdateProfilePage() {
     };
   }, [getProfile, router]);
 
+  const avatarInitials = useMemo(
+    () => getAvatarInitials(form.fullName || initialProfile?.fullName || "KH"),
+    [form.fullName, initialProfile?.fullName],
+  );
+
+  const isCurrentEmailVerified = useMemo(() => {
+    if (!initialProfile) return false;
+    const sameEmail =
+      form.email.trim().toLowerCase() ===
+      (initialProfile.email ?? "").trim().toLowerCase();
+    return Boolean(sameEmail && initialProfile.isVerified);
+  }, [form.email, initialProfile]);
+
+  const requiresAccountCompletion = useMemo(() => {
+    return hasTemporarySocialPhone(initialProfile?.phoneNumber);
+  }, [initialProfile?.phoneNumber]);
+
   const isDirty = useMemo(() => {
     if (!initialProfile) return false;
 
-    const initialForm = toFormState(initialProfile);
-    return (
-      JSON.stringify(form) !== JSON.stringify(initialForm) ||
-      normalizeAvatarUrl(initialProfile.avatarUrl) !== avatarUrl
-    );
+    const initialAvatar = normalizeAvatarUrl(initialProfile.avatarUrl);
+    const hasAvatarChanged = avatarUrl !== initialAvatar;
+
+    const isProfileDirty =
+      form.fullName.trim() !== (initialProfile.fullName ?? "").trim() ||
+      form.email.trim().toLowerCase() !==
+        (initialProfile.email ?? "").trim().toLowerCase() ||
+      form.address.trim() !== (initialProfile.address ?? "").trim() ||
+      form.gender !== (initialProfile.gender ?? "OTHER");
+
+    return isProfileDirty || hasAvatarChanged;
   }, [avatarUrl, form, initialProfile]);
 
-  const avatarInitials = getAvatarInitials(form.fullName);
   const isBusy = isSubmitting || isUploadingAvatar;
-  const requiresAccountCompletion = Boolean(
-    initialProfile?.needsPassword || hasTemporarySocialPhone(initialProfile?.phoneNumber),
-  );
-  const isCurrentEmailVerified = Boolean(
-    initialProfile?.isVerified &&
-      initialProfile.email?.trim().toLowerCase() === form.email.trim().toLowerCase(),
-  );
 
   const handleChange = (
     event: ChangeEvent<
@@ -320,20 +340,25 @@ export default function UpdateProfilePage() {
     if (successMessage) setSuccessMessage(null);
 
     if (!file.type.startsWith("image/")) {
-      setPageError("Vui lòng chọn file ảnh hợp lệ.");
+      const msg = "Vui lòng chọn file ảnh hợp lệ.";
+      setPageError(msg);
+      pushToast("error", msg);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setPageError("Ảnh đại diện phải nhỏ hơn hoặc bằng 5MB.");
+      const msg = "Ảnh đại diện phải nhỏ hơn hoặc bằng 5MB.";
+      setPageError(msg);
+      pushToast("error", msg);
       return;
     }
 
     try {
       const result = await uploadMedia(file);
       setAvatarUrl(normalizeAvatarUrl(result.url));
-    } catch {
-      // Upload error state is handled by useUploadApi.
+      pushToast("success", "Đã tải lên ảnh đại diện mới thành công!");
+    } catch (err) {
+      pushToast("error", "Tải lên ảnh đại diện thất bại.");
     }
   };
 
@@ -351,6 +376,7 @@ export default function UpdateProfilePage() {
 
     if (validationMessage) {
       setPageError(validationMessage);
+      pushToast("warning", validationMessage);
       return;
     }
 
@@ -382,8 +408,11 @@ export default function UpdateProfilePage() {
       );
 
       setSuccessMessage("Cập nhật thông tin thành công.");
-    } catch {
-      // Error state is handled by useAuthApi.
+      pushToast("success", "Đã lưu và cập nhật thông tin cá nhân thành công!");
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Cập nhật thông tin thất bại.";
+      pushToast("error", msg);
     }
   };
 
@@ -430,167 +459,213 @@ export default function UpdateProfilePage() {
   };
 
   return (
-    <div className="auth-theme auth-page-shell min-h-screen overflow-x-hidden font-sans transition-colors">
+    <div className="auth-theme auth-page-shell min-h-screen bg-[#FFFBF7] font-sans text-slate-900 transition-colors dark:bg-[#070F1E] dark:text-slate-100">
       <div className="hidden md:block">
         <ClientHeader />
       </div>
 
-      <main className="mx-auto w-full max-w-[780px] px-4 pb-10 pt-6 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
-        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 items-start gap-3">
+      <main className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        {/* Header Bar */}
+        <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3.5">
             <button
               type="button"
               onClick={() => router.push("/")}
-              className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-orange-300 hover:text-orange-600 active:scale-95 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-500/40"
-              aria-label="Quay lại"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-slate-700 shadow-sm transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600 active:scale-95 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-cyan-500/40 dark:hover:bg-slate-800 dark:hover:text-cyan-400"
+              aria-label="Quay lại trang chủ"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
 
-            <div className="min-w-0">
-              <h1 className="text-[clamp(22px,2.6vw,30px)] font-bold leading-tight tracking-[-0.035em] text-slate-950 dark:text-white">
-                Thông tin cá nhân
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+                Hồ sơ cá nhân
               </h1>
-
-              {/* <p className="mt-1 max-w-2xl text-[14px] font-medium leading-6 text-slate-500 dark:text-slate-400">
-                Cập nhật thông tin liên hệ để việc tư vấn và tiếp nhận sửa chữa
-                thuận tiện hơn.
-              </p> */}
+              <p className="mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400 sm:text-sm">
+                Quản lý thông tin tài khoản, địa chỉ nhận thiết bị và bảo mật
+              </p>
             </div>
           </div>
 
-          {/* <div
-            className={[
-              "inline-flex w-fit items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-semibold",
-              isDirty
-                ? "border-orange-200 bg-orange-50 text-orange-600 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-300"
-                : "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300",
-            ].join(" ")}
-          >
+          <div className="flex items-center gap-3">
             <span
               className={[
-                "h-2 w-2 rounded-full",
-                isDirty ? "bg-orange-500" : "bg-emerald-500",
+                "inline-flex items-center gap-2.5 rounded-full border px-4.5 py-2 text-xs font-black shadow-sm backdrop-blur-sm transition-all",
+                isDirty
+                  ? "border-orange-400/80 bg-orange-100/90 text-orange-950 shadow-orange-500/10 dark:border-amber-500/50 dark:bg-amber-500/20 dark:text-amber-200"
+                  : "border-emerald-500/60 bg-emerald-100/90 text-emerald-900 shadow-emerald-500/10 dark:border-emerald-500/50 dark:bg-emerald-500/20 dark:text-emerald-200",
               ].join(" ")}
-            />
-            {isDirty ? "Chưa lưu" : "Đã cập nhật"}
-          </div> */}
+            >
+              <span
+                className={[
+                  "h-2.5 w-2.5 rounded-full animate-pulse shrink-0",
+                  isDirty ? "bg-orange-600 dark:bg-orange-400" : "bg-emerald-600 dark:bg-emerald-400",
+                ].join(" ")}
+              />
+              {isDirty ? "Chưa lưu thay đổi" : "Đã đồng bộ hệ thống"}
+            </span>
+          </div>
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-[0_20px_60px_rgba(0,0,0,0.06)] backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/80 dark:shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
-          <div className="flex items-center gap-4 border-b border-slate-200/80 bg-gradient-to-r from-orange-50/80 via-amber-50/40 to-transparent px-5 py-5 dark:border-slate-700/60 dark:from-blue-950/40 dark:via-slate-900/20 dark:to-transparent sm:px-6">
-            <div className="relative shrink-0">
-              {avatarUrl ? (
-                <button
-                  type="button"
-                  onClick={() => setIsAvatarPreviewOpen(true)}
-                  className="block rounded-2xl shadow-md ring-2 ring-white/60 transition hover:scale-[1.04] hover:shadow-lg dark:ring-slate-800/60"
-                  aria-label="Xem ảnh đại diện cỡ lớn"
-                >
-                  <img
-                    src={avatarUrl}
-                    alt="Ảnh đại diện"
-                    className="h-16 w-16 rounded-2xl object-cover ring-2 ring-orange-200/50 dark:ring-blue-500/30"
-                  />
-                </button>
-              ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 shadow-md ring-2 ring-orange-200/50 dark:from-blue-600 dark:to-blue-800 dark:ring-blue-500/30">
-                  <span className="text-xl font-bold tracking-[-0.04em] text-white">
-                    {avatarInitials}
-                  </span>
-                </div>
-              )}
-
-              <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-[2.5px] border-white bg-emerald-500 dark:border-slate-900">
-                <CheckCircle2
-                  className="h-3.5 w-3.5 text-white"
-                  strokeWidth={3}
-                />
-              </div>
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate text-[18px] font-bold leading-6 text-slate-950 dark:text-white">
-                {form.fullName || "Chưa cập nhật tên"}
-              </h2>
-
-              <p className="mt-0.5 text-[13px] font-medium text-slate-500 dark:text-slate-400">
-                {form.phoneNumber || "Chưa có SĐT"}
-              </p>
-            </div>
-
-            <label
-              htmlFor="profile-avatar-upload"
-              className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-2xl border border-orange-200/70 bg-gradient-to-b from-white to-orange-50/60 px-4 py-2.5 text-[13px] font-semibold text-orange-700 shadow-sm transition hover:border-orange-300 hover:shadow-md active:scale-[0.97] dark:border-blue-500/25 dark:from-slate-800 dark:to-blue-950/40 dark:text-blue-200 dark:hover:border-blue-400/40"
-            >
-              {isUploadingAvatar ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Camera className="h-4 w-4" />
-              )}
-              {isUploadingAvatar ? "Đang tải..." : "Đổi ảnh"}
-            </label>
-
-            <input
-              id="profile-avatar-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              className="hidden"
-              disabled={isBusy}
-            />
+        {isLoadingProfile ? (
+          <div className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-slate-200/80 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-slate-900">
+            <Loader2 className="h-12 w-12 animate-spin text-orange-500 dark:text-cyan-400" />
+            <p className="mt-5 text-xl font-extrabold text-slate-900 dark:text-white">
+              Đang tải dữ liệu hồ sơ...
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+              Vui lòng chờ trong giây lát.
+            </p>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            {/* Left Column: Avatar & Overview Card */}
+            <div className="space-y-6 lg:col-span-4">
+              <section className="relative overflow-hidden rounded-3xl border border-orange-200/90 bg-white shadow-[0_16px_40px_-8px_rgba(249,115,22,0.12)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+                {/* Cover Banner Header */}
+                <div className="h-24 w-full bg-gradient-to-r from-orange-500 via-amber-500 to-cyan-600 dark:from-cyan-700 dark:via-blue-800 dark:to-indigo-900" />
 
-          {isLoadingProfile ? (
-            <div className="flex min-h-[300px] flex-col items-center justify-center px-6 py-12 text-center">
-              <Loader2 className="h-10 w-10 animate-spin text-orange-500 dark:text-blue-300" />
+                <div className="px-6 pb-6 pt-0">
+                  <div className="flex flex-col items-center text-center">
+                    {/* Overlapping Avatar Frame */}
+                    <div className="group relative -mt-12 shrink-0">
+                      {avatarUrl ? (
+                        <div className="relative h-28 w-28 overflow-hidden rounded-3xl border-4 border-white bg-white shadow-2xl ring-4 ring-black/5 dark:border-[#0D1527] dark:bg-[#0D1527] dark:ring-white/10">
+                          <img
+                            src={avatarUrl}
+                            alt="Ảnh đại diện"
+                            className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setIsAvatarPreviewOpen(true)}
+                            className="absolute inset-0 flex items-center justify-center bg-slate-950/40 opacity-0 transition-opacity group-hover:opacity-100"
+                            aria-label="Xem ảnh đại diện"
+                          >
+                            <Eye className="h-6 w-6 text-white" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex h-28 w-28 items-center justify-center rounded-3xl border-4 border-white bg-gradient-to-br from-orange-500 to-amber-600 text-3xl font-black text-white shadow-2xl ring-4 ring-black/5 dark:border-[#0D1527] dark:from-cyan-600 dark:to-blue-800 dark:ring-white/10">
+                          {avatarInitials}
+                        </div>
+                      )}
 
-              <p className="mt-5 text-[18px] font-bold text-slate-950 dark:text-white">
-                Đang tải thông tin...
-              </p>
+                      <label
+                        htmlFor="profile-avatar-upload"
+                        className="absolute -bottom-1 -right-1 flex h-9 w-9 cursor-pointer items-center justify-center rounded-2xl border-2 border-white bg-orange-600 text-white shadow-lg transition hover:scale-105 hover:bg-orange-700 active:scale-95 dark:border-[#0D1527] dark:bg-cyan-500 dark:hover:bg-cyan-600"
+                        title="Đổi ảnh đại diện"
+                      >
+                        {isUploadingAvatar ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Camera className="h-4 w-4" />
+                        )}
+                      </label>
 
-              <p className="mt-2 text-[15px] font-medium text-slate-500 dark:text-slate-400">
-                Vui lòng chờ trong giây lát.
-              </p>
+                      <input
+                        id="profile-avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                        disabled={isBusy}
+                      />
+                    </div>
+
+                    <h2 className="mt-4 text-2xl font-black text-slate-900 dark:text-white">
+                      {form.fullName || "Khách hàng"}
+                    </h2>
+
+                    <p className="mt-1 text-sm font-bold text-slate-600 dark:text-slate-300">
+                      {form.phoneNumber || "Chưa đăng ký SĐT"}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200/80 bg-orange-50/80 px-3.5 py-1.5 text-sm font-black text-orange-800 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300">
+                        Khách hàng
+                      </span>
+
+                      {isCurrentEmailVerified ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-sm font-black text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                          <ShieldCheck className="h-4 w-4" />
+                          Đã xác minh
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1.5 text-sm font-black text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+                          <ShieldAlert className="h-4 w-4" />
+                          Chưa xác minh Email
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-6 border-t border-slate-100 pt-5 dark:border-slate-800">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between text-sm font-bold">
+                        <span className="text-slate-600 dark:text-slate-300">Mức độ hoàn thiện:</span>
+                        <span className="text-base font-black text-orange-600 dark:text-cyan-400">
+                          {form.address ? "100%" : "80%"}
+                        </span>
+                      </div>
+
+                      <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-500 dark:from-cyan-500 dark:to-blue-600"
+                          style={{ width: form.address ? "100%" : "80%" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
-          ) : (
-            <form className="px-5 py-5 sm:px-6" onSubmit={handleSubmit}>
+
+            {/* Right Column: Update Form Card */}
+            <div className="space-y-6 lg:col-span-8">
+              <section className="rounded-3xl border border-orange-200/90 bg-white p-6 shadow-[0_16px_40px_-8px_rgba(249,115,22,0.12)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-8">
+                <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+                  Thông tin cá nhân & Liên hệ
+                </h3>
+                <p className="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Cập nhật thông tin để nhận tư vấn kỹ thuật và giao nhận máy móc sửa chữa nhanh chóng.
+                </p>
+
+                <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div className="sm:col-span-2">
                       <FieldLabel icon={User} required>
                         Họ và tên
                       </FieldLabel>
-
                       <input
                         name="fullName"
                         value={form.fullName}
                         onChange={handleChange}
                         placeholder="Nguyễn Văn A"
-                        className="h-[50px] w-full rounded-2xl border border-slate-200/80 bg-slate-50/50 px-4 text-[15px] font-medium text-slate-900 outline-none transition hover:border-slate-300 placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-700/80 dark:bg-slate-950/50 dark:text-white dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950/80 dark:focus:ring-blue-500/20"
+                        className="h-[52px] w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base font-bold text-slate-900 outline-none transition focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-800 dark:bg-slate-950/60 dark:text-white dark:focus:border-cyan-500 dark:focus:bg-slate-950 dark:focus:ring-cyan-500/20"
                         disabled={isSubmitting}
                       />
                     </div>
 
                     <div>
                       <FieldLabel icon={Mail} required>
-                        Email
+                        Địa chỉ Email
                       </FieldLabel>
-
                       <input
                         type="email"
                         name="email"
                         value={form.email}
                         onChange={handleChange}
                         placeholder="email@example.com"
-                        className="h-[50px] w-full rounded-2xl border border-slate-200/80 bg-slate-50/50 px-4 text-[15px] font-medium text-slate-900 outline-none transition hover:border-slate-300 placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-700/80 dark:bg-slate-950/50 dark:text-white dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950/80 dark:focus:ring-blue-500/20"
+                        className="h-[52px] w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base font-bold text-slate-900 outline-none transition focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-800 dark:bg-slate-950/60 dark:text-white dark:focus:border-cyan-500 dark:focus:bg-slate-950 dark:focus:ring-cyan-500/20"
                         disabled={isSubmitting}
                       />
 
-                      <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950/40">
+                      <div className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
                         {isCurrentEmailVerified ? (
-                          <div className="flex items-center gap-2 text-[13px] font-bold text-emerald-600 dark:text-emerald-300">
-                            <CheckCircle2 className="h-4 w-4" />
-                            Email đã xác minh
+                          <div className="flex items-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 className="h-5 w-5" />
+                            Email đã được xác minh thành công
                           </div>
                         ) : (
                           <div className="space-y-3">
@@ -598,7 +673,7 @@ export default function UpdateProfilePage() {
                               type="button"
                               onClick={() => void handleRequestEmailOtp()}
                               disabled={isBusy || !form.email.trim()}
-                              className="inline-flex h-10 items-center justify-center rounded-xl border border-orange-200 bg-white px-4 text-[13px] font-bold text-orange-700 transition hover:border-orange-300 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-blue-500/30 dark:bg-slate-900 dark:text-blue-200 dark:hover:bg-blue-500/10"
+                              className="inline-flex h-10 items-center justify-center rounded-xl border border-orange-300 bg-white px-4 text-sm font-black text-orange-700 shadow-sm transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-cyan-500/30 dark:bg-slate-900 dark:text-cyan-300 dark:hover:bg-cyan-500/10"
                             >
                               {emailOtpRequested ? "Gửi lại OTP" : "Gửi OTP xác minh"}
                             </button>
@@ -613,7 +688,7 @@ export default function UpdateProfilePage() {
                                     setEmailOtp(event.target.value.replace(/\D/g, "").slice(0, 6))
                                   }
                                   placeholder="Nhập OTP 6 số"
-                                  className="h-10 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-center text-[14px] font-bold tracking-[0.18em] text-slate-900 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500/20"
+                                  className="h-10 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-black tracking-[0.18em] text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-cyan-500"
                                   disabled={isBusy}
                                 />
 
@@ -621,7 +696,7 @@ export default function UpdateProfilePage() {
                                   type="button"
                                   onClick={() => void handleVerifyEmailOtp()}
                                   disabled={isBusy || emailOtp.length !== 6}
-                                  className="inline-flex h-10 items-center justify-center rounded-xl bg-orange-500 px-4 text-[13px] font-bold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-500"
+                                  className="inline-flex h-10 items-center justify-center rounded-xl bg-orange-600 px-5 text-sm font-black text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-cyan-600 dark:hover:bg-cyan-500"
                                 >
                                   Xác minh
                                 </button>
@@ -634,13 +709,12 @@ export default function UpdateProfilePage() {
 
                     <div>
                       <FieldLabel icon={VenusAndMars}>Giới tính</FieldLabel>
-
                       <select
                         name="gender"
                         value={form.gender}
                         onChange={handleChange}
                         disabled={isSubmitting}
-                        className="h-[50px] w-full rounded-2xl border border-slate-200/80 bg-slate-50/50 px-4 text-[15px] font-medium text-slate-900 outline-none transition hover:border-slate-300 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-700/80 dark:bg-slate-950/50 dark:text-white dark:hover:border-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950/80 dark:focus:ring-blue-500/20"
+                        className="h-[52px] w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base font-bold text-slate-900 outline-none transition focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-800 dark:bg-slate-950/60 dark:text-white dark:focus:border-cyan-500 dark:focus:bg-slate-950 dark:focus:ring-cyan-500/20"
                       >
                         <option value="MALE">Nam</option>
                         <option value="FEMALE">Nữ</option>
@@ -649,60 +723,55 @@ export default function UpdateProfilePage() {
                     </div>
 
                     <div className="sm:col-span-2">
-                      <FieldLabel icon={Phone}>Số điện thoại</FieldLabel>
-
+                      <FieldLabel icon={Phone}>Số điện thoại chính</FieldLabel>
                       <div className="relative">
                         <input
                           name="phoneNumber"
                           value={form.phoneNumber}
                           readOnly
-                          className="h-[50px] w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-100 px-4 pr-24 text-[15px] font-medium text-slate-600 outline-none dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-300"
+                          className="h-[52px] w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-100/70 px-4 pr-28 text-base font-bold text-slate-700 outline-none dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-300"
                         />
-
-                        <span className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                          <LockKeyhole className="h-3.5 w-3.5" />
-                          Khóa
+                        <span className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-black uppercase tracking-[0.08em] text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                          <LockKeyhole className="h-4 w-4 text-slate-500" />
+                          Đã khóa
                         </span>
                       </div>
-
-                      <p className="mt-2 text-[13px] font-medium text-slate-500 dark:text-slate-400">
-                        Số điện thoại đăng ký không thể thay đổi.
+                      <p className="mt-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                        Số điện thoại dùng làm định danh hệ thống và không thể sửa đổi trực tiếp.
                       </p>
                     </div>
 
                     <div className="sm:col-span-2">
                       <FieldLabel icon={MapPin}>
-                        Địa chỉ nhận thiết bị / liên hệ
+                        Địa chỉ nhận thiết bị / giao hàng
                       </FieldLabel>
-
                       <textarea
                         name="address"
                         value={form.address}
                         onChange={handleChange}
                         rows={3}
                         placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/TP..."
-                        className="w-full resize-none rounded-2xl border border-slate-200/80 bg-slate-50/50 px-4 py-3 text-[15px] font-medium leading-7 text-slate-900 outline-none transition hover:border-slate-300 placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-700/80 dark:bg-slate-950/50 dark:text-white dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950/80 dark:focus:ring-blue-500/20"
+                        className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 text-base font-bold leading-7 text-slate-900 outline-none transition focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/15 dark:border-slate-800 dark:bg-slate-950/60 dark:text-white dark:focus:border-cyan-500 dark:focus:bg-slate-950 dark:focus:ring-cyan-500/20"
                         disabled={isSubmitting}
                       />
                     </div>
                   </div>
 
-                  <div className="mt-5 space-y-3">
+                  {/* Form Messages */}
+                  <div className="space-y-3">
                     {pageError ? (
                       <FormMessage type="error">{pageError}</FormMessage>
                     ) : null}
 
                     {error ? (
                       <FormMessage type="error">
-                        {error.message ||
-                          "Cập nhật thất bại. Vui lòng thử lại."}
+                        {error.message || "Cập nhật thất bại. Vui lòng thử lại."}
                       </FormMessage>
                     ) : null}
 
                     {uploadError ? (
                       <FormMessage type="error">
-                        {uploadError.message ||
-                          "Tải ảnh đại diện thất bại. Vui lòng thử lại."}
+                        {uploadError.message || "Tải ảnh đại diện thất bại. Vui lòng thử lại."}
                       </FormMessage>
                     ) : null}
 
@@ -711,21 +780,22 @@ export default function UpdateProfilePage() {
                     ) : null}
                   </div>
 
-                  <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 dark:border-slate-700 sm:flex-row sm:justify-end">
+                  {/* Form Actions */}
+                  <div className="flex flex-col gap-3.5 border-t border-slate-100 pt-6 dark:border-slate-800 sm:flex-row sm:justify-end">
                     <button
                       type="button"
                       onClick={() => router.push("/")}
-                      className="inline-flex h-[48px] items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-[15px] font-semibold text-slate-700 transition hover:border-orange-300 hover:text-orange-600 active:scale-[0.98] dark:border-slate-700 dark:bg-slate-950/50 dark:text-slate-200 dark:hover:border-blue-500/40"
+                      className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 text-base font-black text-slate-800 transition hover:border-orange-300 hover:bg-orange-50/60 hover:text-orange-600 active:scale-95 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:hover:border-cyan-500/40"
                       disabled={isBusy}
                     >
                       <ArrowLeft className="h-5 w-5" />
-                      Quay lại
+                      Hủy bỏ
                     </button>
 
                     <button
                       type="submit"
                       disabled={isBusy || !isDirty}
-                      className="inline-flex h-[48px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 text-[15px] font-semibold text-white shadow-[0_8px_24px_rgba(255,138,31,0.3)] transition hover:from-orange-600 hover:to-orange-700 hover:shadow-[0_12px_32px_rgba(255,138,31,0.4)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none dark:from-blue-600 dark:to-blue-800 dark:shadow-[0_8px_24px_rgba(37,99,235,0.3)] dark:hover:from-blue-700 dark:hover:to-blue-900"
+                      className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-base font-black text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600 hover:shadow-orange-500/35 active:scale-95 disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none dark:from-cyan-600 dark:to-blue-700 dark:shadow-cyan-600/25"
                     >
                       {isBusy ? (
                         <>
@@ -741,12 +811,15 @@ export default function UpdateProfilePage() {
                     </button>
                   </div>
                 </form>
-              )}
-        </div>
+              </section>
+            </div>
+          </div>
+        )}
       </main>
 
+      {/* Avatar Modal Preview */}
       {isAvatarPreviewOpen && avatarUrl ? (
-        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-950/82 px-4 py-6 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-950/80 px-4 py-6 backdrop-blur-md">
           <button
             type="button"
             onClick={() => setIsAvatarPreviewOpen(false)}
@@ -758,13 +831,13 @@ export default function UpdateProfilePage() {
             <img
               src={avatarUrl}
               alt="Ảnh đại diện cỡ lớn"
-              className="max-h-[90vh] max-w-[90vw] rounded-3xl object-contain shadow-[0_30px_90px_rgba(0,0,0,0.45)]"
+              className="max-h-[90vh] max-w-[90vw] rounded-3xl object-contain shadow-2xl"
             />
 
             <button
               type="button"
               onClick={() => setIsAvatarPreviewOpen(false)}
-              className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white transition hover:bg-black/75"
+              className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white transition hover:bg-black/80"
               aria-label="Đóng ảnh đại diện"
             >
               <X className="h-5 w-5" />
@@ -772,6 +845,13 @@ export default function UpdateProfilePage() {
           </div>
         </div>
       ) : null}
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </div>
   );
 }

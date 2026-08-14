@@ -1,5 +1,6 @@
 import { apiClient } from "@/app/services/apiClient";
 import type { ChatSessionItem, MessageItem } from "@/app/services/common";
+import { chatsService } from "@/app/services/common/chats.service";
 import type { ChatMessage, ChatSession, SenderType } from "../types/chat.types";
 
 export type ChatSessionListQuery = {
@@ -76,15 +77,28 @@ function mapMessage(
   };
 }
 
+function extractRawMessages(session: Record<string, unknown>): MessageItem[] {
+  if (Array.isArray(session.messages)) return session.messages as MessageItem[];
+  if (Array.isArray(session.chatMessages)) return session.chatMessages as MessageItem[];
+  if (Array.isArray(session.history)) return session.history as MessageItem[];
+  if (session.data && typeof session.data === "object" && Array.isArray((session.data as Record<string, unknown>).messages)) {
+    return (session.data as Record<string, unknown>).messages as MessageItem[];
+  }
+  return [];
+}
+
 function getLastMessage(session: ChatSessionItem) {
-  if (Array.isArray(session.messages) && session.messages.length > 0) {
-    return session.messages[session.messages.length - 1]?.content ?? "";
+  const rawMessages = extractRawMessages(session as unknown as Record<string, unknown>);
+  if (rawMessages.length > 0) {
+    return rawMessages[rawMessages.length - 1]?.content ?? "";
   }
 
   return "";
 }
 
 function mapSession(session: ChatSessionItem): ChatSession {
+  const rawMessages = extractRawMessages(session as unknown as Record<string, unknown>);
+
   return {
     id: String(session.id),
     status: session.status,
@@ -99,14 +113,12 @@ function mapSession(session: ChatSessionItem): ChatSession {
     lastMessage: getLastMessage(session),
     updatedAt: session.updatedAt,
     address: session.address?.trim() || "--",
-    messages: Array.isArray(session.messages)
-      ? session.messages.map((message) =>
-          mapMessage(message, {
-            userId: session.userId,
-            technicianId: session.technicianId ?? null,
-          }),
-        )
-      : [],
+    messages: rawMessages.map((message) =>
+      mapMessage(message, {
+        userId: session.userId,
+        technicianId: session.technicianId ?? null,
+      }),
+    ),
   };
 }
 
@@ -170,6 +182,19 @@ export const adminChatsService = {
   /** Gọi GET /admin/chats/:id để lấy chi tiết một phiên chat cùng toàn bộ tin nhắn. */
   async getSessionById(sessionId: string) {
     const detail = await apiClient.get<ChatSessionItem>(`${ADMIN_CHATS_BASE}/${sessionId}`);
+
+    try {
+      const numId = Number(sessionId);
+      if (!Number.isNaN(numId)) {
+        const fetchedMessages = await chatsService.getMessages(numId, { limit: 200 });
+        if (Array.isArray(fetchedMessages) && fetchedMessages.length > 0) {
+          detail.messages = fetchedMessages;
+        }
+      }
+    } catch {
+      // Giữ nguyên detail.messages hiện có nếu endpoint messages không khả dụng
+    }
+
     return mapSession(detail);
   },
 };

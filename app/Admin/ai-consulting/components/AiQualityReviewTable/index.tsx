@@ -147,17 +147,17 @@ function QualityBadge({
 }) {
     const className =
         status === "CRITICAL"
-            ? "border-[#FF7A00]/35 bg-[#FF7A00]/10 text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FFB366]"
+            ? "border-[#EA580C] bg-[#EA580C] text-white"
             : status === "OUT_OF_SCOPE"
-                ? "border-[#A855F7]/35 bg-[#A855F7]/10 text-[#7E22CE] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#C084FC]"
+                ? "border-[#7C3AED] bg-[#7C3AED] text-white"
                 : status === "NEEDS_RAG"
-                    ? "border-[#22C55E]/35 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
-                    : "border-[#06B6D4]/35 bg-[#06B6D4]/10 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]";
+                    ? "border-[#D97706] bg-[#D97706] text-white"
+                    : "border-[#059669] bg-[#059669] text-white";
 
     return (
         <span
             className={[
-                "inline-flex h-8 w-fit items-center rounded-full border px-3 text-xs font-black",
+                "inline-flex h-8 w-fit items-center rounded-full border px-3.5 text-xs font-bold text-white shadow-sm",
                 className,
             ].join(" ")}
         >

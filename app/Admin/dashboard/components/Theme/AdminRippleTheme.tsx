@@ -54,12 +54,16 @@ function readStoredTheme(): AdminTheme {
     return DEFAULT_THEME;
   }
 
-  const saved = window.localStorage.getItem(STORAGE_KEY);
+  const saved = window.localStorage.getItem(STORAGE_KEY) || window.localStorage.getItem("theme");
   return saved === "light" || saved === "dark" ? saved : DEFAULT_THEME;
 }
 
 function writeStoredTheme(theme: AdminTheme) {
   window.localStorage.setItem(STORAGE_KEY, theme);
+  window.localStorage.setItem("theme", theme);
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.setAttribute("data-admin-theme", theme);
 }
 
 function applyAdminColorScheme(theme: AdminTheme) {
@@ -82,6 +86,13 @@ export function AdminRippleThemeProvider({
   const waveRef = useRef<HTMLDivElement | null>(null);
   const ringOneRef = useRef<HTMLDivElement | null>(null);
   const ringTwoRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const active = readStoredTheme();
+    if (active !== theme) {
+      setTheme(active);
+    }
+  }, []);
 
   useLayoutEffect(() => {
     themeRef.current = theme;

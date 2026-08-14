@@ -8,6 +8,9 @@ import AccountKpiGrid from "./components/layout/AccountKpiGrid";
 import AccountFilters from "./components/filters/AccountFilters";
 import AccountTable from "./components/table/AccountTable";
 import AccountDetailModal from "./components/dialogs/AccountDetailModal";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 import { Pagination } from "@/app/components/Pagination";
 import { useAccounts } from "./hooks";
 
@@ -31,6 +34,12 @@ export default function AccountsPage() {
   const [selectedAccount, setSelectedAccount] = useState<AccountItem | null>(
     null,
   );
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const [page, setPage] = useState(1);
   const pageSize = DEFAULT_PAGE_SIZE;
@@ -74,31 +83,76 @@ export default function AccountsPage() {
   const handleToggleLock = async (reason: string) => {
     if (!selectedAccount) return;
 
-    const updated = selectedAccount.isActive
-      ? await lockAccount(selectedAccount.id, { reason })
-      : await unlockAccount(selectedAccount.id, { reason });
+    try {
+      const name =
+        selectedAccount.fullName ||
+        selectedAccount.email ||
+        selectedAccount.phoneNumber;
+      const isLocking = selectedAccount.isActive;
+      const updated = isLocking
+        ? await lockAccount(selectedAccount.id, { reason })
+        : await unlockAccount(selectedAccount.id, { reason });
 
-    setSelectedAccount(updated);
+      setSelectedAccount(updated);
+      if (isLocking) {
+        pushToast("warning", `Đã khóa tài khoản ${name}`);
+      } else {
+        pushToast("success", `Đã mở khóa tài khoản ${name} thành công!`);
+      }
+    } catch (err) {
+      pushToast(
+        "error",
+        `Lỗi thao tác: ${err instanceof Error ? err.message : "Đã có lỗi xảy ra"}`,
+      );
+    }
   };
 
   const handleUnverify = async (reason: string) => {
     if (!selectedAccount) return;
 
-    const updated = await unverifyAccount(selectedAccount.id, { reason });
+    try {
+      const name =
+        selectedAccount.fullName || selectedAccount.email || selectedAccount.phoneNumber;
+      const updated = await unverifyAccount(selectedAccount.id, { reason });
 
-    setSelectedAccount(updated);
+      setSelectedAccount(updated);
+      pushToast("warning", `Đã hủy xác minh tài khoản ${name}`);
+    } catch (err) {
+      pushToast(
+        "error",
+        `Thao tác thất bại: ${err instanceof Error ? err.message : "Đã có lỗi xảy ra"}`,
+      );
+    }
   };
 
   const handleRequestVerifyOtp = async () => {
     if (!selectedAccount) return;
-    await requestAccountVerificationOtp(selectedAccount.id);
+    try {
+      await requestAccountVerificationOtp(selectedAccount.id);
+      pushToast("info", "Đã gửi mã OTP xác minh đến tài khoản thành công!");
+    } catch (err) {
+      pushToast(
+        "error",
+        `Gửi OTP thất bại: ${err instanceof Error ? err.message : "Đã có lỗi xảy ra"}`,
+      );
+    }
   };
 
   const handleConfirmVerifyOtp = async (otp: string) => {
     if (!selectedAccount) return;
 
-    const updated = await verifyAccountWithOtp(selectedAccount.id, { otp });
-    setSelectedAccount(updated);
+    try {
+      const updated = await verifyAccountWithOtp(selectedAccount.id, { otp });
+      setSelectedAccount(updated);
+      pushToast("success", "Đã xác minh tài khoản thành công!");
+    } catch (err) {
+      pushToast(
+        "error",
+        `Mã OTP không hợp lệ hoặc đã hết hạn: ${
+          err instanceof Error ? err.message : "Đã có lỗi xảy ra"
+        }`,
+      );
+    }
   };
 
   return (
@@ -201,6 +255,13 @@ export default function AccountsPage() {
           onConfirmVerifyOtp={handleConfirmVerifyOtp}
         />
       </div>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </AdminShell>
   );
 }

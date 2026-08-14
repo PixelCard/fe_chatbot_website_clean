@@ -13,7 +13,7 @@ import type { ApiError } from "@/app/services/apiClient";
 
 function AiAvatar() {
   return (
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-[0_10px_24px_rgba(255,122,0,0.20)] dark:from-blue-600 dark:to-cyan-500 dark:shadow-[0_10px_24px_rgba(37,99,235,0.26)] sm:h-10 sm:w-10 sm:shadow-[0_14px_34px_rgba(255,122,0,0.24)] dark:sm:shadow-[0_14px_34px_rgba(37,99,235,0.30)]">
+    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-md shadow-orange-500/20 dark:from-[#06B6D4] dark:to-[#0284C7] dark:shadow-[#06B6D4]/20 sm:h-10 sm:w-10">
       <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
     </div>
   );
@@ -24,7 +24,7 @@ function TypingIndicator() {
     <div className="flex w-full justify-start gap-2 sm:gap-3">
       <AiAvatar />
 
-      <div className="rounded-[18px] rounded-bl-md border border-slate-200 bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.05)] dark:border-slate-700/80 dark:bg-[#102036] dark:shadow-[0_12px_28px_rgba(0,0,0,0.20)] sm:rounded-[24px] sm:px-5 sm:py-4">
+      <div className="rounded-[18px] rounded-bl-md border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-[#1E2A3F] dark:bg-[#101B2E] sm:rounded-[24px] sm:px-5 sm:py-4">
         <p className="mb-1.5 text-[12px] font-black text-slate-600 dark:text-slate-300 sm:mb-2 sm:text-[13px]">
           SmartElec AI đang nhập
         </p>
@@ -33,7 +33,7 @@ function TypingIndicator() {
           {[0, 1, 2].map((item) => (
             <span
               key={item}
-              className="h-2 w-2 animate-bounce rounded-full bg-orange-500 dark:bg-blue-400 sm:h-2.5 sm:w-2.5"
+              className="h-2 w-2 animate-bounce rounded-full bg-orange-500 dark:bg-[#22D3EE] sm:h-2.5 sm:w-2.5"
               style={{
                 animationDelay: `${item * 140}ms`,
               }}
@@ -51,9 +51,9 @@ function DeviceSwitchBubble({
   message: ChatUiMessage;
 }) {
   return (
-    <div className="mx-auto w-full max-w-3xl rounded-[18px] border border-amber-200 bg-amber-50 px-3.5 py-3 text-amber-900 shadow-[0_10px_26px_rgba(245,158,11,0.08)] dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-100 sm:rounded-[24px] sm:px-5 sm:py-4">
+    <div className="mx-auto w-full max-w-3xl rounded-[18px] border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-amber-900 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-100 sm:rounded-[24px] sm:px-5 sm:py-4">
       <div className="flex items-start gap-2.5 sm:gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 sm:h-10 sm:w-10 sm:rounded-[16px]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] bg-amber-500/20 text-amber-700 dark:bg-amber-500/25 dark:text-amber-300 sm:h-10 sm:w-10 sm:rounded-[16px]">
           <AlertTriangle className="h-5 w-5" />
         </div>
 
@@ -85,7 +85,7 @@ function DeviceSwitchBubble({
               {message.deviceSwitch.actions.map((action) => (
                 <span
                   key={`${message.id}-${action.action}`}
-                  className="rounded-full border border-amber-300 px-3 py-1 text-[11px] font-black uppercase tracking-[0.08em] dark:border-amber-400/30"
+                  className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.08em] dark:border-amber-400/30"
                 >
                   {action.label}
                 </span>
@@ -105,7 +105,7 @@ function UserBubble({
 }) {
   return (
     <div className="flex w-full justify-end">
-      <div className="max-w-[90%] overflow-hidden rounded-[18px] rounded-br-md border border-orange-300/40 bg-gradient-to-br from-orange-500 via-orange-500 to-amber-400 px-4 py-2.5 text-[14px] font-bold leading-6 text-white shadow-[0_12px_28px_rgba(255,122,0,0.18)] dark:border-blue-400/20 dark:bg-gradient-to-br dark:from-blue-600 dark:via-blue-600 dark:to-cyan-500 dark:shadow-[0_12px_28px_rgba(37,99,235,0.26)] sm:max-w-[78%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
+      <div className="max-w-[90%] overflow-hidden rounded-[18px] rounded-br-md border border-orange-300/40 bg-gradient-to-br from-orange-500 via-orange-500 to-amber-400 px-4 py-2.5 text-[14px] font-bold leading-6 text-white shadow-md dark:border-[#0891B2] dark:from-[#0891B2] dark:to-[#0284C7] sm:max-w-[78%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
         {message.type === "image" && message.mediaUrl ? (
           <div className="space-y-2.5 sm:space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -145,6 +145,25 @@ function UserBubble({
   );
 }
 
+function renderInlineMarkdown(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong
+          key={`${part}-${index}`}
+          className="font-extrabold text-slate-900 dark:text-white"
+        >
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    return <span key={`${part}-${index}`}>{part}</span>;
+  });
+}
+
 function AssistantBubble({
   message,
 }: {
@@ -158,13 +177,13 @@ function AssistantBubble({
     <div className="flex w-full justify-start gap-2 sm:gap-3">
       <AiAvatar />
 
-      <div className="max-w-[91%] rounded-[18px] rounded-bl-md border border-slate-200 bg-white px-4 py-2.5 text-[14px] font-semibold leading-6 text-slate-800 shadow-[0_10px_24px_rgba(15,23,42,0.05)] dark:border-slate-700/80 dark:bg-[#102036] dark:text-slate-50 dark:shadow-[0_12px_28px_rgba(0,0,0,0.20)] sm:max-w-[80%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
+      <div className="max-w-[91%] rounded-[18px] rounded-bl-md border border-slate-200 bg-white px-4 py-2.5 text-[14px] font-semibold leading-6 text-slate-800 shadow-sm dark:border-[#1E2A3F] dark:bg-[#101B2E] dark:text-slate-50 sm:max-w-[80%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
         <div className="space-y-2.5 sm:space-y-3">
           {contentLines.map((line, index) =>
             /^(\*\*)?Bước\s+\d+:/i.test(line) ? (
               <div
                 key={`${message.id}-${index}`}
-                className="rounded-xl border border-orange-100 bg-orange-50 px-3 py-2.5 text-[13px] font-black text-orange-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200 sm:rounded-2xl sm:px-4 sm:py-3 sm:text-[14px]"
+                className="rounded-xl border border-orange-100 bg-orange-50 px-3.5 py-2.5 text-[13px] font-black text-orange-700 dark:border-cyan-400/30 dark:bg-cyan-500/15 dark:text-cyan-200 sm:rounded-2xl sm:px-4 sm:py-3 sm:text-[14px]"
               >
                 {line.replace(/\*\*/g, "")}
               </div>
@@ -173,7 +192,7 @@ function AssistantBubble({
                 key={`${message.id}-${index}`}
                 className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
               >
-                {line}
+                {renderInlineMarkdown(line)}
               </p>
             ),
           )}

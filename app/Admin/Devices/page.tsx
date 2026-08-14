@@ -12,6 +12,9 @@ import type {
   MaintenanceFilter,
   WarrantyFilter,
 } from "./types/device.types";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 export default function DevicesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +23,12 @@ export default function DevicesPage() {
   const [maintenanceFilter, setMaintenanceFilter] =
     useState<MaintenanceFilter>("ALL");
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const { summary, categories, filteredItems, isLoading, error } =
     useAdminDevices({
@@ -92,6 +101,13 @@ export default function DevicesPage() {
           />
         ) : null}
       </div>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </AdminShell>
   );
 }

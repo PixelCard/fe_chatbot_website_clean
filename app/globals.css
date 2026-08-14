@@ -93,16 +93,16 @@ body::-webkit-scrollbar,
   --admin-soft-panel-border: rgba(30, 42, 63, 0.9);
   --admin-placeholder: #94a3b8;
 
-  --admin-accent: #c7d2fe;
+  --admin-accent: #22d3ee;
   --admin-success: #22c55e;
-  --admin-focus-ring: rgba(199, 210, 254, 0.36);
-  --admin-theme-ring: rgba(181, 184, 208, 0.34);
+  --admin-focus-ring: rgba(6, 182, 212, 0.36);
+  --admin-theme-ring: rgba(6, 182, 212, 0.34);
 
   --admin-toggle-surface: rgba(7, 17, 31, 0.9);
   --admin-toggle-border: rgba(255, 255, 255, 0.12);
-  --admin-toggle-icon: #c7d2fe;
+  --admin-toggle-icon: #22d3ee;
 
-  --admin-avatar-text: #050816;
+  --admin-avatar-text: #ffffff;
 
   --admin-sidebar-bg: rgba(7, 17, 31, 0.95);
   --admin-sidebar-border: rgba(30, 42, 63, 0.95);
@@ -140,11 +140,11 @@ body::-webkit-scrollbar,
   --admin-sidebar-active-icon-text: #22d3ee;
 
   --admin-cta-bg: linear-gradient(135deg,
-      #818cf8 0%,
-      #c7d2fe 52%,
-      #e0e7ff 100%);
-  --admin-cta-text: #050816;
-  --admin-cta-shadow: 0 16px 34px rgba(99, 102, 241, 0.22);
+      #ff7a00 0%,
+      #ff9f1a 55%,
+      #ffc043 100%);
+  --admin-cta-text: #ffffff;
+  --admin-cta-shadow: 0 16px 34px rgba(255, 138, 31, 0.35);
 }
 
 /* Theme tokens: light */

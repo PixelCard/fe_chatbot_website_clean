@@ -1,13 +1,18 @@
-"use client";
-
+import { useMemo, useState } from "react";
 import {
   ChevronDown,
+  Clock,
+  Laptop,
   MessageSquareText,
   Plus,
+  Radio,
   Search,
   Sparkles,
+  Tv,
   UserRound,
+  Wrench,
   X,
+  Zap,
 } from "lucide-react";
 import type { ChatHistoryItem } from "@/app/services/common";
 
@@ -32,15 +37,25 @@ function formatHistoryTime(value: string) {
   }
 
   return new Intl.DateTimeFormat("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
   }).format(date);
 }
 
 function getHistoryTitle(item: ChatHistoryItem) {
   return item.deviceType?.trim() || "Phiên chẩn đoán";
+}
+
+function getDeviceIcon(deviceType?: string) {
+  const name = (deviceType || "").toLowerCase();
+  if (name.includes("laptop") || name.includes("máy tính")) return Laptop;
+  if (name.includes("điều hòa") || name.includes("máy lạnh")) return Radio;
+  if (name.includes("lò vi sóng") || name.includes("bếp")) return Zap;
+  if (name.includes("tivi") || name.includes("tv")) return Tv;
+  if (name.includes("sửa") || name.includes("bảo dưỡng")) return Wrench;
+  return MessageSquareText;
 }
 
 export function ChatHistorySidebar({
@@ -55,6 +70,21 @@ export function ChatHistorySidebar({
   onNewChat,
   onSelectSession,
 }: ChatHistorySidebarProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredHistoryItems = useMemo(() => {
+    if (!searchQuery.trim()) return historyItems;
+
+    const query = searchQuery.toLowerCase().trim();
+
+    return historyItems.filter(
+      (item) =>
+        getHistoryTitle(item).toLowerCase().includes(query) ||
+        String(item.id).includes(query) ||
+        (item.createdAt && item.createdAt.toLowerCase().includes(query)),
+    );
+  }, [historyItems, searchQuery]);
+
   return (
     <>
       {isSidebarOpen ? (
@@ -77,10 +107,10 @@ export function ChatHistorySidebar({
           <button
             type="button"
             onClick={onNewChat}
-            className="group flex h-11 flex-1 items-center gap-3 rounded-[16px] border border-orange-100/90 bg-white/88 px-4 text-[14px] font-black text-slate-900 shadow-[0_12px_28px_rgba(255,138,31,0.10)] transition hover:-translate-y-0.5 hover:border-orange-200 hover:bg-white hover:shadow-[0_16px_34px_rgba(255,138,31,0.14)] active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900/78 dark:text-white dark:shadow-[0_14px_34px_rgba(0,0,0,0.18)] dark:hover:border-blue-500/40 dark:hover:bg-slate-900"
+            className="group flex h-11 flex-1 items-center justify-center gap-2.5 rounded-[16px] border border-orange-200/80 bg-gradient-to-r from-white via-orange-50/50 to-amber-50/40 px-4 text-[14px] font-black text-slate-900 shadow-[0_12px_28px_rgba(255,138,31,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_16px_34px_rgba(255,138,31,0.18)] active:scale-[0.98] dark:border-blue-500/30 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-800/80 dark:text-white dark:shadow-[0_14px_34px_rgba(0,0,0,0.25)] dark:hover:border-cyan-400/50"
           >
-            <span className="client-accent-gradient flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white shadow-sm">
-              <Plus className="h-4 w-4" />
+            <span className="client-accent-gradient flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white shadow-md">
+              <Plus className="h-4 w-4" strokeWidth={2.5} />
             </span>
             Tạo hội thoại mới
           </button>
@@ -96,45 +126,68 @@ export function ChatHistorySidebar({
         </div>
 
         <div className="border-b border-[var(--client-card-border)] px-4 py-3">
-          <div className="flex h-10 items-center gap-3 rounded-[14px] border border-[var(--client-card-border)] bg-white/84 px-3 text-[13px] font-semibold text-[var(--client-text-muted)] shadow-[0_10px_24px_rgba(255,138,31,0.06)] dark:bg-slate-900/70 dark:shadow-none">
-            <Search className="h-4 w-4 shrink-0" />
-            <span className="truncate">Tìm kiếm lịch sử</span>
+          <div className="relative flex h-10 items-center rounded-[14px] border border-[var(--client-card-border)] bg-white/84 px-3 text-[13px] font-semibold text-[var(--client-text-primary)] shadow-sm focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-400/20 dark:bg-slate-900/70 dark:focus-within:border-cyan-400 dark:focus-within:ring-cyan-400/20">
+            <Search className="h-4 w-4 shrink-0 text-[var(--client-text-muted)]" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Tìm kiếm lịch sử..."
+              className="w-full bg-transparent px-2 text-[13px] font-semibold text-[var(--client-text-primary)] placeholder-[var(--client-text-muted)] outline-none"
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200 dark:hover:bg-slate-700"
+                aria-label="Xóa từ khóa tìm kiếm"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-3">
-          <div className="mb-2.5 flex items-center justify-between px-2">
-            <div className="flex items-center gap-1 text-[13px] font-black uppercase tracking-[0.12em] text-[var(--client-text-muted)]">
-              <span>Gần đây</span>
-              <ChevronDown className="h-4 w-4" />
+        <div className="flex-1 overflow-y-auto px-3.5 py-3.5">
+          <div className="mb-3 flex items-center justify-between px-1.5">
+            <div className="flex items-center gap-1.5 text-[12px] font-black uppercase tracking-[0.14em] text-[var(--client-text-muted)]">
+              <span>GẦN ĐÂY</span>
+              <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
             </div>
 
-            <span className="client-accent-soft inline-flex h-7 w-7 items-center justify-center rounded-full">
-              <Sparkles className="h-4 w-4" />
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-orange-200/60 bg-gradient-to-br from-orange-100 to-amber-50 text-orange-600 shadow-sm dark:border-cyan-500/30 dark:from-cyan-950 dark:to-slate-900 dark:text-cyan-300">
+              <Sparkles className="h-3.5 w-3.5" />
             </span>
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <button
               type="button"
               className={[
-                "w-full rounded-[18px] border px-3 py-2.5 text-left transition",
+                "group relative w-full overflow-hidden rounded-[20px] border p-3.5 text-left transition-all duration-200",
                 sessionId
-                  ? "border-orange-200/90 bg-white shadow-[0_14px_32px_rgba(255,138,31,0.10)] dark:border-blue-500/30 dark:bg-slate-900/82 dark:shadow-[0_14px_32px_rgba(0,0,0,0.18)]"
-                  : "border-transparent bg-transparent hover:border-orange-100 hover:bg-white/82 hover:shadow-[0_12px_28px_rgba(255,138,31,0.08)] dark:hover:border-slate-700 dark:hover:bg-slate-900/62 dark:hover:shadow-none",
+                  ? "border-orange-400/80 bg-gradient-to-br from-orange-50/90 via-white to-amber-50/40 shadow-[0_12px_28px_rgba(255,138,31,0.14)] dark:border-cyan-400/60 dark:from-slate-900 dark:via-slate-900/95 dark:to-cyan-950/30 dark:shadow-[0_12px_28px_rgba(0,0,0,0.30)]"
+                  : "border-transparent bg-transparent hover:border-orange-200 hover:bg-white/80 dark:hover:border-slate-700 dark:hover:bg-slate-900/60",
               ].join(" ")}
             >
               <div className="flex items-start gap-3">
-                <div className="client-accent-soft mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[13px]">
-                  <MessageSquareText className="h-4 w-4" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border border-orange-200/80 bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-sm dark:border-cyan-400/50 dark:from-cyan-500 dark:to-blue-600">
+                  <MessageSquareText className="h-4 w-4" strokeWidth={2.3} />
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-black text-[var(--client-text-primary)]">
-                    {sessionId ? `Phiên hiện tại #${sessionId}` : "Phiên mới"}
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-[var(--client-text-secondary)]">
-                    Thiết bị: {currentDeviceLabel}
+                  <div className="flex items-center justify-between gap-1.5">
+                    <p className="truncate text-[13.5px] font-black text-[var(--client-text-primary)]">
+                      {sessionId ? `Phiên hiện tại #${sessionId}` : "Phiên mới"}
+                    </p>
+                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black text-emerald-700 dark:text-emerald-300">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                      Đang xử lý
+                    </span>
+                  </div>
+
+                  <p className="mt-1 line-clamp-1 text-[12px] font-bold text-[var(--client-text-muted)]">
+                    Thiết bị: <span className="text-[var(--client-text-primary)]">{currentDeviceLabel}</span>
                   </p>
                 </div>
               </div>
@@ -145,13 +198,14 @@ export function ChatHistorySidebar({
                 {Array.from({ length: 5 }).map((_, index) => (
                   <div
                     key={`history-skeleton-${index}`}
-                    className="h-[56px] animate-pulse rounded-[18px] border border-[var(--client-card-border)] bg-white/65 dark:bg-slate-900/55"
+                    className="h-[64px] animate-pulse rounded-[20px] border border-[var(--client-card-border)] bg-white/65 dark:bg-slate-900/55"
                   />
                 ))}
               </div>
-            ) : historyItems.length ? (
-              historyItems.map((item) => {
+            ) : filteredHistoryItems.length ? (
+              filteredHistoryItems.map((item) => {
                 const isActive = item.id === sessionId;
+                const DeviceIcon = getDeviceIcon(item.deviceType);
 
                 return (
                   <button
@@ -160,22 +214,23 @@ export function ChatHistorySidebar({
                     disabled={isSelectingSession}
                     onClick={() => onSelectSession(item)}
                     className={[
-                        "w-full rounded-[18px] border px-3 py-2.5 text-left transition disabled:cursor-wait disabled:opacity-70",
+                      "group w-full rounded-[20px] border p-3.5 text-left transition-all duration-200 disabled:cursor-wait disabled:opacity-70",
                       isActive
-                        ? "border-orange-200/90 bg-white shadow-[0_14px_32px_rgba(255,138,31,0.10)] dark:border-blue-500/30 dark:bg-slate-900/82 dark:shadow-[0_14px_32px_rgba(0,0,0,0.18)]"
-                        : "border-transparent bg-transparent hover:border-orange-100 hover:bg-white/82 hover:shadow-[0_12px_28px_rgba(255,138,31,0.08)] dark:hover:border-slate-700 dark:hover:bg-slate-900/62 dark:hover:shadow-none",
+                        ? "border-orange-400/80 bg-gradient-to-br from-orange-50/90 via-white to-amber-50/40 shadow-[0_12px_28px_rgba(255,138,31,0.14)] dark:border-cyan-400/60 dark:from-slate-900 dark:via-slate-900/95 dark:to-cyan-950/30"
+                        : "border-[var(--client-card-border)] bg-white/60 hover:-translate-y-0.5 hover:border-orange-200/90 hover:bg-white hover:shadow-[0_10px_24px_rgba(255,138,31,0.08)] dark:bg-slate-900/40 dark:hover:border-slate-700 dark:hover:bg-slate-900/80 dark:hover:shadow-[0_10px_24px_rgba(0,0,0,0.22)]",
                     ].join(" ")}
                   >
                     <div className="flex items-start gap-3">
-                        <div className="client-accent-soft mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[13px]">
-                        <MessageSquareText className="h-4 w-4" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border border-orange-100 bg-orange-50 text-orange-600 transition-colors group-hover:bg-orange-100 dark:border-slate-800 dark:bg-slate-800/80 dark:text-cyan-300 dark:group-hover:bg-slate-800">
+                        <DeviceIcon className="h-4 w-4" strokeWidth={2.2} />
                       </div>
 
                       <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-black text-[var(--client-text-primary)]">
+                        <p className="truncate text-[13.5px] font-black text-[var(--client-text-primary)]">
                           {getHistoryTitle(item)}
                         </p>
-                        <p className="mt-1 text-[11px] font-semibold text-[var(--client-text-muted)]">
+                        <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-[var(--client-text-muted)]">
+                          <Clock className="h-3 w-3 text-slate-400" />
                           {formatHistoryTime(item.createdAt)}
                         </p>
                       </div>
@@ -183,6 +238,10 @@ export function ChatHistorySidebar({
                   </button>
                 );
               })
+            ) : searchQuery ? (
+              <div className="rounded-[20px] border border-dashed border-[var(--client-card-border)] bg-white/58 px-4 py-5 text-center text-xs font-semibold text-[var(--client-text-muted)] dark:bg-slate-900/42">
+                Không tìm thấy hội thoại phù hợp với &quot;{searchQuery}&quot;
+              </div>
             ) : (
               <div className="rounded-[20px] border border-dashed border-[var(--client-card-border)] bg-white/58 px-4 py-5 text-sm font-semibold text-[var(--client-text-muted)] dark:bg-slate-900/42">
                 Chưa có lịch sử hội thoại nào để hiển thị.
@@ -194,7 +253,7 @@ export function ChatHistorySidebar({
         <div className="border-t border-[var(--client-card-border)] p-4">
           <button
             type="button"
-            className="flex w-full items-center gap-3 rounded-[18px] border border-transparent bg-white/35 px-3 py-3 transition hover:border-orange-100 hover:bg-white/78 dark:bg-slate-900/28 dark:hover:border-slate-700 dark:hover:bg-slate-900/66"
+            className="flex w-full items-center gap-3 rounded-[20px] border border-[var(--client-card-border)] bg-white/60 p-3 transition hover:border-orange-200 hover:bg-white hover:shadow-sm dark:bg-slate-900/40 dark:hover:border-slate-700 dark:hover:bg-slate-900/70"
           >
             <div className="client-accent-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[14px] font-black text-white shadow-sm">
               {profileName.charAt(0).toUpperCase()}

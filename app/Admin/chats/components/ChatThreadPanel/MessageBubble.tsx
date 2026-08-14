@@ -170,9 +170,9 @@ function getSenderMeta(senderType: SenderType) {
         label: "Khách hàng",
         icon: <User className="h-[22px] w-[22px]" strokeWidth={2.7} />,
         iconClass:
-          "border-[#0A7CFF]/55 bg-[#DBEAFE] text-[#0A7CFF] ring-[#EFF6FF] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#3B82F6]/60 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#172554] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#93C5FD]",
+          "border-[#06B6D4]/55 bg-[#CFFAFE] text-[#0891B2] ring-[#ECFEFF] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#06B6D4]/60 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#083344] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
         bubbleClass:
-          "border border-[#0A7CFF] bg-[#0A7CFF] text-white shadow-[0_10px_26px_-16px_rgba(10,124,255,0.7)] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#2563EB] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#2563EB] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white",
+          "border border-[#0891B2] bg-[#0891B2] text-white shadow-sm [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#0284C7] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0284C7] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white",
       };
 
     default:

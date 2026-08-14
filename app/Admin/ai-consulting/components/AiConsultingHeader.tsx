@@ -56,9 +56,9 @@ export default function AiConsultingHeader({
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
           <Link
             href="/admin/ai-reasoning-logs"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#A855F7]/35 bg-[#A855F7]/10 px-4 text-sm font-bold text-[#7E22CE] transition hover:bg-[#A855F7]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#C084FC]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--admin-control-border)] bg-[var(--admin-control-bg)] px-4 text-sm font-bold text-[var(--admin-strong-text)] shadow-sm transition hover:border-[#06B6D4]/50 hover:bg-[#06B6D4]/10 hover:text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:hover:text-[#22D3EE]"
           >
-            <ScrollText className="h-4 w-4" />
+            <ScrollText className="h-4 w-4 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]" />
             Log suy luận
           </Link>
 

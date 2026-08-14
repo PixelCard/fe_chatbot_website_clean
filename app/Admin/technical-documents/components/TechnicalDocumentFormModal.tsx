@@ -16,6 +16,7 @@ interface Props {
   onClose: () => void;
   onSubmit: (values: TechnicalDocumentFormValues) => void | Promise<void>;
   isSubmitting?: boolean;
+  errorMessage?: string | null;
 }
 
 const emptyValues: TechnicalDocumentFormValues = {
@@ -34,6 +35,7 @@ export function TechnicalDocumentFormModal({
   onClose,
   onSubmit,
   isSubmitting = false,
+  errorMessage,
 }: Props) {
   const [values, setValues] =
     useState<TechnicalDocumentFormValues>(emptyValues);
@@ -89,6 +91,12 @@ export function TechnicalDocumentFormModal({
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
+          {errorMessage ? (
+            <div className="mb-4 rounded-xl border border-red-500/35 bg-red-500/10 p-3.5 text-sm font-semibold text-[var(--admin-error)]">
+              {errorMessage}
+            </div>
+          ) : null}
+
           <div className="space-y-4">
             <label className={labelClass}>
               Tên tài liệu

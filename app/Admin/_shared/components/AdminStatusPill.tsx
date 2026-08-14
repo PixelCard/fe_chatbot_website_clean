@@ -24,23 +24,23 @@ type PresetStatusPillProps = Omit<AdminStatusPillProps, "tone">;
 
 const TONE_CLASS: Record<AdminStatusPillTone, string> = {
   neutral:
-    "border-slate-600 bg-slate-500 text-white shadow-slate-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-slate-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-slate-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-slate-50",
+    "border-slate-600 bg-slate-600 text-white shadow-slate-200/80",
   success:
-    "border-emerald-700 bg-emerald-600 text-white shadow-emerald-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-emerald-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-emerald-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-50",
+    "border-emerald-600 bg-emerald-600 text-white shadow-emerald-200/80",
   danger:
-    "border-rose-700 bg-rose-600 text-white shadow-rose-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-50",
+    "border-rose-600 bg-rose-600 text-white shadow-rose-200/80",
   failed:
-    "border-red-700 bg-red-600 text-white shadow-red-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-red-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-red-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-red-50",
+    "border-red-600 bg-red-600 text-white shadow-red-200/80",
   cancel:
-    "border-rose-700 bg-rose-600 text-white shadow-rose-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-rose-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-rose-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-50",
+    "border-rose-600 bg-rose-600 text-white shadow-rose-200/80",
   warning:
-    "border-amber-700 bg-amber-500 text-white shadow-amber-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-50",
+    "border-amber-600 bg-amber-600 text-white shadow-amber-200/80",
   info:
-    "border-cyan-700 bg-cyan-600 text-white shadow-cyan-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-cyan-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-cyan-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-50",
+    "border-cyan-600 bg-cyan-600 text-white shadow-cyan-200/80",
   sky:
-    "border-sky-700 bg-sky-600 text-white shadow-sky-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-sky-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-sky-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-sky-50",
+    "border-sky-600 bg-sky-600 text-white shadow-sky-200/80",
   purple:
-    "border-violet-700 bg-violet-600 text-white shadow-violet-200/80 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-violet-400/50 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-violet-500/30 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-violet-50",
+    "border-violet-600 bg-violet-600 text-white shadow-violet-200/80",
 };
 
 const SOFT_TONE_CLASS: Record<AdminStatusPillTone, string> = {

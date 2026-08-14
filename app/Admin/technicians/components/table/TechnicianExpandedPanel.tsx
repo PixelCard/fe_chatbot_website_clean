@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Eye, Lock, ShieldCheck, Unlock } from "lucide-react";
 
 import { ActionButton } from "@/app/components/common/action-button/ActionButton";
@@ -21,20 +21,20 @@ export default function TechnicianExpandedPanel({
     <div className="border-t border-[#D0D5DD] bg-[#F8FAFC] px-4 py-4 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#101B2E]">
       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_1fr_auto]">
         <PanelCard
-          title="ThÃ´ng tin cÃ¡ nhÃ¢n"
+          title="Thông tin cá nhân"
           titleClass="text-[#C2410C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
         >
-          <InfoText label="Há» tÃªn" value={technician.fullName} strong />
-          <InfoText label="Sá»‘ Ä‘iá»‡n thoáº¡i" value={technician.phoneNumber} />
+          <InfoText label="Họ tên" value={technician.fullName} strong />
+          <InfoText label="Số điện thoại" value={technician.phoneNumber} />
           <InfoText label="Email" value={technician.email} breakWords />
         </PanelCard>
 
         <PanelCard
-          title="Tráº¡ng thÃ¡i & hiá»‡u suáº¥t"
+          title="Trạng thái & hiệu suất"
           titleClass="text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
         >
           <InfoText
-            label="Trá»±c tuyáº¿n"
+            label="Trực tuyến"
             value={technician.isOnline ? "Online" : "Offline"}
             valueClass={
               technician.isOnline
@@ -44,8 +44,8 @@ export default function TechnicianExpandedPanel({
           />
 
           <InfoText
-            label="XÃ¡c minh"
-            value={technician.isVerified ? "ÄÃ£ xÃ¡c minh" : "ChÆ°a xÃ¡c minh"}
+            label="Xác minh"
+            value={technician.isVerified ? "Đã xác minh" : "Chưa xác minh"}
             valueClass={
               technician.isVerified
                 ? "text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
@@ -54,8 +54,8 @@ export default function TechnicianExpandedPanel({
           />
 
           <InfoText
-            label="TÃ i khoáº£n"
-            value={technician.isActive ? "Äang hoáº¡t Ä‘á»™ng" : "Bá»‹ khÃ³a"}
+            label="Tài khoản"
+            value={technician.isActive ? "Đang hoạt động" : "Bị khóa"}
             valueClass={
               technician.isActive
                 ? "text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
@@ -64,27 +64,27 @@ export default function TechnicianExpandedPanel({
           />
 
           <OrderSummaryRow
-            label="ÄÆ¡n"
+            label="Đơn"
             processingCount={technician.activeJobCount}
             completedCount={technician.completedJobCount}
           />
 
           <InfoText
-            label="ÄÃ¡nh giÃ¡"
+            label="Đánh giá"
             value={`${formatRating(technician.averageRating)} sao`}
           />
         </PanelCard>
 
         <PanelCard
-          title="ÄÆ¡n hiá»‡n táº¡i"
+          title="Đơn hiện tại"
           titleClass="text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]"
         >
           {technician.currentJob ? (
             <>
-              <InfoText label="MÃ£ Ä‘Æ¡n" value={technician.currentJob.id} strong />
+              <InfoText label="Mã đơn" value={technician.currentJob.id} strong />
 
               <InfoText
-                label="Tráº¡ng thÃ¡i"
+                label="Trạng thái"
                 value={
                   jobStatusLabel[technician.currentJob.status] ??
                   technician.currentJob.status
@@ -92,31 +92,31 @@ export default function TechnicianExpandedPanel({
               />
 
               <InfoText
-                label="Thiáº¿t bá»‹"
+                label="Thiết bị"
                 value={technician.currentJob.deviceType}
               />
 
               <InfoText
-                label="Triá»‡u chá»©ng"
+                label="Triệu chứng"
                 value={technician.currentJob.symptom}
                 breakWords
               />
             </>
           ) : (
             <div className="rounded-xl border border-[#22C55E]/25 bg-[#F0FDF4] px-3 py-2 text-sm font-semibold text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#22C55E]/10 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
-              ChÆ°a nháº­n Ä‘Æ¡n nÃ o.
+              Chưa nhận đơn nào.
             </div>
           )}
         </PanelCard>
 
         <article className="flex flex-col gap-2.5 rounded-2xl border border-[#D0D5DD] bg-white p-4 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#1E2A3F] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#0D1728] xl:w-[180px]">
           <h4 className="mb-1 text-base font-extrabold text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white">
-            HÃ nh Ä‘á»™ng
+            Hành động
           </h4>
 
           <ActionButton
             href={`/admin/accounts/${technician.id}`}
-            label="Chi tiáº¿t"
+            label="Chi tiết"
             fullWidth
             className={technicianActionClass("neutral")}
             icon={<Eye className="h-4 w-4" strokeWidth={2.6} />}
@@ -124,7 +124,7 @@ export default function TechnicianExpandedPanel({
 
           {!technician.isVerified ? (
             <ActionButton
-              label="XÃ¡c minh"
+              label="Xác minh"
               fullWidth
               tone="info"
               disabled={!onVerify || actionLoading}
@@ -136,7 +136,7 @@ export default function TechnicianExpandedPanel({
           ) : null}
 
           <ActionButton
-            label={technician.isActive ? "KhÃ³a" : "Má»Ÿ khÃ³a"}
+            label={technician.isActive ? "Khóa" : "Mở khóa"}
             fullWidth
             tone={technician.isActive ? "danger" : "success"}
             disabled={!onToggleActive || actionLoading}
@@ -153,8 +153,6 @@ export default function TechnicianExpandedPanel({
               )
             }
           />
-
-
         </article>
       </div>
     </div>
@@ -210,7 +208,7 @@ function InfoText({
           valueClass ||
             "text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-white",
           breakWords ? "break-words [overflow-wrap:anywhere]" : "truncate",
-          displayValue === "ChÆ°a cáº­p nháº­t"
+          displayValue === "Chưa cập nhật"
             ? "italic text-[#667085] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#94A3B8]"
             : "",
         ].join(" ")}
@@ -241,7 +239,7 @@ function OrderSummaryRow({
 
       <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[15px] font-extrabold leading-6">
         <span className="text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]">
-          {processing} Ä‘ang xá»­ lÃ½
+          {processing} đang xử lý
         </span>
 
         <span className="text-[#98A2B3] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#64748B]">
@@ -249,14 +247,14 @@ function OrderSummaryRow({
         </span>
 
         <span className="text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
-          {completed} hoÃ n thÃ nh
+          {completed} hoàn thành
         </span>
       </div>
     </div>
   );
 }
 
-// Giá»¯ khÃ¡c biá»‡t mÃ u cho tá»«ng action nhÆ°ng thá»‘ng nháº¥t cáº¥u trÃºc qua shared button.
+// Giữ khác biệt màu cho từng action nhưng thống nhất cấu trúc qua shared button.
 function technicianActionClass(
   tone: "neutral" | "info" | "danger" | "success" | "warning",
 ) {
@@ -280,13 +278,13 @@ function technicianActionClass(
 }
 
 function getDisplayValue(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return "ChÆ°a cáº­p nháº­t";
+  if (value === null || value === undefined) return "Chưa cập nhật";
 
   if (typeof value === "number") {
-    return Number.isFinite(value) ? String(value) : "ChÆ°a cáº­p nháº­t";
+    return Number.isFinite(value) ? String(value) : "Chưa cập nhật";
   }
 
-  return value.trim() ? value : "ChÆ°a cáº­p nháº­t";
+  return value.trim() ? value : "Chưa cập nhật";
 }
 
 function formatCount(value?: number | null) {

@@ -41,15 +41,15 @@ export function HeaderActions({
       <div className="hidden shrink-0 items-center justify-end gap-2.5 min-[1180px]:flex min-[1500px]:gap-3">
         <Link
           href={APP_ROUTES.CLIENT.CHAT_BOT}
+          prefetch={true}
           aria-label="Bắt đầu trò chuyện"
           title="Bắt đầu trò chuyện"
           className={[
-            'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
-            'bg-[#FF7A00] text-white',
-            'transition-all duration-200',
-            'hover:-translate-y-0.5 hover:bg-[#E66E00]',
+            'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transform-gpu',
+            'bg-[#FF7A00] text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#E66E00]',
+            'dark:bg-cyan-500 dark:text-slate-950 dark:shadow-[0_4px_16px_rgba(6,182,212,0.35)] dark:hover:bg-cyan-400',
             'active:translate-y-0',
-            'focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF7A00]/25',
+            'focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF7A00]/25 dark:focus-visible:ring-cyan-500/30',
             'min-[1550px]:w-auto min-[1550px]:gap-2',
             'min-[1550px]:rounded-[16px] min-[1550px]:px-5',
           ].join(' ')}
@@ -86,7 +86,8 @@ export function HeaderActions({
 
             <Link
               href={`${APP_ROUTES.Auth.LOGIN}?mode=register`}
-              className="inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#FF7A00] px-4 text-sm font-semibold text-white transition hover:bg-[#E66E00] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF7A00]/25 min-[1500px]:px-5"
+              prefetch={true}
+              className="inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#FF7A00] px-4 text-sm font-semibold text-white transition hover:bg-[#E66E00] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF7A00]/25 dark:focus-visible:ring-cyan-500/30 min-[1500px]:px-5 transform-gpu"
             >
               Đăng ký
             </Link>
@@ -120,8 +121,8 @@ export function HeaderActions({
             'hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]',
             'active:scale-95',
             'focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF7A00]/20',
-            'dark:border-white/10 dark:bg-white/5 dark:text-slate-200',
-            'dark:hover:bg-[#FF7A00]/15',
+            'dark:border-cyan-500/40 dark:bg-slate-900/90 dark:text-cyan-300',
+            'dark:hover:border-cyan-400 dark:hover:bg-cyan-500/15 dark:hover:text-cyan-200',
           ].join(' ')}
         >
           {isMobileMenuOpen ? (

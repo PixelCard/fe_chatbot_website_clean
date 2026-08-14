@@ -12,6 +12,9 @@ import type {
   AccessLevel,
   TechnicalDocumentFormValues,
 } from "../../technical-documents/types/technicalDocument.types";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 const emptyValues: TechnicalDocumentFormValues = {
   title: "",
@@ -26,6 +29,12 @@ export default function RagKnowledgeCreatePage() {
   const [values, setValues] = useState<TechnicalDocumentFormValues>(emptyValues);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const disabled =
     isSubmitting || !values.title.trim() || !values.content.trim();
@@ -38,9 +47,12 @@ export default function RagKnowledgeCreatePage() {
 
     try {
       await technicalDocumentAdminService.createDocument(values);
+      pushToast("success", `Nạp tài liệu RAG "${values.title}" thành công!`);
       router.push("/admin/rag-knowledge");
     } catch (nextError) {
-      setError(nextError as ApiError);
+      const err = nextError as ApiError;
+      setError(err);
+      pushToast("error", `Không thể tạo tài liệu RAG: ${err.message}`);
       setIsSubmitting(false);
     }
   };
@@ -188,6 +200,13 @@ export default function RagKnowledgeCreatePage() {
           </div>
         </section>
       </div>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </AdminShell>
   );
 }

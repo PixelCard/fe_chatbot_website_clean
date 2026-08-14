@@ -1,3 +1,6 @@
+import { clearClientSession } from '@/app/auth/utils/session';
+import { APP_ROUTES } from '@/app/config/routes';
+
 export type ApiListResult<T> = {
   items: T[];
   total: number;
@@ -372,6 +375,15 @@ export async function request<T>(
       status: response.status,
       details: data,
     };
+
+    if (response.status === 401 && typeof window !== 'undefined') {
+      clearClientSession();
+
+      const currentPath = window.location.pathname;
+      if (!currentPath.startsWith('/auth/login')) {
+        window.location.href = `${APP_ROUTES.Auth.LOGIN}?mode=login`;
+      }
+    }
 
     throw apiError;
   }

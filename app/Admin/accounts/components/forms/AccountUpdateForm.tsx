@@ -15,6 +15,9 @@ import {
 import { GENDER_OPTIONS } from "../../constants/account.constants";
 import { useAccounts } from "../../hooks";
 import { useUploadApi } from "@/app/hooks/common/useUploadApi";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 import type {
   AccountItem,
@@ -61,6 +64,12 @@ export default function AccountUpdateForm({ account }: Props) {
   const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const isBusy = submitting || isMutating || isUploadingAvatar;
   const hasLocation =
@@ -88,6 +97,7 @@ export default function AccountUpdateForm({ account }: Props) {
     setSubmitError(null);
     setSavedMessage(null);
     clearUploadError();
+    pushToast("info", "Đã hoàn tác dữ liệu về ban đầu");
   };
 
   const handleAvatarFileChange = async (
@@ -104,20 +114,25 @@ export default function AccountUpdateForm({ account }: Props) {
     clearUploadError();
 
     if (!file.type.startsWith("image/")) {
-      setAvatarUploadError("Vui lòng chọn file ảnh hợp lệ.");
+      const msg = "Vui lòng chọn file ảnh hợp lệ.";
+      setAvatarUploadError(msg);
+      pushToast("error", msg);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setAvatarUploadError("Ảnh đại diện phải nhỏ hơn hoặc bằng 5MB.");
+      const msg = "Ảnh đại diện phải nhỏ hơn hoặc bằng 5MB.";
+      setAvatarUploadError(msg);
+      pushToast("error", msg);
       return;
     }
 
     try {
       const result = await uploadMedia(file);
       updateField("avatarUrl", result.url.trim());
+      pushToast("success", "Đã tải lên ảnh đại diện thành công!");
     } catch {
-      // Upload error state is handled by useUploadApi.
+      pushToast("error", "Không thể tải lên ảnh đại diện.");
     }
   };
 
@@ -129,7 +144,10 @@ export default function AccountUpdateForm({ account }: Props) {
     setSubmitError(null);
     setSavedMessage(null);
 
-    if (hasValidationErrors(nextErrors)) return;
+    if (hasValidationErrors(nextErrors)) {
+      pushToast("warning", "Vui lòng kiểm tra lại các trường thông tin bị lỗi.");
+      return;
+    }
 
     setSubmitting(true);
 
@@ -147,10 +165,12 @@ export default function AccountUpdateForm({ account }: Props) {
       });
 
       setSavedMessage("Đã lưu thay đổi tài khoản.");
+      pushToast("success", "Đã lưu thay đổi tài khoản thành công!");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Không thể cập nhật tài khoản.";
       setSubmitError(message);
+      pushToast("error", message);
     } finally {
       setSubmitting(false);
     }
@@ -453,6 +473,13 @@ export default function AccountUpdateForm({ account }: Props) {
           </section>
         </aside>
       </div>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </form>
   );
 }

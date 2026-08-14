@@ -4,6 +4,7 @@ import { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import AdminShell from "../../dashboard/components/Action/AdminShell";
+import AdminToastStack, { type AdminToast } from "@/app/components/admin/AdminToastStack";
 
 import { TechnicalDocumentFormModal } from "../components/TechnicalDocumentFormModal";
 import { useTechnicalDocumentsApi } from "../hooks/useTechnicalDocumentsApi";
@@ -50,6 +51,17 @@ export default function TechnicalDocumentDetailPage({
   const numericId = Number(id);
 
   const [formOpen, setFormOpen] = useState(false);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+  const [modalError, setModalError] = useState<string | null>(null);
+
+  const addToast = (type: AdminToast["type"], text: string) => {
+    const toastId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    setToasts((prev) => [...prev, { id: toastId, type, text }]);
+  };
+
+  const removeToast = (toastId: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== toastId));
+  };
 
   const {
     filteredDocuments,
@@ -67,8 +79,19 @@ export default function TechnicalDocumentDetailPage({
   const handleSubmitForm = async (values: TechnicalDocumentFormValues) => {
     if (!document) return;
 
-    await updateDocument(document.id, values);
-    setFormOpen(false);
+    setModalError(null);
+    try {
+      await updateDocument(document.id, values);
+      addToast("success", `Cập nhật tài liệu "${values.title}" thành công!`);
+      setFormOpen(false);
+    } catch (err: unknown) {
+      const errMsg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : "Không thể cập nhật tài liệu.";
+      setModalError(errMsg);
+      addToast("error", `Cập nhật thất bại: ${errMsg}`);
+    }
   };
 
   const handleDelete = async () => {
@@ -80,8 +103,17 @@ export default function TechnicalDocumentDetailPage({
       return;
     }
 
-    await deleteDocument(document.id);
-    window.location.href = basePath;
+    try {
+      await deleteDocument(document.id);
+      addToast("success", `Đã xóa tài liệu "${document.title}".`);
+      window.location.href = basePath;
+    } catch (err: unknown) {
+      const errMsg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : "Không thể xóa tài liệu.";
+      addToast("error", `Xóa thất bại: ${errMsg}`);
+    }
   };
 
   return (
@@ -228,10 +260,16 @@ export default function TechnicalDocumentDetailPage({
         open={formOpen}
         mode="edit"
         document={document}
-        onClose={() => setFormOpen(false)}
+        onClose={() => {
+          setFormOpen(false);
+          setModalError(null);
+        }}
         onSubmit={handleSubmitForm}
         isSubmitting={isMutating}
+        errorMessage={modalError}
       />
+
+      <AdminToastStack toasts={toasts} onRemove={removeToast} />
     </AdminShell>
   );
 }

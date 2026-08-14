@@ -27,38 +27,42 @@ export const displayStatusMeta: Record<
   AVAILABLE: {
     label: "Đang rảnh",
     badgeClass:
-      "border border-emerald-500/45 bg-emerald-500/14 text-emerald-800 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-300",
+      "border border-emerald-500/30 bg-emerald-500/15 text-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-400 font-bold",
   },
   MATCHED: {
     label: "Đã nhận ca",
-    badgeClass: "border border-cyan-500/45 bg-cyan-500/14 text-cyan-800 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-300",
+    badgeClass:
+      "border border-sky-500/30 bg-sky-500/15 text-sky-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-sky-400 font-bold",
   },
   EN_ROUTE: {
     label: "Đang di chuyển",
     badgeClass:
-      "border border-orange-500/45 bg-orange-500/14 text-orange-800 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-orange-300",
+      "border border-orange-500/30 bg-orange-500/15 text-orange-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-orange-400 font-bold",
   },
   ARRIVED: {
     label: "Đã đến nơi",
     badgeClass:
-      "border border-violet-500/45 bg-violet-500/14 text-violet-800 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-violet-300",
+      "border border-purple-500/30 bg-purple-500/15 text-purple-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-purple-400 font-bold",
   },
   IN_PROGRESS: {
     label: "Đang sửa chữa",
     badgeClass:
-      "border border-amber-500/45 bg-amber-500/18 text-amber-800 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-300",
+      "border border-amber-500/30 bg-amber-500/15 text-amber-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-400 font-bold",
   },
   OFFLINE: {
     label: "Offline",
-    badgeClass: "border border-slate-500/45 bg-slate-500/18 text-slate-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-slate-300",
+    badgeClass:
+      "border border-slate-500/30 bg-slate-500/15 text-slate-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-slate-400 font-bold",
   },
   LOCKED: {
     label: "Bị khóa",
-    badgeClass: "border border-rose-500/45 bg-rose-500/18 text-rose-800 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-300",
+    badgeClass:
+      "border border-rose-500/30 bg-rose-500/15 text-rose-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-400 font-bold",
   },
   UNVERIFIED: {
     label: "Chưa xác minh",
-    badgeClass: "border border-amber-500/45 bg-amber-500/16 text-amber-800 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-300",
+    badgeClass:
+      "border border-amber-500/30 bg-amber-500/15 text-amber-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-400 font-bold",
   },
 };
 

@@ -22,6 +22,7 @@ import ConversationReviewModal from "./components/ConversationReviewModal";
 import DocumentLifecycleGrid from "./components/DocumentLifecycleGrid";
 import KnowledgeActionDrawer from "./components/KnowledgeActionDrawer";
 import { RagKnowledgeFormModal } from "./components/RagKnowledgeFormModal";
+import AdminToastStack, { type AdminToast } from "@/app/components/admin/AdminToastStack";
 import type {
   RagChunkDetail,
   RagDocumentChunksResponse,
@@ -55,6 +56,16 @@ export default function RagKnowledgePage() {
   } = useRagKnowledgeApi();
 
   const [drawerMode, setDrawerMode] = useState<"import" | "detail">("import");
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const addToast = (type: AdminToast["type"], text: string) => {
+    const toastId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    setToasts((prev) => [...prev, { id: toastId, type, text }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
@@ -187,10 +198,13 @@ export default function RagKnowledgePage() {
     try {
       await updateDocument(editDocumentDetail.id, values);
       setIsEditModalOpen(false);
+      const title = values.title || editDocumentDetail.title;
+      addToast("success", `Cập nhật tài liệu RAG "${title}" thành công!`);
       setEditDocumentDetail(null);
       void refetch();
     } catch (err) {
-      alert((err as { message?: string }).message || "Không thể cập nhật tài liệu.");
+      const errMsg = (err as { message?: string }).message || "Không thể cập nhật tài liệu.";
+      addToast("error", `Cập nhật thất bại: ${errMsg}`);
     } finally {
       setEditSubmitting(false);
     }
@@ -260,8 +274,10 @@ export default function RagKnowledgePage() {
     try {
       await importDocument(formData);
       setIsDrawerOpen(false);
-    } catch {
-      // Hook đã cập nhật state error cho UI, không cần ném lỗi lên runtime overlay.
+      addToast("success", "Đã nạp tài liệu RAG mới thành công!");
+    } catch (err: unknown) {
+      const errMsg = (err as { message?: string })?.message || "Không thể nạp tài liệu RAG.";
+      addToast("error", `Nạp tài liệu thất bại: ${errMsg}`);
     }
   };
 
@@ -319,10 +335,12 @@ export default function RagKnowledgePage() {
               <button
                 type="button"
                 onClick={() => setIsConversationReviewOpen(true)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 text-sm font-bold text-cyan-700 transition hover:border-cyan-400/55 hover:bg-cyan-500/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-200"
+                className="inline-flex h-11 items-center justify-center gap-2.5 rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-4 text-sm font-extrabold text-cyan-900 shadow-sm backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-500/60 hover:bg-cyan-500/20 hover:shadow-md hover:shadow-cyan-500/10 active:translate-y-0 dark:border-cyan-400/35 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:border-cyan-300 dark:hover:bg-cyan-400/20 dark:hover:text-white"
               >
-                <MessageSquareText className="h-4 w-4" />
-                Duyệt cuộc trò chuyện
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-700 dark:bg-cyan-400/20 dark:text-cyan-300">
+                  <MessageSquareText className="h-3.5 w-3.5" />
+                </span>
+                <span>Duyệt cuộc trò chuyện</span>
               </button>
               <button
                 type="button"
@@ -575,6 +593,8 @@ export default function RagKnowledgePage() {
           onLoad={getConversationCandidates}
           onImport={importConversationCandidate}
         />
+
+        <AdminToastStack toasts={toasts} onRemove={removeToast} autoCloseMs={10000} />
       </div>
     </AdminShell>
   );

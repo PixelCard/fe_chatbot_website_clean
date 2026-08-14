@@ -65,6 +65,10 @@ export function ChatThreadPanel({ session, onOpenDrawer }: Props) {
                 <span className="rounded-lg border border-[var(--admin-soft-panel-border)] bg-[var(--admin-control-bg)] px-2 py-0.5 font-mono text-[11px] font-bold text-[var(--admin-muted-text)]">
                   {session.id}
                 </span>
+
+                <span className="rounded-lg border border-cyan-500/35 bg-cyan-500/15 px-2 py-0.5 text-[11px] font-bold text-cyan-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-300">
+                  {session.messages.length} tin nhắn
+                </span>
               </div>
 
               <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs font-semibold text-[var(--admin-muted-text)]">
@@ -85,15 +89,14 @@ export function ChatThreadPanel({ session, onOpenDrawer }: Props) {
             </div>
           </div>
 
-          <ActionButton
+          <button
+            type="button"
             onClick={onOpenDrawer}
-            icon={Info}
-            label="Can thiệp"
-            tone="info"
-            size="md"
-            widthClassName="w-auto shrink-0"
-            className="px-3"
-          />
+            className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-3.5 text-xs font-black text-[#0891B2] transition hover:bg-[#06B6D4]/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
+          >
+            <Info className="h-4 w-4" />
+            Can thiệp
+          </button>
         </div>
 
         {(session.isDangerous || session.isFlagged) && (
@@ -110,21 +113,27 @@ export function ChatThreadPanel({ session, onOpenDrawer }: Props) {
       </header>
 
       <div className="flex-1 overflow-y-auto bg-[var(--admin-control-bg)] px-3 py-4 sm:px-5">
-        <div className="flex flex-col gap-4">
-          {session.messages.map((message) => {
-            if (message.senderType === "SYSTEM") {
-              return (
-                <SystemMessage
-                  key={message.id}
-                  content={message.content}
-                  createdAt={message.createdAt}
-                />
-              );
-            }
+        {session.messages.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {session.messages.map((message) => {
+              if (message.senderType === "SYSTEM") {
+                return (
+                  <SystemMessage
+                    key={message.id}
+                    content={message.content}
+                    createdAt={message.createdAt}
+                  />
+                );
+              }
 
-            return <MessageBubble key={message.id} message={message} />;
-          })}
-        </div>
+              return <MessageBubble key={message.id} message={message} />;
+            })}
+          </div>
+        ) : (
+          <div className="flex h-full min-h-[220px] flex-col items-center justify-center p-6 text-center text-sm text-[var(--admin-muted-text)]">
+            Chưa có lịch sử tin nhắn ghi nhận trong phiên này.
+          </div>
+        )}
       </div>
     </motion.section>
   );

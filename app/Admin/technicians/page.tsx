@@ -3,6 +3,9 @@
 import { useMemo, useState } from "react";
 
 import AdminShell from "../dashboard/components/Action/AdminShell";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 import TechnicianKpiGrid from "./components/card/TechnicianKpiGrid";
 import TechnicianFilters from "./components/filter/TechnicianFilters";
 import TechnicianPagination from "./components/pagination/TechnicianPagination";
@@ -35,6 +38,12 @@ export default function TechniciansPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const toastId = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id: toastId, type, text }]);
+  };
 
   const summary = useMemo(
     () => ({
@@ -105,22 +114,30 @@ export default function TechniciansPage() {
   };
 
   const handleVerifyTechnician = async (technician: Technician) => {
+    const name = technician.fullName || technician.phoneNumber;
     const confirmed = window.confirm(
-      `Xác minh tài khoản thợ ${technician.fullName || technician.phoneNumber}?`,
+      `Xác minh tài khoản thợ ${name}?`,
     );
     if (!confirmed) return;
 
-    await verifyTechnician(technician.id, {
-      reason: "Admin xác minh thợ từ trang quản lý thợ.",
-    });
+    try {
+      await verifyTechnician(technician.id, {
+        reason: "Admin xác minh thợ từ trang quản lý thợ.",
+      });
+      pushToast("success", `Đã xác minh tài khoản thợ ${name} thành công!`);
+    } catch (err) {
+      pushToast(
+        "error",
+        `Xác minh thất bại: ${err instanceof Error ? err.message : "Đã có lỗi xảy ra"}`,
+      );
+    }
   };
 
   const handleToggleTechnicianActive = async (technician: Technician) => {
+    const name = technician.fullName || technician.phoneNumber;
     const actionLabel = technician.isActive ? "khóa" : "mở khóa";
     const confirmed = window.confirm(
-      `Bạn có chắc muốn ${actionLabel} tài khoản thợ ${
-        technician.fullName || technician.phoneNumber
-      }?`,
+      `Bạn có chắc muốn ${actionLabel} tài khoản thợ ${name}?`,
     );
     if (!confirmed) return;
 
@@ -128,12 +145,20 @@ export default function TechniciansPage() {
       reason: `Admin ${actionLabel} thợ từ trang quản lý thợ.`,
     };
 
-    if (technician.isActive) {
-      await lockTechnician(technician.id, payload);
-      return;
+    try {
+      if (technician.isActive) {
+        await lockTechnician(technician.id, payload);
+        pushToast("warning", `Đã khóa tài khoản thợ ${name}.`);
+      } else {
+        await unlockTechnician(technician.id, payload);
+        pushToast("success", `Đã mở khóa tài khoản thợ ${name} thành công!`);
+      }
+    } catch (err) {
+      pushToast(
+        "error",
+        `Thao tác thất bại: ${err instanceof Error ? err.message : "Đã có lỗi xảy ra"}`,
+      );
     }
-
-    await unlockTechnician(technician.id, payload);
   };
 
   return (
@@ -213,6 +238,13 @@ export default function TechniciansPage() {
           </>
         ) : null}
       </div>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </AdminShell>
   );
 }

@@ -32,6 +32,9 @@ import { useCustomerBooking } from "@/app/hooks/useCustomerBooking";
 import type { ApiError } from "@/app/services/apiClient";
 import type { ChatHistoryItem } from "@/app/services/common";
 import { chatbotWebSessionService } from "@/app/services/chatbotWebSession.service";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 export default function ChatInterface() {
   const router = useRouter();
@@ -52,6 +55,13 @@ export default function ChatInterface() {
   const [historyLoadError, setHistoryLoadError] = useState<ApiError | null>(
     null,
   );
+
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = useCallback((type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  }, []);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -479,6 +489,11 @@ export default function ChatInterface() {
           setIsBookingModalOpen(false);
           setIsDiagnosticOpen(false);
 
+          pushToast(
+            "success",
+            "Phiên tư vấn đã kết thúc sau khi hoàn tất đặt thợ thành công!",
+          );
+
           await refreshHistory();
         }}
       />
@@ -548,6 +563,13 @@ export default function ChatInterface() {
         showDangerBookingCta={showDangerBookingCta}
         onClose={() => setIsDiagnosticOpen(false)}
         onOpenBooking={handleOpenBookingModal}
+      />
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
       />
     </div>
   );

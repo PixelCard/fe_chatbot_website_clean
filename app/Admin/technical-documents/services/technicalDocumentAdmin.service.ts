@@ -1,5 +1,6 @@
 import { apiClient } from "@/app/services/apiClient";
 import type {
+  RagDocumentKind,
   RagDocumentMutationResponse,
   RagDocumentPayload,
   RagIngestResponse,
@@ -29,6 +30,24 @@ function mapDocument(document: TechnicalDocument): TechnicalDocumentItem {
   };
 }
 
+function mapCategoryToKind(category?: string | null): RagDocumentKind {
+  if (!category) return "TROUBLESHOOTING_GUIDE";
+  const c = category.toUpperCase();
+  if (c.includes("POLICY") || c.includes("CHÍNH SÁCH")) return "REPAIR_POLICY";
+  if (c.includes("PRICE") || c.includes("GIÁ") || c.includes("BẢNG GIÁ"))
+    return "PRICE_TABLE";
+  if (
+    c.includes("MANUAL") ||
+    c.includes("SỔ TAY") ||
+    c.includes("HƯỚNG DẪN THIẾT BỊ")
+  )
+    return "DEVICE_MANUAL";
+  if (c.includes("FAQ") || c.includes("CÂU HỎI")) return "FAQ";
+  if (c.includes("INTERNAL") || c.includes("NOTE") || c.includes("NỘI BỘ"))
+    return "INTERNAL_NOTE";
+  return "TROUBLESHOOTING_GUIDE";
+}
+
 /** Đổi dữ liệu form admin sang payload ingest mà backend RAG đang hỗ trợ. */
 function toIngestPayload(values: TechnicalDocumentFormValues): RagDocumentPayload {
   return {
@@ -37,6 +56,7 @@ function toIngestPayload(values: TechnicalDocumentFormValues): RagDocumentPayloa
     category: values.category.trim() || undefined,
     source: values.source.trim() || undefined,
     accessLevel: values.accessLevel,
+    kind: mapCategoryToKind(values.category),
   };
 }
 

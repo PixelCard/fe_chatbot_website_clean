@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 
 import { Pagination } from "@/app/components/Pagination";
+import AdminToastStack, { type AdminToast } from "@/app/components/admin/AdminToastStack";
 
 import AdminShell from "../dashboard/components/Action/AdminShell";
 import DispatchDrawer from "./components/DispatchDrawer";
@@ -13,11 +14,7 @@ import DispatchTable from "./components/DispatchTable";
 import { useDispatchApi } from "./hooks";
 import type { ChatSession, JobStatus } from "./types/dispatch.types";
 
-type ToastMessage = {
-  id: string;
-  type: "success" | "warning" | "error" | "info";
-  text: string;
-};
+type ToastMessage = AdminToast;
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -42,23 +39,13 @@ export default function DispatchPage() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null,
   );
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
   const [page, setPage] = useState(1);
 
-  const addToast = (type: ToastMessage["type"], text: string) => {
+  const addToast = (type: AdminToast["type"], text: string) => {
     const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     setToasts((prev) => [...prev, { id, type, text }]);
   };
-
-  useEffect(() => {
-    if (toasts.length === 0) return;
-
-    const timer = window.setTimeout(() => {
-      setToasts((prev) => prev.slice(1));
-    }, 4000);
-
-    return () => window.clearTimeout(timer);
-  }, [toasts]);
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -125,7 +112,7 @@ export default function DispatchPage() {
   return (
     <AdminShell>
       <main className="min-h-screen w-full">
-        <ToastStack toasts={toasts} onRemove={removeToast} />
+        <AdminToastStack toasts={toasts} onRemove={removeToast} />
 
         <div className="w-full space-y-5">
           <DispatchHeader summary={summary} />

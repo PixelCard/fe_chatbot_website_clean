@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense, useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 import { useAuthApi } from "@/app/auth/hooks/useAuthApi";
@@ -169,6 +170,8 @@ function LoginPageContent() {
   const [notice, setNotice] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -599,7 +602,7 @@ function LoginPageContent() {
           />
         </div>
 
-        <div className="forms-container relative inset-0 z-[30] px-4 py-24 lg:absolute lg:px-0 lg:py-0">
+        <div className="forms-container pointer-events-none relative inset-0 z-[30] px-4 py-24 lg:absolute lg:px-0 lg:py-0">
           <div
             className={cx(
               "signin-signup relative mx-auto grid w-full max-w-[620px] grid-cols-1 lg:absolute lg:top-1/2 lg:min-h-[620px] lg:max-w-none lg:-translate-x-1/2 lg:-translate-y-1/2",
@@ -615,8 +618,8 @@ function LoginPageContent() {
                 "auth-form sign-in-form col-start-1 row-start-1 self-center justify-self-center overflow-hidden rounded-[34px] border p-[clamp(26px,3vw,38px)] backdrop-blur-[22px]",
                 "w-[min(520px,calc(100vw-44px))] transition-[opacity,transform,background,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
                 isDark
-                  ? "border-slate-700 bg-slate-900/80 shadow-[0_30px_80px_rgba(0,0,0,0.34)]"
-                  : "border-orange-100/90 bg-white/85 shadow-[0_30px_80px_rgba(255,138,31,0.12)]",
+                  ? "border-slate-700/80 bg-slate-900/95 shadow-[0_32px_80px_-12px_rgba(0,0,0,0.60)]"
+                  : "border-orange-200/90 bg-white/95 shadow-[0_32px_80px_-12px_rgba(249,115,22,0.22),0_12px_24px_-8px_rgba(0,0,0,0.08)]",
                 isRegister
                   ? "pointer-events-none z-[1] -translate-x-8 scale-[0.985] opacity-0"
                   : "pointer-events-auto z-[2] translate-x-0 scale-100 opacity-100",
@@ -631,7 +634,7 @@ function LoginPageContent() {
                 của bạn trong cùng một không gian rõ ràng hơn.
               </p>
 
-              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
+              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr_48px] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition-all duration-300 focus-within:-translate-y-0.5 focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
                 <span className="input-icon grid place-items-center text-lg">☎</span>
                 <input
                   id="loginPhone"
@@ -645,15 +648,16 @@ function LoginPageContent() {
                     setPhoneNumber(e.target.value);
                   }}
                   disabled={isSubmitting}
-                  className="h-full w-full bg-transparent pr-4 text-[15px] font-bold text-slate-950 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50"
+                  className="h-full w-full bg-transparent pr-2 text-[15px] font-semibold tracking-[0.05em] [font-variant-numeric:tabular-nums] text-slate-950 outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50 [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#fff9f2_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0f172a] dark:[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#1e293b_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f8fafc]"
                 />
+                <span aria-hidden="true" />
               </label>
 
-              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
+              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr_48px] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition-all duration-300 focus-within:-translate-y-0.5 focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
                 <span className="input-icon grid place-items-center text-lg">🔒</span>
                 <input
                   id="loginPassword"
-                  type="password"
+                  type={showLoginPassword ? "text" : "password"}
                   placeholder="Mật khẩu"
                   autoComplete="current-password"
                   value={password}
@@ -663,8 +667,21 @@ function LoginPageContent() {
                     setPassword(e.target.value);
                   }}
                   disabled={isSubmitting}
-                  className="h-full w-full bg-transparent pr-4 text-[15px] font-bold text-slate-950 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50"
+                  className="h-full w-full bg-transparent pr-2 text-[15px] font-semibold tracking-[0.05em] [font-variant-numeric:tabular-nums] text-slate-950 outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50 [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#fff9f2_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0f172a] dark:[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#1e293b_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f8fafc]"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword((v) => !v)}
+                  tabIndex={-1}
+                  aria-label={showLoginPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  className="grid h-full w-full place-items-center text-slate-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 transition-transform duration-200 active:scale-90 hover:text-orange-600 dark:hover:text-cyan-400"
+                >
+                  {showLoginPassword ? (
+                    <EyeOff className="h-5 w-5 transition-all duration-300 hover:scale-110" />
+                  ) : (
+                    <Eye className="h-5 w-5 transition-all duration-300 hover:scale-110" />
+                  )}
+                </button>
               </label>
 
               <div className="form-options mb-4 mt-1 flex items-center justify-between gap-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
@@ -712,7 +729,18 @@ function LoginPageContent() {
                 onZalo={handleZaloLogin}
               />
 
-              <p className="helper mt-4 text-center text-[13px] font-semibold leading-6 text-slate-400">
+              <div className="mt-5 text-center text-sm font-semibold text-slate-600 dark:text-slate-300">
+                Chưa có tài khoản?{" "}
+                <button
+                  type="button"
+                  onClick={() => switchMode("register")}
+                  className="font-black text-orange-600 hover:underline dark:text-blue-400"
+                >
+                  Đăng ký ngay
+                </button>
+              </div>
+
+              <p className="helper mt-3 text-center text-[13px] font-semibold leading-6 text-slate-400">
                 Dành cho khách hàng, kỹ thuật viên và quản trị viên SmartElec.
               </p>
             </form>
@@ -725,8 +753,8 @@ function LoginPageContent() {
                 "auth-form sign-up-form col-start-1 row-start-1 self-center justify-self-center overflow-hidden rounded-[34px] border p-[clamp(26px,3vw,38px)] backdrop-blur-[22px]",
                 "w-[min(600px,calc(100vw-44px))] transition-[opacity,transform,background,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
                 isDark
-                  ? "border-slate-700 bg-slate-900/80 shadow-[0_30px_80px_rgba(0,0,0,0.34)]"
-                  : "border-orange-100/90 bg-white/85 shadow-[0_30px_80px_rgba(255,138,31,0.12)]",
+                  ? "border-slate-700/80 bg-slate-900/95 shadow-[0_32px_80px_-12px_rgba(0,0,0,0.60)]"
+                  : "border-orange-200/90 bg-white/95 shadow-[0_32px_80px_-12px_rgba(249,115,22,0.22),0_12px_24px_-8px_rgba(0,0,0,0.08)]",
                 isRegister
                   ? "pointer-events-auto z-[2] translate-x-0 scale-100 opacity-100"
                   : "pointer-events-none z-[1] translate-x-8 scale-[0.985] opacity-0",
@@ -742,7 +770,7 @@ function LoginPageContent() {
               </p>
 
               <div className="field-grid grid grid-cols-2 gap-3 max-sm:grid-cols-1 max-sm:gap-0">
-                <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
+                <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr_48px] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
                   <span className="input-icon grid place-items-center text-lg">👤</span>
                   <input
                     id="lastName"
@@ -753,11 +781,12 @@ function LoginPageContent() {
                     value={formData.lastName}
                     onChange={handleRegisterChange}
                     disabled={isSubmitting}
-                    className="h-full w-full bg-transparent pr-4 text-[15px] font-bold text-slate-950 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50"
+                    className="h-full w-full bg-transparent pr-2 text-[15px] font-semibold tracking-[0.05em] [font-variant-numeric:tabular-nums] text-slate-950 outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50 [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#fff9f2_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0f172a] dark:[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#1e293b_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f8fafc]"
                   />
+                  <span aria-hidden="true" />
                 </label>
 
-                <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
+                <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr_48px] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
                   <span className="input-icon grid place-items-center text-lg">✦</span>
                   <input
                     id="firstName"
@@ -768,12 +797,13 @@ function LoginPageContent() {
                     value={formData.firstName}
                     onChange={handleRegisterChange}
                     disabled={isSubmitting}
-                    className="h-full w-full bg-transparent pr-4 text-[15px] font-bold text-slate-950 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50"
+                    className="h-full w-full bg-transparent pr-2 text-[15px] font-semibold tracking-[0.05em] [font-variant-numeric:tabular-nums] text-slate-950 outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50 [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#fff9f2_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0f172a] dark:[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#1e293b_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f8fafc]"
                   />
+                  <span aria-hidden="true" />
                 </label>
               </div>
 
-              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
+              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr_48px] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
                 <span className="input-icon grid place-items-center text-lg">☎</span>
                 <input
                   id="registerPhone"
@@ -785,11 +815,12 @@ function LoginPageContent() {
                   onChange={handleRegisterChange}
                   onBlur={handleRegisterPhoneBlur}
                   disabled={isSubmitting}
-                  className="h-full w-full bg-transparent pr-4 text-[15px] font-bold text-slate-950 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50"
+                  className="h-full w-full bg-transparent pr-2 text-[15px] font-semibold tracking-[0.05em] [font-variant-numeric:tabular-nums] text-slate-950 outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50 [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#fff9f2_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0f172a] dark:[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#1e293b_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f8fafc]"
                 />
+                <span aria-hidden="true" />
               </label>
 
-              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
+              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr_48px] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
                 <span className="input-icon grid place-items-center text-lg">✉</span>
                 <input
                   id="registerEmail"
@@ -800,26 +831,40 @@ function LoginPageContent() {
                   value={formData.email}
                   onChange={handleRegisterChange}
                   disabled={isSubmitting}
-                  className="h-full w-full bg-transparent pr-4 text-[15px] font-bold text-slate-950 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50"
+                  className="h-full w-full bg-transparent pr-2 text-[15px] font-semibold tracking-[0.05em] [font-variant-numeric:tabular-nums] text-slate-950 outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50 [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#fff9f2_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0f172a] dark:[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#1e293b_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f8fafc]"
                 />
+                <span aria-hidden="true" />
               </label>
 
-              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition focus-within:-translate-y-px focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
+              <label className="input-field mb-3.5 grid h-[58px] grid-cols-[48px_1fr_48px] items-center rounded-[18px] border border-orange-200/70 bg-[#fff9f2]/90 text-slate-400 transition-all duration-300 focus-within:-translate-y-0.5 focus-within:border-orange-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/15 dark:border-slate-700 dark:bg-slate-800/90 dark:focus-within:border-blue-600 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-900/40">
                 <span className="input-icon grid place-items-center text-lg">🔒</span>
                 <input
                   id="registerPassword"
                   name="password"
-                  type="password"
+                  type={showRegisterPassword ? "text" : "password"}
                   placeholder="Mật khẩu"
                   autoComplete="new-password"
                   value={formData.password}
                   onChange={handleRegisterChange}
                   disabled={isSubmitting}
-                  className="h-full w-full bg-transparent pr-4 text-[15px] font-bold text-slate-950 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50"
+                  className="h-full w-full bg-transparent pr-2 text-[15px] font-semibold tracking-[0.05em] [font-variant-numeric:tabular-nums] text-slate-950 outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-60 dark:text-slate-50 [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#fff9f2_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0f172a] dark:[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#1e293b_inset] dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f8fafc]"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterPassword((v) => !v)}
+                  tabIndex={-1}
+                  aria-label={showRegisterPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  className="grid h-full w-full place-items-center text-slate-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 transition-transform duration-200 active:scale-90 hover:text-orange-600 dark:hover:text-cyan-400"
+                >
+                  {showRegisterPassword ? (
+                    <EyeOff className="h-5 w-5 transition-all duration-300 hover:scale-110" />
+                  ) : (
+                    <Eye className="h-5 w-5 transition-all duration-300 hover:scale-110" />
+                  )}
+                </button>
               </label>
 
-              <label className="terms mb-4 flex items-start gap-3 rounded-[18px] border border-orange-100 bg-[#fff9f2]/90 p-3.5 text-[13.5px] font-semibold leading-6 text-slate-600 dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300">
+              <label className="terms mb-3.5 flex items-start gap-3 rounded-[16px] border border-orange-100 bg-[#fff9f2]/90 p-3 text-[13px] font-semibold leading-5 text-slate-600 dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300">
                 <input
                   id="agreeTerms"
                   name="agreeTerms"
@@ -851,7 +896,7 @@ function LoginPageContent() {
               </p>
 
               <button
-                className="submit-btn h-[54px] w-full rounded-[18px] border-0 bg-orange-500 text-sm font-black tracking-[0.06em] text-white shadow-[0_18px_38px_rgba(255,138,31,0.22)] transition hover:-translate-y-0.5 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-blue-700 dark:shadow-[0_18px_38px_rgba(37,99,235,0.22)] dark:hover:bg-blue-800"
+                className="submit-btn h-[54px] w-full rounded-[18px] border-0 bg-orange-500 text-sm font-black tracking-[0.06em] text-white shadow-[0_18px_38px_rgba(255,138,31,0.22)] transition hover:-translate-y-0.5 hover:bg-orange-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-blue-700 dark:shadow-[0_18px_38px_rgba(37,99,235,0.22)] dark:hover:bg-blue-800"
                 type="submit"
                 disabled={isSubmitting}
               >
@@ -864,7 +909,18 @@ function LoginPageContent() {
                 onZalo={handleZaloLogin}
               />
 
-              <p className="helper mt-4 text-center text-[13px] font-semibold leading-6 text-slate-400">
+              <div className="mt-5 text-center text-sm font-semibold text-slate-600 dark:text-slate-300">
+                Đã có tài khoản?{" "}
+                <button
+                  type="button"
+                  onClick={() => switchMode("login")}
+                  className="font-black text-orange-600 hover:underline dark:text-blue-400"
+                >
+                  Đăng nhập ngay
+                </button>
+              </div>
+
+              <p className="helper mt-3 text-center text-[13px] font-semibold leading-6 text-slate-400">
                 Tạo tài khoản để xem tiến độ sửa chữa và lịch sử hỗ trợ tập
                 trung hơn.
               </p>
@@ -876,7 +932,12 @@ function LoginPageContent() {
           className="panels-container pointer-events-none absolute inset-0 z-[20] hidden grid-cols-2 lg:grid"
           aria-label="SmartElec hero panels"
         >
-          <div className="panel left-panel pointer-events-auto relative flex min-w-0 items-center justify-center overflow-hidden p-[clamp(30px,5vw,74px)] text-left text-white">
+          <div
+            className={cx(
+              "panel left-panel relative flex min-w-0 items-center justify-center overflow-hidden p-[clamp(30px,5vw,74px)] text-left text-white",
+              isRegister ? "pointer-events-none" : "pointer-events-auto",
+            )}
+          >
             <div
               className={cx(
                 "panel-content relative z-[25] w-[min(580px,100%)] transition-[transform,opacity] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
@@ -899,7 +960,7 @@ function LoginPageContent() {
               </p>
 
               <button
-                className="transparent-btn relative z-[35] h-12 rounded-full border border-white/55 bg-white/20 px-6 text-[13px] font-black tracking-[0.08em] text-white shadow-[0_14px_30px_rgba(5,11,24,0.22)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30"
+                className="transparent-btn relative z-[35] cursor-pointer pointer-events-auto h-12 rounded-full border border-white/55 bg-white/20 px-6 text-[13px] font-black tracking-[0.08em] text-white shadow-[0_14px_30px_rgba(5,11,24,0.22)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30 active:scale-95"
                 type="button"
                 id="signUpBtn"
                 onClick={() => switchMode("register")}
@@ -968,7 +1029,7 @@ function LoginPageContent() {
               </p>
 
               <button
-                className="transparent-btn relative z-[35] h-12 rounded-full border border-white/55 bg-white/20 px-6 text-[13px] font-black tracking-[0.08em] text-white shadow-[0_14px_30px_rgba(5,11,24,0.22)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30"
+                className="transparent-btn relative z-[35] cursor-pointer pointer-events-auto h-12 rounded-full border border-white/55 bg-white/20 px-6 text-[13px] font-black tracking-[0.08em] text-white shadow-[0_14px_30px_rgba(5,11,24,0.22)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30 active:scale-95"
                 type="button"
                 id="signInBtn"
                 onClick={() => switchMode("login")}

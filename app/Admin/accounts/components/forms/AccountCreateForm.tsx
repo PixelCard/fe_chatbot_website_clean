@@ -24,6 +24,10 @@ import {
   validateCreateAccountForm,
 } from "../../utils/accountValidation";
 
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
+
 import type {
   AccountRole,
   CreateAccountFormValues,
@@ -56,6 +60,12 @@ export default function AccountCreateForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [gpsOpen, setGpsOpen] = useState(false);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const isBusy = submitting || isMutating;
 
@@ -176,12 +186,17 @@ export default function AccountCreateForm() {
       };
 
       const created = await createAccount(payload);
+      pushToast(
+        "success",
+        `Tạo tài khoản "${values.fullName || values.phoneNumber}" thành công!`,
+      );
       resetForm();
       router.push(`/admin/accounts/${created.id}/edit`);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Không thể tạo tài khoản.";
       setSubmitError(message);
+      pushToast("error", message);
     } finally {
       setSubmitting(false);
     }
@@ -533,6 +548,13 @@ export default function AccountCreateForm() {
           </aside>
         </div>
       ) : null}
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </form>
   );
 }

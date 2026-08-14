@@ -147,7 +147,7 @@ export default function AccountDetailModal({
             <div className="flex shrink-0 items-center justify-end gap-2">
               <Link
                 href={`/admin/accounts/${account.id}/edit`}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500 bg-amber-500 px-3 text-sm font-extrabold text-white shadow-sm shadow-amber-500/20 transition hover:border-amber-600 hover:bg-amber-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-[#F59E0B] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-[#F59E0B] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#111827] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:border-[#FBBF24] [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-[#FBBF24] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B]/40"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-amber-500/15 px-3.5 text-sm font-bold text-amber-700 hover:bg-amber-500/25 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:border-amber-400/40 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:bg-amber-500/20 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-300 [.admin-ripple-theme-shell[data-admin-theme=dark]_&:hover]:bg-amber-500/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 <SquarePen className="h-4 w-4" />
                 Chỉnh sửa

@@ -457,12 +457,21 @@ export type AiFeedbackResponse = {
   alreadySubmitted?: boolean;
 };
 
+export type RagDocumentKind =
+  | "TROUBLESHOOTING_GUIDE"
+  | "REPAIR_POLICY"
+  | "PRICE_TABLE"
+  | "DEVICE_MANUAL"
+  | "FAQ"
+  | "INTERNAL_NOTE";
+
 export type RagDocumentPayload = {
   title: string;
   content: string;
   category?: string;
   source?: string;
   accessLevel?: AccessLevel;
+  kind?: RagDocumentKind;
 };
 
 export type RagIngestResponse = {

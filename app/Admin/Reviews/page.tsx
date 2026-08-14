@@ -13,7 +13,11 @@ import { ReviewDetailPanel } from "./components/detail/ReviewDetailPanel";
 import { ReviewHeader } from "./components/layout/ReviewHeader";
 import { ReviewKpiGrid } from "./components/layout/ReviewKpiGrid";
 import { ReviewTable } from "./components/table/ReviewTable";
+import { Pagination } from "@/app/components/Pagination";
 import type { ReviewFilterState, ReviewItem } from "./types/review.types";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 const PAGE_SIZE = 10;
 
@@ -31,6 +35,12 @@ export default function ReviewsPage() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<ReviewFilterState>(defaultFilters);
   const [selectedReview, setSelectedReview] = useState<ReviewItem | null>(null);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const { items, isLoading, error, refetch } = useReviewsApi();
 
@@ -105,35 +115,14 @@ export default function ReviewsPage() {
               onViewReview={setSelectedReview}
             />
 
-            {!isLoading && filteredItems.length > 0 ? (
-              <section className="admin-card flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-medium text-[var(--admin-muted-text)]">
-                  Hiển thị {(currentPage - 1) * PAGE_SIZE + 1} -{" "}
-                  {Math.min(currentPage * PAGE_SIZE, filteredItems.length)} trong{" "}
-                  {filteredItems.length} đánh giá
-                </p>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  {Array.from({ length: totalPages }).map((_, index) => {
-                    const pageNumber = index + 1;
-                    return (
-                      <button
-                        key={pageNumber}
-                        type="button"
-                        onClick={() => goToPage(pageNumber)}
-                        className={[
-                          "inline-flex h-9 min-w-9 items-center justify-center rounded-xl border px-3 text-sm font-bold transition",
-                          pageNumber === currentPage
-                            ? "border-[#FF7A00] bg-[#FF7A00] text-white"
-                            : "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)] hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)]",
-                        ].join(" ")}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
+            {!isLoading && filteredItems.length > 0 && totalPages > 1 ? (
+              <div className="pt-2">
+                <Pagination
+                  page={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={goToPage}
+                />
+              </div>
             ) : null}
           </>
         )}
@@ -174,6 +163,13 @@ export default function ReviewsPage() {
           </div>
         ) : null}
       </section>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </AdminShell>
   );
 }

@@ -11,6 +11,9 @@ import { SessionListPanel } from "./components/SessionListPanel";
 import { useChatsApi } from "./hooks";
 import type { ChatSessionListQuery } from "./services/chat.service";
 import { defaultChatFilters, type ChatFilterState } from "./types/chat.types";
+import AdminToastStack, {
+  type AdminToast,
+} from "@/app/components/admin/AdminToastStack";
 
 export default function AdminChatsPage() {
   const [filters, setFilters] = useState<ChatFilterState>(defaultChatFilters);
@@ -19,6 +22,12 @@ export default function AdminChatsPage() {
   const [flagOverrides, setFlagOverrides] = useState<
     Record<string, { isFlagged: boolean; flagReason: string | null }>
   >({});
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+
+  const pushToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
 
   const query = useMemo<ChatSessionListQuery>(
     () => ({
@@ -218,6 +227,13 @@ export default function AdminChatsPage() {
           ) : null}
         </AnimatePresence>
       </div>
+
+      <AdminToastStack
+        toasts={toasts}
+        onRemove={(id) =>
+          setToasts((prev) => prev.filter((item) => item.id !== id))
+        }
+      />
     </AdminShell>
   );
 }

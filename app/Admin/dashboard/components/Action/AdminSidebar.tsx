@@ -128,11 +128,6 @@ const sections: NavSection[] = [
         icon: FolderKanban,
       },
       {
-        label: "Tài liệu kỹ thuật",
-        href: "/admin/technical-documents",
-        icon: FileText,
-      },
-      {
         label: "Kiểm duyệt",
         href: "/admin/moderation",
         icon: ShieldAlert,

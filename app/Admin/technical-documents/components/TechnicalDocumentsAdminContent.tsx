@@ -9,6 +9,7 @@ import AdminShell from "../../dashboard/components/Action/AdminShell";
 import TechnicalDocumentTable from "./table/TechnicalDocumentTable";
 import { useTechnicalDocumentsApi } from "../hooks/useTechnicalDocumentsApi";
 import { TechnicalDocumentFormModal } from "./TechnicalDocumentFormModal";
+import AdminToastStack, { type AdminToast } from "@/app/components/admin/AdminToastStack";
 import type {
   TechnicalDocumentFilterState,
   TechnicalDocumentFormValues,
@@ -46,6 +47,17 @@ export function TechnicalDocumentsAdminContent({
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editingDocument, setEditingDocument] =
     useState<TechnicalDocumentItem | null>(null);
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+  const [modalError, setModalError] = useState<string | null>(null);
+
+  const addToast = (type: AdminToast["type"], text: string) => {
+    const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    setToasts((prev) => [...prev, { id, type, text }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
 
   const {
     filteredDocuments,
@@ -68,6 +80,7 @@ export function TechnicalDocumentsAdminContent({
     setFormMode("create");
     setEditingDocument(null);
     setFormInitialValues(undefined);
+    setModalError(null);
     setFormOpen(true);
   };
 
@@ -79,6 +92,7 @@ export function TechnicalDocumentsAdminContent({
       source: "AI trả lời kém",
       accessLevel: "ADVANCED",
     });
+    setModalError(null);
     setFormOpen(true);
   };
 
@@ -86,18 +100,31 @@ export function TechnicalDocumentsAdminContent({
     setFormMode("edit");
     setEditingDocument(document);
     setFormInitialValues(undefined);
+    setModalError(null);
     setFormOpen(true);
   };
 
   const handleSubmitForm = async (values: TechnicalDocumentFormValues) => {
-    if (formMode === "edit" && editingDocument) {
-      await updateDocument(editingDocument.id, values);
-    } else {
-      await createDocument(values);
-    }
+    setModalError(null);
+    try {
+      if (formMode === "edit" && editingDocument) {
+        await updateDocument(editingDocument.id, values);
+        addToast("success", `Đã cập nhật tài liệu "${values.title}" thành công!`);
+      } else {
+        await createDocument(values);
+        addToast("success", `Đã thêm tài liệu "${values.title}" vào kho tri thức RAG!`);
+      }
 
-    setFormOpen(false);
-    setEditingDocument(null);
+      setFormOpen(false);
+      setEditingDocument(null);
+    } catch (err: unknown) {
+      const errMsg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : "Không thể lưu tài liệu. Vui lòng kiểm tra lại.";
+      setModalError(errMsg);
+      addToast("error", `Thao tác thất bại: ${errMsg}`);
+    }
   };
 
   const handleDelete = async (document: TechnicalDocumentItem) => {
@@ -105,7 +132,16 @@ export function TechnicalDocumentsAdminContent({
       return;
     }
 
-    await deleteDocument(document.id);
+    try {
+      await deleteDocument(document.id);
+      addToast("success", `Đã xóa tài liệu "${document.title}" khỏi kho RAG.`);
+    } catch (err: unknown) {
+      const errMsg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : "Không thể xóa tài liệu.";
+      addToast("error", `Xóa tài liệu thất bại: ${errMsg}`);
+    }
   };
 
   const goToPage = (nextPage: number) => {
@@ -141,7 +177,7 @@ export function TechnicalDocumentsAdminContent({
                   <button
                     type="button"
                     onClick={openAiCoverageCreateModal}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#A855F7]/35 bg-[#A855F7]/10 px-4 text-sm font-bold text-[#7E22CE] transition hover:bg-[#A855F7]/15 dark:text-[#C084FC]"
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#06B6D4]/35 bg-[#06B6D4]/10 px-4 text-sm font-bold text-[#0891B2] transition hover:bg-[#06B6D4]/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
                   >
                     <Sparkles className="h-4 w-4" />
                     Bổ sung AI
@@ -250,10 +286,14 @@ export function TechnicalDocumentsAdminContent({
         onClose={() => {
           setFormOpen(false);
           setEditingDocument(null);
+          setModalError(null);
         }}
         onSubmit={handleSubmitForm}
         isSubmitting={isMutating}
+        errorMessage={modalError}
       />
+
+      <AdminToastStack toasts={toasts} onRemove={removeToast} />
     </AdminShell>
   );
 }
