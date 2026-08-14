@@ -30,13 +30,13 @@ export function BookingModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm">
-      <div className="relative max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-[28px]">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-md">
+      <div className="relative max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-slate-200 bg-white shadow-2xl dark:border-slate-700/80 dark:bg-[#0F172A] dark:shadow-[0_30px_70px_rgba(0,0,0,0.7)]">
         <button
           type="button"
           aria-label="Đóng form đặt thợ"
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--client-card-border)] bg-[var(--client-card-bg)] text-[var(--client-text-secondary)] transition hover:bg-[var(--client-control-hover-bg)] hover:text-[var(--client-text-primary)]"
+          className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
         >
           <X className="h-4 w-4" />
         </button>

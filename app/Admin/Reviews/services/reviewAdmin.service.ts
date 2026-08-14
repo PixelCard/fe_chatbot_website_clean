@@ -19,4 +19,8 @@ export const reviewAdminService = {
   getReviews(query?: ReviewAdminQuery) {
     return apiClient.get<ReviewItem[]>(ADMIN_REVIEWS_BASE, query);
   },
+  /** Gửi yêu cầu lưu đánh giá mới vào CSDL backend. */
+  createReview(payload: Partial<ReviewItem>) {
+    return apiClient.post<ReviewItem>(ADMIN_REVIEWS_BASE, payload);
+  },
 };

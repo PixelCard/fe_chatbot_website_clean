@@ -532,6 +532,9 @@ export default function ChatInterface() {
           error={historyLoadError ?? error}
           messagesEndRef={messagesEndRef}
           onSubmitFeedback={submitFeedback}
+          sessionId={sessionId}
+          currentDeviceLabel={currentDeviceLabel}
+          profileName={profileName}
         />
 
         <ChatComposer

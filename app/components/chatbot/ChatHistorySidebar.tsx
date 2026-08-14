@@ -255,12 +255,18 @@ export function ChatHistorySidebar({
             type="button"
             className="flex w-full items-center gap-3 rounded-[20px] border border-[var(--client-card-border)] bg-white/60 p-3 transition hover:border-orange-200 hover:bg-white hover:shadow-sm dark:bg-slate-900/40 dark:hover:border-slate-700 dark:hover:bg-slate-900/70"
           >
-            <div className="client-accent-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[14px] font-black text-white shadow-sm">
+            <div
+              suppressHydrationWarning
+              className="client-accent-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[14px] font-black text-white shadow-sm"
+            >
               {profileName.charAt(0).toUpperCase()}
             </div>
 
             <div className="min-w-0 text-left">
-              <p className="truncate text-[14px] font-black text-[var(--client-text-primary)]">
+              <p
+                suppressHydrationWarning
+                className="truncate text-[14px] font-black text-[var(--client-text-primary)]"
+              >
                 {profileName}
               </p>
 

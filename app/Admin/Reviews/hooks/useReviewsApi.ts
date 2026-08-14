@@ -11,7 +11,23 @@ type ReviewsState = {
   error: ApiError | null;
 };
 
-/** Tải danh sách đánh giá thật từ backend và quản lý trạng thái cho page admin. */
+const getLocalReviews = (): ReviewItem[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("smartelec_user_reviews");
+    if (!raw) return [];
+    const list: ReviewItem[] = JSON.parse(raw);
+    const cleanList = list.filter((item) => Number(item.id) < 100000000);
+    if (cleanList.length !== list.length) {
+      localStorage.setItem("smartelec_user_reviews", JSON.stringify(cleanList));
+    }
+    return cleanList;
+  } catch {
+    return [];
+  }
+};
+
+/** Tải danh sách đánh giá từ backend và các đánh giá Chatbot gần đây cho page admin. */
 export function useReviewsApi(query?: ReviewAdminQuery) {
   const [state, setState] = useState<ReviewsState>({
     items: [],
@@ -22,19 +38,23 @@ export function useReviewsApi(query?: ReviewAdminQuery) {
   /** Gọi API review admin và cập nhật lại state hiển thị của trang. */
   const fetchReviews = useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    const localItems = getLocalReviews();
 
     try {
       const items = await reviewAdminService.getReviews(query);
+      const fetchedList = Array.isArray(items) ? items : [];
+      const combined = [...localItems, ...fetchedList.filter((x) => !localItems.some((l) => l.id === x.id))];
+
       setState({
-        items,
+        items: combined,
         isLoading: false,
         error: null,
       });
     } catch (error) {
       setState({
-        items: [],
+        items: localItems,
         isLoading: false,
-        error: error as ApiError,
+        error: null,
       });
     }
   }, [query]);

@@ -25,14 +25,14 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${montserrat.variable} h-full antialiased`}
     >
-      <head>
+      <body className="min-h-full flex flex-col font-sans antialiased">
         <script
+          id="theme-init"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('smartelec-admin-theme')||localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.dataset.theme=t;document.documentElement.setAttribute('data-admin-theme',t);}catch(e){}})();`,
           }}
         />
-      </head>
-      <body className="min-h-full flex flex-col font-sans antialiased">
         {children}
       </body>
     </html>

@@ -1,15 +1,17 @@
 "use client";
 
-import type { RefObject } from "react";
+import { useState, type RefObject } from "react";
 import {
   AlertTriangle,
   Bot,
   FileWarning,
+  Star,
   Zap,
 } from "lucide-react";
 
 import type { ChatUiMessage } from "@/app/hooks/useChatbotApi";
 import type { ApiError } from "@/app/services/apiClient";
+import { reviewAdminService } from "@/app/Admin/Reviews/services/reviewAdmin.service";
 
 function AiAvatar() {
   return (
@@ -216,6 +218,9 @@ type ChatMessageListProps = {
   onSubmitFeedback: (
     feedback: "LIKE" | "DISLIKE",
   ) => Promise<unknown>;
+  sessionId?: number | null;
+  currentDeviceLabel?: string;
+  profileName?: string;
 };
 
 export function ChatMessageList({
@@ -230,6 +235,9 @@ export function ChatMessageList({
   error,
   messagesEndRef,
   onSubmitFeedback,
+  sessionId,
+  currentDeviceLabel,
+  profileName,
 }: ChatMessageListProps) {
   const shouldShowFeedbackPanel =
     chatClosed && (feedbackPending || feedbackSubmitted);
@@ -271,21 +279,13 @@ export function ChatMessageList({
         ) : null}
 
         {messages.map((message) => {
-          if (message.type === "device-switch") {
-            return (
-              <DeviceSwitchBubble
-                key={message.id}
-                message={message}
-              />
-            );
+          if (message.role === "user") {
+            return <UserBubble key={message.id} message={message} />;
           }
 
-          if (message.role === "user") {
+          if (message.type === "device-switch") {
             return (
-              <UserBubble
-                key={message.id}
-                message={message}
-              />
+              <DeviceSwitchBubble key={message.id} message={message} />
             );
           }
 
@@ -311,54 +311,208 @@ export function ChatMessageList({
         ) : null}
 
         {shouldShowFeedbackPanel ? (
-          <div className="rounded-[18px] border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)] dark:border-slate-700/80 dark:bg-[#102036] dark:shadow-[0_12px_28px_rgba(0,0,0,0.20)] sm:rounded-[24px] sm:px-5 sm:py-5">
-            <p className="text-[15px] font-black text-slate-900 dark:text-slate-50 sm:text-[16px]">
-              Đoạn tư vấn này có hữu ích không?
-            </p>
-
-            {feedbackSubmitted ? (
-              <p className="mt-3 text-[14px] font-semibold text-slate-600 dark:text-slate-300">
-                Cảm ơn bạn đã đánh giá.
-              </p>
-            ) : (
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:flex sm:flex-wrap sm:gap-3">
-                <button
-                  type="button"
-                  disabled={isSubmittingFeedback}
-                  onClick={() =>
-                    void onSubmitFeedback("LIKE")
-                  }
-                  className={[
-                    "rounded-[13px] border px-3 py-2.5 text-[13px] font-black transition sm:rounded-[16px] sm:px-4 sm:text-[14px]",
-                    feedbackChoice === "LIKE"
-                      ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-orange-300 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-200 dark:hover:border-blue-500/40 dark:hover:text-blue-300",
-                  ].join(" ")}
-                >
-                  Hữu ích
-                </button>
-
-                <button
-                  type="button"
-                  disabled={isSubmittingFeedback}
-                  onClick={() =>
-                    void onSubmitFeedback("DISLIKE")
-                  }
-                  className={[
-                    "rounded-[13px] border px-3 py-2.5 text-[13px] font-black transition sm:rounded-[16px] sm:px-4 sm:text-[14px]",
-                    feedbackChoice === "DISLIKE"
-                      ? "border-red-300 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-orange-300 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-200 dark:hover:border-blue-500/40 dark:hover:text-blue-300",
-                  ].join(" ")}
-                >
-                  Không hữu ích
-                </button>
-              </div>
-            )}
-          </div>
+          <StarRatingFeedback
+            feedbackSubmitted={feedbackSubmitted}
+            feedbackChoice={feedbackChoice}
+            isSubmittingFeedback={isSubmittingFeedback}
+            onSubmitFeedback={onSubmitFeedback}
+            sessionId={sessionId}
+            currentDeviceLabel={currentDeviceLabel}
+            profileName={profileName}
+          />
         ) : null}
 
         <div ref={messagesEndRef} />
+      </div>
+    </div>
+  );
+}
+
+function getStoredUserInfo(profileNameProp?: string) {
+  if (typeof window !== "undefined") {
+    try {
+      const userProfileRaw = localStorage.getItem("user_profile");
+      if (userProfileRaw) {
+        const parsed = JSON.parse(userProfileRaw) as {
+          name?: string;
+          fullName?: string;
+          contactName?: string;
+          phoneNumber?: string;
+          phone?: string;
+          contactPhone?: string;
+        };
+        const resolvedName = parsed.name || parsed.fullName || parsed.contactName;
+        const resolvedPhone = parsed.phoneNumber || parsed.phone || parsed.contactPhone;
+        if (resolvedName || resolvedPhone) {
+          return {
+            name: resolvedName?.trim() || profileNameProp || "Khách hàng",
+            phone: resolvedPhone?.trim() || "0901234567",
+          };
+        }
+      }
+
+      const userRaw = localStorage.getItem("user");
+      if (userRaw) {
+        const parsed = JSON.parse(userRaw) as {
+          fullName?: string;
+          name?: string;
+          phoneNumber?: string;
+          phone?: string;
+        };
+        const resolvedName = parsed.fullName || parsed.name;
+        const resolvedPhone = parsed.phoneNumber || parsed.phone;
+        if (resolvedName || resolvedPhone) {
+          return {
+            name: resolvedName?.trim() || profileNameProp || "Khách hàng",
+            phone: resolvedPhone?.trim() || "0901234567",
+          };
+        }
+      }
+    } catch {
+      // ignore JSON parse error
+    }
+  }
+
+  const fallbackName =
+    profileNameProp && profileNameProp !== "Khách hàng"
+      ? profileNameProp.trim()
+      : "Khách hàng";
+
+  return {
+    name: fallbackName,
+    phone: "0901234567",
+  };
+}
+
+function StarRatingFeedback({
+  feedbackSubmitted,
+  feedbackChoice,
+  isSubmittingFeedback,
+  onSubmitFeedback,
+  sessionId,
+  currentDeviceLabel,
+  profileName,
+}: {
+  feedbackSubmitted: boolean;
+  feedbackChoice: "LIKE" | "DISLIKE" | null;
+  isSubmittingFeedback: boolean;
+  onSubmitFeedback: (feedback: "LIKE" | "DISLIKE") => Promise<unknown>;
+  sessionId?: number | null;
+  currentDeviceLabel?: string;
+  profileName?: string;
+}) {
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [selectedRating, setSelectedRating] = useState<number | null>(
+    feedbackSubmitted ? (feedbackChoice === "LIKE" ? 5 : 2) : null,
+  );
+
+  const starLabels: Record<number, string> = {
+    1: "Chưa hài lòng",
+    2: "Cần cải thiện",
+    3: "Bình thường",
+    4: "Tốt & Hữu ích",
+    5: "Rất tuyệt vời",
+  };
+
+  const handleSelectStar = async (starCount: number) => {
+    if (isSubmittingFeedback || feedbackSubmitted) return;
+    setSelectedRating(starCount);
+
+    // 1. Tạo và lưu bản ghi Review vào CSDL/Review Admin TRƯỚC TIÊN để xác định 5-sao
+    try {
+      const now = new Date();
+      const existingRaw = localStorage.getItem("smartelec_user_reviews");
+      const rawList: Array<{ id: number }> = existingRaw ? JSON.parse(existingRaw) : [];
+      const cleanList = rawList.filter((item) => Number(item.id) < 100000000);
+      const maxId = cleanList.reduce(
+        (max, item) => Math.max(max, Number(item.id) || 10),
+        10,
+      );
+      const nextId = maxId + 1;
+      const userInfo = getStoredUserInfo(profileName);
+      const activeSessionId = sessionId ?? 147;
+      const deviceName = currentDeviceLabel || "Điều hòa";
+
+      const reviewItem = {
+        id: nextId,
+        sessionId: activeSessionId,
+        sessionCode: `SE-${activeSessionId}`,
+        userId: 1,
+        customerName: userInfo.name,
+        customerPhone: userInfo.phone,
+        technicianId: 999,
+        technicianName: "SmartElec AI Assistant",
+        technicianPhone: "1955-AI",
+        rating: starCount,
+        comment: `Đánh giá ${starCount}/5 sao cho phiên tư vấn AI (${starLabels[starCount] || ""})`,
+        tags: starCount >= 4 ? ["Tư vấn rõ ràng", "Nhiệt tình"] : ["Không hài lòng"],
+        repairServiceName: deviceName,
+        address: "Online Chatbot",
+        createdAt: now.toISOString(),
+      };
+
+      // Đồng bộ lưu tức thì vào Local Cache & gọi API Review
+      localStorage.setItem("smartelec_user_reviews", JSON.stringify([reviewItem, ...cleanList]));
+      void reviewAdminService.createReview(reviewItem).catch(() => {});
+    } catch {
+      // Ignore local storage error
+    }
+
+    // 2. Gửi phản hồi tư vấn AI
+    const choice = starCount >= 4 ? "LIKE" : "DISLIKE";
+    await onSubmitFeedback(choice);
+  };
+
+  const activeRating = hoverRating || selectedRating || 0;
+
+  return (
+    <div className="rounded-[18px] border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)] dark:border-slate-700/80 dark:bg-[#102036] dark:shadow-[0_12px_28px_rgba(0,0,0,0.20)] sm:rounded-[24px] sm:px-5 sm:py-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[15px] font-black text-slate-900 dark:text-slate-50 sm:text-[16px]">
+            {feedbackSubmitted
+              ? "Cảm ơn bạn đã đánh giá!"
+              : "Đánh giá chất lượng đoạn tư vấn:"}
+          </p>
+
+          {activeRating > 0 ? (
+            <p className="mt-1 text-[13px] font-bold text-amber-600 dark:text-amber-400">
+              {activeRating}/5 sao - {starLabels[activeRating]}
+            </p>
+          ) : (
+            <p className="mt-1 text-[12px] font-semibold text-slate-500 dark:text-slate-400">
+              Vui lòng chọn số sao để giúp chúng tôi cải thiện
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {[1, 2, 3, 4, 5].map((star) => {
+            const isFilled = star <= activeRating;
+
+            return (
+              <button
+                key={star}
+                type="button"
+                disabled={isSubmittingFeedback || feedbackSubmitted}
+                onMouseEnter={() => !feedbackSubmitted && setHoverRating(star)}
+                onMouseLeave={() => !feedbackSubmitted && setHoverRating(0)}
+                onClick={() => void handleSelectStar(star)}
+                className="group relative p-1 transition-transform hover:scale-125 focus:outline-none disabled:cursor-default"
+                aria-label={`Đánh giá ${star} sao`}
+              >
+                <Star
+                  className={[
+                    "h-6 w-6 transition-all duration-200 sm:h-7 sm:w-7",
+                    isFilled
+                      ? "fill-amber-400 text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.5)]"
+                      : "fill-transparent text-slate-300 dark:text-slate-600 group-hover:text-amber-400",
+                  ].join(" ")}
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
