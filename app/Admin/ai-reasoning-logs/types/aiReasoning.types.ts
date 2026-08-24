@@ -31,7 +31,40 @@ export type AiReasoningLogItem = {
 
   deviceCategory: string | null;
   isGolden: boolean;
+  retrievedChunkCount?: number;
+  topRetrievedChunks?: AiRetrievedChunkPreview[];
   createdAt: string;
+};
+
+export type AiRetrievedChunkPreview = {
+  chunkId: number;
+  documentId: number;
+  documentTitle: string;
+  chunkIndex: number;
+  score: number | null;
+  rank: number | null;
+  contentPreview: string;
+};
+
+export type AiRetrievedChunkItem = {
+  id: number;
+  chunkId: number;
+  documentId: number;
+  documentTitle: string;
+  chunkIndex: number;
+  score: number | null;
+  rank: number | null;
+  content: string;
+  category: string | null;
+  brand: string | null;
+  modelCode: string | null;
+  source: string | null;
+  accessLevel: string | null;
+};
+
+export type AiRetrievedChunksResponse = {
+  logId: number;
+  chunks: AiRetrievedChunkItem[];
 };
 
 export type AiReasoningFilterState = {

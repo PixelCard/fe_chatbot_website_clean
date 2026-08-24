@@ -12,6 +12,7 @@ import {
 import type { ChatUiMessage } from "@/app/hooks/useChatbotApi";
 import type { ApiError } from "@/app/services/apiClient";
 import { reviewAdminService } from "@/app/Admin/Reviews/services/reviewAdmin.service";
+import type { ReviewItem } from "@/app/Admin/Reviews/types/review.types";
 
 function AiAvatar() {
   return (
@@ -433,7 +434,7 @@ function StarRatingFeedback({
       const activeSessionId = sessionId ?? 147;
       const deviceName = currentDeviceLabel || "Điều hòa";
 
-      const reviewItem = {
+      const reviewItem: Partial<ReviewItem> = {
         id: nextId,
         sessionId: activeSessionId,
         sessionCode: `SE-${activeSessionId}`,

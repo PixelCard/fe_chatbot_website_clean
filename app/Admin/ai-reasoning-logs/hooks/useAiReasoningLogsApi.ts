@@ -40,11 +40,21 @@ export function useAiReasoningLogsApi(query?: AiReasoningAdminQuery) {
   }, [query]);
 
   useEffect(() => {
-    void fetchLogs();
+    void Promise.resolve().then(fetchLogs);
   }, [fetchLogs]);
+
+  const replaceLog = useCallback((updatedLog: AiReasoningLogItem) => {
+    setState((prev) => ({
+      ...prev,
+      items: prev.items.map((item) =>
+        item.id === updatedLog.id ? updatedLog : item,
+      ),
+    }));
+  }, []);
 
   return {
     ...state,
     refetch: fetchLogs,
+    replaceLog,
   };
 }

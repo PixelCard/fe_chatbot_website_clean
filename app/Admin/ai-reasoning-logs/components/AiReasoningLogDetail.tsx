@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Bot,
@@ -20,6 +20,7 @@ import AdminToastStack, {
 } from "@/app/components/admin/AdminToastStack";
 import type {
   AiFeedback,
+  AiRetrievedChunkItem,
   AiReasoningLogItem,
   RiskLevel,
   UpdateAiUsefulnessReviewPayload,
@@ -56,7 +57,13 @@ type ExtendedLog = AiReasoningLogItem & {
 
 type StateTab = "before" | "after";
 
-export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
+export function AiReasoningLogDetail({
+  log,
+  onLogUpdated,
+}: {
+  log: AiReasoningLogItem;
+  onLogUpdated?: (updatedLog: AiReasoningLogItem) => void;
+}) {
   const [activeStateTab, setActiveStateTab] = useState<StateTab>("after");
   const [currentLog, setCurrentLog] = useState(log);
   const [selectedLabel, setSelectedLabel] = useState<Exclude<UsefulnessLabel, null>>(
@@ -65,6 +72,9 @@ export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
   const [reviewNote, setReviewNote] = useState(log.humanUsefulnessNote ?? "");
   const [isSavingReview, setIsSavingReview] = useState(false);
   const [reviewError, setReviewError] = useState("");
+  const [retrievedChunks, setRetrievedChunks] = useState<AiRetrievedChunkItem[]>([]);
+  const [isLoadingChunks, setIsLoadingChunks] = useState(false);
+  const [chunksError, setChunksError] = useState("");
   const [toasts, setToasts] = useState<AdminToast[]>([]);
 
   const pushToast = (type: AdminToast["type"], text: string) => {
@@ -97,6 +107,42 @@ export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
 
   const afterState = pickValue(detail, ["nextState", "afterState"]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchRetrievedChunks() {
+      try {
+        setIsLoadingChunks(true);
+        setChunksError("");
+        const response = await aiReasoningAdminService.getRetrievedChunks(log.id);
+
+        if (isMounted) {
+          setRetrievedChunks(response.chunks);
+        }
+      } catch (error) {
+        const message =
+          error && typeof error === "object" && "message" in error
+            ? String(error.message)
+            : "Không tải được RAG chunks đã truy xuất.";
+
+        if (isMounted) {
+          setRetrievedChunks([]);
+          setChunksError(message);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingChunks(false);
+        }
+      }
+    }
+
+    void fetchRetrievedChunks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [log.id]);
+
   async function handleSubmitReview() {
     const payload: UpdateAiUsefulnessReviewPayload = {
       humanUsefulnessLabel: selectedLabel,
@@ -111,6 +157,7 @@ export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
         payload,
       );
       setCurrentLog(updatedLog);
+      onLogUpdated?.(updatedLog);
       setSelectedLabel(updatedLog.humanUsefulnessLabel ?? selectedLabel);
       setReviewNote(updatedLog.humanUsefulnessNote ?? "");
       pushToast("success", "Đã lưu đánh giá thủ công của quản trị viên thành công!");
@@ -219,6 +266,12 @@ export function AiReasoningLogDetail({ log }: { log: AiReasoningLogItem }) {
           onSelectLabel={setSelectedLabel}
           onChangeNote={setReviewNote}
           onSubmit={handleSubmitReview}
+        />
+
+        <RetrievedChunksSection
+          chunks={retrievedChunks}
+          isLoading={isLoadingChunks}
+          error={chunksError}
         />
       </main>
 
@@ -463,6 +516,77 @@ function UsefulnessSection({
           </div>
         </div>
       </div>
+    </Section>
+  );
+}
+
+function RetrievedChunksSection({
+  chunks,
+  isLoading,
+  error,
+}: {
+  chunks: AiRetrievedChunkItem[];
+  isLoading: boolean;
+  error: string;
+}) {
+  return (
+    <Section title="RAG chunks AI đã sử dụng" icon={<FileText />}>
+      {isLoading ? (
+        <div className="space-y-3">
+          <div className="h-24 animate-pulse rounded-2xl bg-[var(--admin-card-soft-bg)]" />
+          <div className="h-24 animate-pulse rounded-2xl bg-[var(--admin-card-soft-bg)]" />
+        </div>
+      ) : null}
+
+      {!isLoading && error ? (
+        <p className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-bold text-[var(--admin-error)]">
+          {error}
+        </p>
+      ) : null}
+
+      {!isLoading && !error && chunks.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4 text-sm font-semibold text-[var(--admin-muted-text)]">
+          Log này chưa ghi nhận chunk RAG nào được truy xuất.
+        </p>
+      ) : null}
+
+      {!isLoading && !error && chunks.length > 0 ? (
+        <div className="space-y-3">
+          {chunks.map((chunk) => (
+            <article
+              key={chunk.id}
+              className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4"
+            >
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <p className="break-words text-sm font-black text-[var(--admin-strong-text)]">
+                    {chunk.documentTitle}
+                  </p>
+                  <p className="mt-1 text-xs font-bold text-[var(--admin-muted-text)]">
+                    Document #{chunk.documentId} · Chunk #{chunk.chunkIndex}
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <SmallMetaBadge label="Rank" value={formatNullableNumber(chunk.rank)} />
+                  <SmallMetaBadge label="Score" value={formatNullableNumber(chunk.score)} />
+                  <SmallMetaBadge label="Quyền" value={chunk.accessLevel ?? "--"} />
+                </div>
+              </div>
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <InfoCard label="Thiết bị" value={chunk.category ?? "Chưa phân loại"} />
+                <InfoCard label="Hãng" value={chunk.brand ?? "Chưa xác định"} />
+                <InfoCard label="Model" value={chunk.modelCode ?? "Chưa xác định"} />
+              </div>
+
+              <p className="mt-3 whitespace-pre-wrap break-words rounded-xl bg-[var(--admin-card-bg)] p-3 text-sm font-medium leading-6 text-[var(--admin-strong-text)]">
+                {chunk.content}
+              </p>
+            </article>
+          ))}
+        </div>
+      ) : null}
     </Section>
   );
 }
@@ -897,6 +1021,15 @@ function InfoCard({
   );
 }
 
+function SmallMetaBadge({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex h-8 items-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] px-3 text-xs font-black text-[var(--admin-muted-text)]">
+      {label}:{" "}
+      <span className="ml-1 text-[var(--admin-strong-text)]">{value}</span>
+    </span>
+  );
+}
+
 function UsefulnessBadge({
   label,
   fallback = "Chưa đánh giá",
@@ -1048,6 +1181,14 @@ function isPotentialWrong(log: AiReasoningLogItem) {
 
 function hasDangerWarning(log: AiReasoningLogItem) {
   return log.riskLevel === "HIGH" || log.riskLevel === "CRITICAL";
+}
+
+function formatNullableNumber(value: number | null) {
+  if (value === null || Number.isNaN(value)) {
+    return "--";
+  }
+
+  return Number.isInteger(value) ? String(value) : value.toFixed(3);
 }
 
 function pickString(source: Record<string, unknown>, keys: string[]) {

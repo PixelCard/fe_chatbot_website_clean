@@ -33,11 +33,11 @@ export function getFeedbackLabel(feedback: AiReasoningLogItem["aiFeedback"]) {
 }
 
 export function isLowScore(log: AiReasoningLogItem) {
-  return log.score <= 4;
+  return getEffectiveScore(log) <= 4;
 }
 
 export function isHighScore(log: AiReasoningLogItem) {
-  return log.score >= 8;
+  return getEffectiveScore(log) >= 8;
 }
 
 export function isHighRisk(log: AiReasoningLogItem) {
@@ -45,7 +45,7 @@ export function isHighRisk(log: AiReasoningLogItem) {
 }
 
 export function isSuspectedWrongAdvice(log: AiReasoningLogItem) {
-  return log.aiFeedback === "DISLIKE" || log.score <= 4;
+  return log.aiFeedback === "DISLIKE" || isLowScore(log);
 }
 
 export function isSuspectedMissedWarning(log: AiReasoningLogItem) {
@@ -123,7 +123,7 @@ export function buildAiReasoningSummary(logs: AiReasoningLogItem[]) {
   const avgScore =
     total === 0
       ? 0
-      : logs.reduce((sum, item) => sum + item.score, 0) / total;
+      : logs.reduce((sum, item) => sum + getEffectiveScore(item), 0) / total;
 
   return {
     total,
@@ -135,4 +135,8 @@ export function buildAiReasoningSummary(logs: AiReasoningLogItem[]) {
     suspectedMissedWarning,
     avgScore,
   };
+}
+
+export function getEffectiveScore(log: AiReasoningLogItem) {
+  return log.autoUsefulnessScore ?? log.score;
 }

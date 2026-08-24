@@ -20,7 +20,7 @@ export default function AiReasoningLogDetailPage({
   const { id } = use(params);
   const numericId = Number(id);
 
-  const { items, isLoading, error, refetch } = useAiReasoningLogsApi();
+  const { items, isLoading, error, refetch, replaceLog } = useAiReasoningLogsApi();
 
   const selectedLog = useMemo(() => {
     if (Number.isNaN(numericId)) return null;
@@ -105,7 +105,11 @@ export default function AiReasoningLogDetailPage({
 
         {!error && !isLoading ? (
           selectedLog ? (
-            <AiReasoningLogDetail key={selectedLog.id} log={selectedLog} />
+            <AiReasoningLogDetail
+              key={`${selectedLog.id}-${selectedLog.reviewedAt ?? "pending"}-${selectedLog.isGolden}`}
+              log={selectedLog}
+              onLogUpdated={replaceLog}
+            />
           ) : (
             <section className="admin-card flex min-h-[280px] flex-col items-center justify-center rounded-2xl border-dashed p-8 text-center">
               <h2 className="text-lg font-black text-[var(--admin-strong-text)]">

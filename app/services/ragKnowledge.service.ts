@@ -22,7 +22,9 @@ export const ragKnowledgeService = {
   },
 
   getRagDocuments() {
-    return apiClient.get<RagDocumentListItem[]>(`${ADMIN_RAG_BASE}/documents`);
+    return apiClient
+      .get<RagDocumentListItem[]>(`${ADMIN_RAG_BASE}/documents`)
+      .catch(() => apiClient.get<RagDocumentListItem[]>("/api/rag/documents"));
   },
 
   getConversationCandidates(query?: {

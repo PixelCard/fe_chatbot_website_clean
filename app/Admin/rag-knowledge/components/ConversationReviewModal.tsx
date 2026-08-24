@@ -75,6 +75,7 @@ export default function ConversationReviewModal({
   const [candidates, setCandidates] = useState<RagConversationCandidate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [importingSessionId, setImportingSessionId] = useState<number | null>(
     null,
   );
@@ -96,6 +97,7 @@ export default function ConversationReviewModal({
     const loadCandidates = async () => {
       setIsLoading(true);
       setError(null);
+      setSuccessMessage(null);
 
       try {
         const items = await onLoad({
@@ -138,6 +140,7 @@ export default function ConversationReviewModal({
   const handleImport = async (candidate: RagConversationCandidate) => {
     setImportingSessionId(candidate.sessionId);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       await onImport({
@@ -145,6 +148,9 @@ export default function ConversationReviewModal({
         sourceType: candidate.sourceType,
       });
       await reload();
+      setSuccessMessage(
+        `Đã import ${candidate.sessionCode} vào kho RAG thành công.`,
+      );
     } catch (nextError) {
       setError(
         (nextError as { message?: string }).message ||
@@ -239,6 +245,13 @@ export default function ConversationReviewModal({
           {error ? (
             <div className="mt-4 rounded-2xl border border-rose-400/40 bg-rose-500/10 p-4 text-sm font-bold text-rose-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-rose-200">
               {error}
+            </div>
+          ) : null}
+
+          {successMessage ? (
+            <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-200">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{successMessage}</span>
             </div>
           ) : null}
 

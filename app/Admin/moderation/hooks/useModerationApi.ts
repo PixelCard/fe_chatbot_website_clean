@@ -33,9 +33,18 @@ export function useModerationApi() {
 
     try {
       const result = await moderationAdminService.getModerationQueue();
+      const rawResolved = typeof window !== "undefined" ? localStorage.getItem("smartelec_resolved_moderation_ids") : null;
+      const resolvedList: string[] = rawResolved ? JSON.parse(rawResolved) : [];
+
+      const activeItems = result.items.filter((item) => !resolvedList.includes(item.id));
+
       setState({
-        items: result.items,
-        summary: result.summary,
+        items: activeItems,
+        summary: {
+          dangerousSessions: activeItems.filter((i) => i.type === "dangerous-session").length,
+          negativeReviews: activeItems.filter((i) => i.type === "negative-review").length,
+          dislikedAiLogs: activeItems.filter((i) => i.type === "disliked-ai").length,
+        },
         isLoading: false,
         error: null,
       });
@@ -49,6 +58,40 @@ export function useModerationApi() {
     }
   }, []);
 
+  const resolveItem = useCallback(async (id: string) => {
+    try {
+      await moderationAdminService.resolveModerationItem(id);
+
+      try {
+        const rawResolved = localStorage.getItem("smartelec_resolved_moderation_ids");
+        const resolvedList: string[] = rawResolved ? JSON.parse(rawResolved) : [];
+        if (!resolvedList.includes(id)) {
+          localStorage.setItem(
+            "smartelec_resolved_moderation_ids",
+            JSON.stringify([...resolvedList, id]),
+          );
+        }
+      } catch {
+        // ignore localStorage error
+      }
+
+      setState((prev) => {
+        const updatedItems = prev.items.filter((item) => item.id !== id);
+        return {
+          ...prev,
+          items: updatedItems,
+          summary: {
+            dangerousSessions: updatedItems.filter((i) => i.type === "dangerous-session").length,
+            negativeReviews: updatedItems.filter((i) => i.type === "negative-review").length,
+            dislikedAiLogs: updatedItems.filter((i) => i.type === "disliked-ai").length,
+          },
+        };
+      });
+    } catch {
+      // ignore error
+    }
+  }, []);
+
   useEffect(() => {
     void fetchModerationQueue();
   }, [fetchModerationQueue]);
@@ -56,5 +99,6 @@ export function useModerationApi() {
   return {
     ...state,
     refetch: fetchModerationQueue,
+    resolveItem,
   };
 }

@@ -118,7 +118,7 @@ export default function ReviewsPage() {
             {!isLoading && filteredItems.length > 0 && totalPages > 1 ? (
               <div className="pt-2">
                 <Pagination
-                  page={currentPage}
+                  currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={goToPage}
                 />

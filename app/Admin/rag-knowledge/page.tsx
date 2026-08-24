@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   Archive,
@@ -34,10 +35,27 @@ import type {
 const PAGE_SIZE = 5;
 
 export default function RagKnowledgePage() {
+  return (
+    <Suspense
+      fallback={
+        <AdminShell>
+          <div className="admin-card rounded-3xl p-5 text-sm font-semibold text-[var(--admin-strong-text)]">
+            Đang tải dữ liệu RAG...
+          </div>
+        </AdminShell>
+      }
+    >
+      <RagKnowledgePageContent />
+    </Suspense>
+  );
+}
+
+function RagKnowledgePageContent() {
   const {
     documents,
     stats,
     isLoading,
+    isRefreshing,
     isMutating,
     error,
     refetch,
@@ -95,8 +113,13 @@ export default function RagKnowledgePage() {
   );
   const [busyDocumentId, setBusyDocumentId] = useState<number | null>(null);
   const chunkPanelRef = useRef<HTMLDivElement | null>(null);
+  const searchParams = useSearchParams();
   const [isConversationReviewOpen, setIsConversationReviewOpen] =
-    useState(false);
+    useState(
+      () =>
+        searchParams.get("openModal") === "true" ||
+        Boolean(searchParams.get("importSession")),
+    );
 
   // States cho modal chỉnh sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -141,6 +164,16 @@ export default function RagKnowledgePage() {
     const start = (currentPage - 1) * PAGE_SIZE;
     return filteredDocuments.slice(start, start + PAGE_SIZE);
   }, [currentPage, filteredDocuments]);
+
+  const processingDocumentCount = useMemo(
+    () =>
+      mergedDocuments.filter((document) =>
+        ["UPLOADED", "PARSING", "CHUNKING", "EMBEDDING"].includes(
+          document.status,
+        ),
+      ).length,
+    [mergedDocuments],
+  );
 
   const goToPage = (nextPage: number) => {
     setPage(Math.min(Math.max(nextPage, 1), totalPages));
@@ -332,6 +365,17 @@ export default function RagKnowledgePage() {
             </div>
 
             <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+              {processingDocumentCount > 0 ? (
+                <span className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 text-sm font-bold text-sky-800 dark:text-sky-200">
+                  <RefreshCcw
+                    className={[
+                      "h-4 w-4",
+                      isRefreshing ? "animate-spin" : "",
+                    ].join(" ")}
+                  />
+                  Đang tự cập nhật {processingDocumentCount} tài liệu
+                </span>
+              ) : null}
               <button
                 type="button"
                 onClick={() => setIsConversationReviewOpen(true)}

@@ -12,6 +12,7 @@ import {
   Search,
   ShieldAlert,
   Wrench,
+  X,
 } from "lucide-react";
 
 import AdminShell from "../dashboard/components/Action/AdminShell";
@@ -91,7 +92,7 @@ export default function ModerationPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [resolvedIds, setResolvedIds] = useState<string[]>([]);
   const [toasts, setToasts] = useState<AdminToast[]>([]);
-  const { items, summary, isLoading, error, refetch } = useModerationApi();
+  const { items, summary, isLoading, error, refetch, resolveItem } = useModerationApi();
 
   const addToast = (type: AdminToast["type"], text: string) => {
     const toastId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -102,8 +103,9 @@ export default function ModerationPage() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const handleResolveItem = (id: string, title: string) => {
+  const handleResolveItem = async (id: string, title: string) => {
     setResolvedIds((prev) => [...prev, id]);
+    await resolveItem(id);
     addToast("success", `Đã xử lý xong: ${title}`);
   };
 
@@ -450,67 +452,92 @@ export default function ModerationPage() {
 
           <div className="admin-card min-h-0 rounded-3xl p-5 sm:p-6">
             {selectedItem ? (
-              <div className="max-h-[calc(100vh-320px)] space-y-4 overflow-y-auto pr-1">
+              <div className="max-h-[calc(100vh-320px)] space-y-5 overflow-y-auto pr-1">
+                {/* Header & Status */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5">
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
-                      <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-700 dark:text-cyan-300">
-                        Chi tiết tin kiểm duyệt
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
+                          <ShieldAlert className="h-3 w-3" />
+                          Phiên kiểm duyệt #MDR-{selectedItem.id}
+                        </span>
+                        <span
+                          className={[
+                            "rounded-md border px-2 py-0.5 text-[11px] font-black uppercase tracking-wider",
+                            getSeverityClasses(selectedItem.severity),
+                          ].join(" ")}
+                        >
+                          {selectedItem.severity === "critical" ? "🔴 Mức độ: Khẩn cấp" : "🟡 Mức độ: Cảnh báo"}
+                        </span>
+                      </div>
+
                       <h2 className="mt-2 text-xl font-black tracking-tight text-[var(--admin-strong-text)]">
                         {selectedItem.title}
                       </h2>
                       <p className="mt-1 text-sm font-semibold text-[var(--admin-muted-text)]">
                         {selectedItem.subtitle}
                       </p>
-
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <span className="rounded-lg border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 py-1 text-xs font-black uppercase tracking-wider text-[var(--admin-strong-text)]">
-                          {getModerationTypeLabel(selectedItem.type)}
-                        </span>
-                        <span
-                          className={[
-                            "rounded-lg border px-3 py-1 text-xs font-black uppercase tracking-wider",
-                            getSeverityClasses(selectedItem.severity),
-                          ].join(" ")}
-                        >
-                          {selectedItem.severity === "critical"
-                            ? "Cần ưu tiên cao"
-                            : "Cần rà soát"}
-                        </span>
-                      </div>
                     </div>
 
                     <p className="shrink-0 text-xs font-bold text-[var(--admin-soft-text)]">
-                      {formatDateTime(selectedItem.createdAt)}
+                      Thời gian phát hiện: {formatDateTime(selectedItem.createdAt)}
                     </p>
                   </div>
                 </div>
 
+                {/* Workflow Steps Indicator */}
+                <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4">
+                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
+                    Quy trình kiểm duyệt chuẩn
+                  </p>
+                  <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                    <div className="flex items-center gap-2 rounded-xl border border-cyan-500/25 bg-cyan-500/10 px-3 py-2 text-xs font-black text-cyan-800 dark:text-cyan-200">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-[10px] text-white">1</span>
+                      <span>Rà soát Sự cố</span>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs font-black text-amber-800 dark:text-amber-200">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white">2</span>
+                      <span>Trích xuất bằng chứng</span>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs font-black text-emerald-800 dark:text-emerald-200">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white">3</span>
+                      <span>Quyết định can thiệp</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Facts */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <QuickFact
-                    label="Loại tín hiệu"
+                    label="Loại kiểm duyệt"
                     value={getModerationTypeLabel(selectedItem.type)}
                   />
                   <QuickFact
-                    label="Mức ưu tiên"
-                    value={selectedItem.severity === "critical" ? "Khẩn" : "Cảnh báo"}
+                    label="Khách hàng / Mã ca"
+                    value={String(selectedItem.metadata.customerName || selectedItem.metadata.sessionCode || selectedItem.subtitle)}
                   />
-                  <QuickFact label="Mã item" value={selectedItem.id} breakAll />
+                  <QuickFact
+                    label="Thiết bị liên quan"
+                    value={String(selectedItem.metadata.deviceType || "Điều hòa / Thiết bị điện")}
+                  />
                 </div>
 
+                {/* Description & Evidence */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5">
-                  <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
-                    Nội dung mô tả
+                  <h3 className="flex items-center gap-2 text-sm font-black text-[var(--admin-strong-text)]">
+                    <MessageSquareWarning className="h-4 w-4 text-amber-500" />
+                    Bằng chứng & Nội dung chi tiết sự cố
                   </h3>
-                  <p className="mt-2.5 whitespace-pre-wrap break-words text-sm font-semibold leading-7 text-[var(--admin-strong-text)]">
-                    {selectedItem.description}
-                  </p>
+                  <div className="mt-3 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 text-sm font-semibold leading-7 text-[var(--admin-strong-text)]">
+                    <p className="whitespace-pre-wrap break-words">{selectedItem.description}</p>
+                  </div>
                 </div>
 
+                {/* Technical Metadata */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5">
                   <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
-                    Thông tin dữ liệu (Metadata)
+                    Metadata & Nhật ký kỹ thuật
                   </h3>
                   <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {Object.entries(selectedItem.metadata).map(([key, value]) => (
@@ -529,66 +556,39 @@ export default function ModerationPage() {
                   </div>
                 </div>
 
+                {/* Action Buttons */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5">
-                  <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
-                    Hành động xử lý của Admin
+                  <h3 className="flex items-center gap-2 text-sm font-black text-[var(--admin-strong-text)]">
+                    <Wrench className="h-4 w-4 text-cyan-500" />
+                    Thao tác xử lý kiểm duyệt của Admin
                   </h3>
-                  <div className="mt-3.5 flex flex-wrap gap-3">
-                    {selectedItem.type === "dangerous-session" ? (
-                      <>
-                        <Link
-                          href="/admin/chats"
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-sm transition hover:brightness-105"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Mở phiên chat ca sửa
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleResolveItem(selectedItem.id, selectedItem.title)}
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-4 text-sm font-bold text-emerald-800 transition hover:bg-emerald-500/20 dark:text-emerald-300"
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          Đã can thiệp & Xử lý xong
-                        </button>
-                      </>
-                    ) : selectedItem.type === "negative-review" ? (
-                      <>
-                        <Link
-                          href="/admin/chats"
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-sm transition hover:brightness-105"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Mở trao đổi khách hàng
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleResolveItem(selectedItem.id, selectedItem.title)}
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-4 text-sm font-bold text-emerald-800 transition hover:bg-emerald-500/20 dark:text-emerald-300"
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          Xác nhận đã giải quyết khiếu nại
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Link
-                          href="/admin/rag-knowledge"
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-sm transition hover:brightness-105"
-                        >
-                          <FolderKanban className="h-4 w-4" />
-                          Bổ sung tri thức RAG cho AI
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleResolveItem(selectedItem.id, selectedItem.title)}
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-4 text-sm font-bold text-emerald-800 transition hover:bg-emerald-500/20 dark:text-emerald-300"
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          Đã rà soát log AI
-                        </button>
-                      </>
-                    )}
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Link
+                      href={`/admin/chats?sessionId=${selectedItem.metadata.sessionId}`}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-sm transition hover:brightness-105"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Mở lịch sử chat phiên #{selectedItem.metadata.sessionId || selectedItem.id}
+                    </Link>
+
+                    {(selectedItem.type === "disliked-ai" || selectedItem.type === "dangerous-session") && selectedItem.metadata.sessionId ? (
+                      <Link
+                        href={`/admin/rag-knowledge?importSession=${selectedItem.metadata.sessionId}&openModal=true`}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-4 text-sm font-bold text-cyan-800 transition hover:bg-cyan-500/20 dark:text-cyan-200"
+                      >
+                        <FolderKanban className="h-4 w-4" />
+                        Bổ sung tri thức RAG cho AI (Mở ngay Modal Import)
+                      </Link>
+                    ) : null}
+
+                    <button
+                      type="button"
+                      onClick={() => handleResolveItem(selectedItem.id, selectedItem.title)}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-4 text-sm font-bold text-emerald-800 transition hover:bg-emerald-500/20 dark:text-emerald-300"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      Xác nhận đã duyệt & Hoàn tất xử lý
+                    </button>
                   </div>
                 </div>
               </div>

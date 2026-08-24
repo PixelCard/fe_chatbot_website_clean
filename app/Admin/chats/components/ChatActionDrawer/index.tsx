@@ -2,6 +2,7 @@
 
 import {
   AlertTriangle,  ChevronRight,
+  BookmarkCheck,
   Flag,
   LayoutGrid,
   ShieldAlert,

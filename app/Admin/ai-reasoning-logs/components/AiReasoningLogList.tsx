@@ -9,6 +9,7 @@ import type {
   AiReasoningLogItem,
   RiskLevel,
 } from "../types/aiReasoning.types";
+import { getEffectiveScore } from "../lib/aiReasoningHelpers";
 
 type Props = {
   logs: AiReasoningLogItem[];
@@ -100,7 +101,7 @@ export function AiReasoningLogList({ logs, total, isLoading }: Props) {
                 <QualityBadge
                   feedback={log.aiFeedback}
                   isGolden={log.isGolden}
-                  score={log.score}
+                  score={getEffectiveScore(log)}
                 />
               </div>
 
@@ -139,7 +140,7 @@ export function AiReasoningLogList({ logs, total, isLoading }: Props) {
               <QualityBadge
                 feedback={log.aiFeedback}
                 isGolden={log.isGolden}
-                score={log.score}
+                score={getEffectiveScore(log)}
               />
             </div>
 
@@ -264,7 +265,9 @@ function getPriority(log: AiReasoningLogItem) {
     };
   }
 
-  if (log.score <= 4 || log.aiFeedback === "DISLIKE") {
+  const effectiveScore = getEffectiveScore(log);
+
+  if (effectiveScore <= 4 || log.aiFeedback === "DISLIKE") {
     return {
       label: "Nghi vấn sai",
       className:
@@ -272,7 +275,7 @@ function getPriority(log: AiReasoningLogItem) {
     };
   }
 
-  if (log.isGolden || log.score >= 8) {
+  if (log.isGolden || effectiveScore >= 8) {
     return {
       label: "Ổn định",
       className:

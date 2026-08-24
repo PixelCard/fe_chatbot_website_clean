@@ -4,6 +4,7 @@ import { apiClient } from "@/app/services/apiClient";
 import type {
   AiReasoningFilterState,
   AiReasoningLogItem,
+  AiRetrievedChunksResponse,
   UpdateAiUsefulnessReviewPayload,
 } from "../types/aiReasoning.types";
 
@@ -15,6 +16,11 @@ export const aiReasoningAdminService = {
   /** Gọi API danh sách log suy luận AI để admin theo dõi chất lượng trả lời. */
   getLogs(query?: AiReasoningAdminQuery) {
     return apiClient.get<AiReasoningLogItem[]>(ADMIN_AI_REASONING_BASE, query);
+  },
+  getRetrievedChunks(logId: number) {
+    return apiClient.get<AiRetrievedChunksResponse>(
+      `${ADMIN_AI_REASONING_BASE}/${logId}/retrieved-chunks`,
+    );
   },
   updateUsefulnessReview(logId: number, payload: UpdateAiUsefulnessReviewPayload) {
     return apiClient.patch<AiReasoningLogItem>(

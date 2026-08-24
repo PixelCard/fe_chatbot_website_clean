@@ -1,36 +1,63 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import AdminShell from "../dashboard/components/Action/AdminShell";
+import { AiReasoningFilterBar } from "./components/AiReasoningFilterBar";
 import { AiReasoningKpiGrid } from "./components/AiReasoningKpiGrid";
 import { AiReasoningLogList } from "./components/AiReasoningLogList";
 import { useAiReasoningLogsApi } from "./hooks";
-import { buildAiReasoningSummary } from "./lib/aiReasoningHelpers";
+import {
+  buildAiReasoningSummary,
+  filterAiReasoningLogs,
+} from "./lib/aiReasoningHelpers";
+import type { AiReasoningFilterState } from "./types/aiReasoning.types";
 
 const PAGE_SIZE = 10;
+const DEFAULT_FILTERS: AiReasoningFilterState = {
+  search: "",
+  feedback: "ALL",
+  riskLevel: "ALL",
+  deviceCategory: "ALL",
+  scoreLevel: "ALL",
+  golden: "ALL",
+};
 
 export default function AiReasoningLogsPage() {
   const [page, setPage] = useState(1);
+  const [filters, setFilters] =
+    useState<AiReasoningFilterState>(DEFAULT_FILTERS);
 
   const { items, isLoading, error, refetch } = useAiReasoningLogsApi();
 
-  const summary = useMemo(() => buildAiReasoningSummary(items), [items]);
-  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const filteredItems = useMemo(
+    () => filterAiReasoningLogs(items, filters),
+    [filters, items],
+  );
+  const summary = useMemo(
+    () => buildAiReasoningSummary(filteredItems),
+    [filteredItems],
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
 
   const pagedLogs = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    return items.slice(start, start + PAGE_SIZE);
-  }, [items, page]);
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredItems.slice(start, start + PAGE_SIZE);
+  }, [currentPage, filteredItems]);
 
   const goToPage = (nextPage: number) => {
     setPage(Math.min(Math.max(nextPage, 1), totalPages));
+  };
+
+  const handleFilterChange = (nextFilters: AiReasoningFilterState) => {
+    setFilters(nextFilters);
+    setPage(1);
+  };
+
+  const handleFilterReset = () => {
+    setFilters(DEFAULT_FILTERS);
+    setPage(1);
   };
 
   const visiblePages = useMemo(() => {
@@ -38,11 +65,11 @@ export default function AiReasoningLogsPage() {
       return Array.from({ length: totalPages }, (_, index) => index + 1);
     }
 
-    if (page <= 4) {
+    if (currentPage <= 4) {
       return [1, 2, 3, 4, 5, "...", totalPages] as const;
     }
 
-    if (page >= totalPages - 3) {
+    if (currentPage >= totalPages - 3) {
       return [
         1,
         "...",
@@ -54,8 +81,16 @@ export default function AiReasoningLogsPage() {
       ] as const;
     }
 
-    return [1, "...", page - 1, page, page + 1, "...", totalPages] as const;
-  }, [page, totalPages]);
+    return [
+      1,
+      "...",
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      "...",
+      totalPages,
+    ] as const;
+  }, [currentPage, totalPages]);
 
   return (
     <AdminShell>
@@ -90,27 +125,36 @@ export default function AiReasoningLogsPage() {
         ) : null}
 
         {!error ? (
-          <AiReasoningLogList
-            logs={pagedLogs}
-            total={items.length}
-            isLoading={isLoading}
-          />
+          <>
+            <AiReasoningFilterBar
+              filters={filters}
+              onChange={handleFilterChange}
+              onReset={handleFilterReset}
+              logs={items}
+            />
+
+            <AiReasoningLogList
+              logs={pagedLogs}
+              total={filteredItems.length}
+              isLoading={isLoading}
+            />
+          </>
         ) : null}
 
-        {!error && items.length > 0 ? (
+        {!error && filteredItems.length > 0 ? (
           <section className="admin-card flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-semibold text-[var(--admin-muted-text)]">
               Hiển thị{" "}
               <span className="font-black text-[var(--admin-strong-text)]">
-                {(page - 1) * PAGE_SIZE + 1}
+                {(currentPage - 1) * PAGE_SIZE + 1}
               </span>{" "}
               -{" "}
               <span className="font-black text-[var(--admin-strong-text)]">
-                {Math.min(page * PAGE_SIZE, items.length)}
+                {Math.min(currentPage * PAGE_SIZE, filteredItems.length)}
               </span>{" "}
               trong{" "}
               <span className="font-black text-[var(--admin-strong-text)]">
-                {items.length}
+                {filteredItems.length}
               </span>{" "}
               log
             </p>
@@ -118,8 +162,8 @@ export default function AiReasoningLogsPage() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => goToPage(page - 1)}
-                disabled={page === 1}
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
                 className={paginationButtonClass}
               >
                 Trước
@@ -140,7 +184,7 @@ export default function AiReasoningLogsPage() {
                     onClick={() => goToPage(item)}
                     className={[
                       "inline-flex h-9 min-w-9 items-center justify-center rounded-xl border px-3 text-sm font-bold transition",
-                      item === page
+                      item === currentPage
                         ? "border-[#FF7A00] bg-[#FF7A00] text-white"
                         : "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)] hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)]",
                     ].join(" ")}
@@ -152,8 +196,8 @@ export default function AiReasoningLogsPage() {
 
               <button
                 type="button"
-                onClick={() => goToPage(page + 1)}
-                disabled={page === totalPages}
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
                 className={paginationButtonClass}
               >
                 Sau

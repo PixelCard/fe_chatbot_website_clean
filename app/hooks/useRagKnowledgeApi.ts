@@ -12,6 +12,7 @@ import type {
   RagImportMetadataSuggestionResponse,
   RagDocumentListItem,
   RagDocumentStats,
+  RagDocumentStatus,
   UpdateRagDocumentFormValues,
 } from "@/app/Admin/rag-knowledge/types/ragKnowledge.types";
 
@@ -19,9 +20,17 @@ type RagOverviewState = {
   documents: RagDocumentListItem[];
   stats: RagDocumentStats | null;
   isLoading: boolean;
+  isRefreshing: boolean;
   isMutating: boolean;
   error: ApiError | null;
 };
+
+const PROCESSING_DOCUMENT_STATUSES: RagDocumentStatus[] = [
+  "UPLOADED",
+  "PARSING",
+  "CHUNKING",
+  "EMBEDDING",
+];
 
 function getSafeMessage(value: unknown, fallback: string) {
   if (typeof value === "string" && value.trim()) {
@@ -81,27 +90,26 @@ function normalizeRagError(error: unknown): ApiError {
   };
 }
 
-const getLocalRagDocs = (): RagDocumentListItem[] => {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("smartelec_local_rag_documents");
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
+const getLocalRagDocs = (): RagDocumentListItem[] => [];
 
 export function useRagKnowledgeApi() {
   const [state, setState] = useState<RagOverviewState>({
     documents: [],
     stats: null,
     isLoading: true,
+    isRefreshing: false,
     isMutating: false,
     error: null,
   });
 
-  const fetchOverview = useCallback(async () => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const fetchOverview = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+    setState((prev) => ({
+      ...prev,
+      isLoading: silent ? prev.isLoading : true,
+      isRefreshing: silent,
+      error: silent ? prev.error : null,
+    }));
     const localDocs = getLocalRagDocs();
 
     try {
@@ -118,8 +126,14 @@ export function useRagKnowledgeApi() {
 
       setState({
         documents: combined,
-        stats: stats ? { ...stats, total: (stats.total || 0) + localDocs.length } : null,
+        stats: stats
+          ? {
+              ...stats,
+              totalDocuments: stats.totalDocuments + localDocs.length,
+            }
+          : null,
         isLoading: false,
+        isRefreshing: false,
         isMutating: false,
         error: null,
       });
@@ -127,9 +141,10 @@ export function useRagKnowledgeApi() {
       const localDocs = getLocalRagDocs();
       setState((prev) => ({
         ...prev,
-        documents: localDocs,
+        documents: silent ? prev.documents : localDocs,
         isLoading: false,
-        error: normalizeRagError(error),
+        isRefreshing: false,
+        error: silent ? prev.error : normalizeRagError(error),
       }));
     }
   }, []);
@@ -137,6 +152,22 @@ export function useRagKnowledgeApi() {
   useEffect(() => {
     void fetchOverview();
   }, [fetchOverview]);
+
+  useEffect(() => {
+    const hasProcessingDocument = state.documents.some((document) =>
+      PROCESSING_DOCUMENT_STATUSES.includes(document.status),
+    );
+
+    if (!hasProcessingDocument) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void fetchOverview({ silent: true });
+    }, 2500);
+
+    return () => window.clearInterval(intervalId);
+  }, [fetchOverview, state.documents]);
 
   const runMutation = useCallback(
     async <T,>(action: () => Promise<T>) => {
@@ -192,160 +223,13 @@ export function useRagKnowledgeApi() {
     }) => {
       try {
         const apiItems = await ragKnowledgeService.getConversationCandidates(query);
-        const candidateList = Array.isArray(apiItems) ? apiItems : [];
-
-        const localReviewsRaw = typeof window !== "undefined" ? localStorage.getItem("smartelec_user_reviews") : null;
-        const localReviews = localReviewsRaw ? JSON.parse(localReviewsRaw) : [];
-
-        const rawImported = typeof window !== "undefined" ? localStorage.getItem("smartelec_imported_sessions") : null;
-        const importedSessionIds: number[] = rawImported ? JSON.parse(rawImported) : [];
-
-        const localCandidates: RagConversationCandidate[] = localReviews
-          .filter((r: { rating?: number }) => (r.rating ?? 0) >= 4)
-          .map((r: { sessionId?: number; sessionCode?: string; rating: number; customerName?: string; customerPhone?: string; repairServiceName?: string; comment?: string; createdAt?: string }) => {
-            const sid = r.sessionId || 148;
-            const isImported = importedSessionIds.includes(sid);
-            return {
-              sessionId: sid,
-              sessionCode: r.sessionCode || `SE-${sid}`,
-              type: r.rating === 5 ? "CUSTOMER_5_STAR" : "CUSTOMER_4_STAR",
-              sourceType: "CUSTOMER_REVIEW",
-              customerName: r.customerName || "Khách hàng Chatbot",
-              customerPhone: r.customerPhone || "0901234567",
-              deviceType: r.repairServiceName || "Điều hòa",
-              brand: "SmartElec",
-              modelCode: `SE-DEV-${sid}`,
-              symptom: r.comment || "Đoạn tư vấn chẩn đoán AI đạt chất lượng cao",
-              aiSummary: r.comment || "Đoạn tư vấn chẩn đoán AI đạt chất lượng cao",
-              customerRating: r.rating,
-              aiScore: r.rating * 2,
-              aiConclusion: true,
-              evidenceLabel: `Đánh giá ${r.rating}/5 sao`,
-              evidenceNote: r.comment || null,
-              messageCount: 4,
-              preview: "Khách hàng đã xác nhận giải pháp chẩn đoán AI và đánh giá hài lòng.",
-              alreadyImported: isImported,
-              importedDocumentId: isImported ? 9900 + sid : null,
-              createdAt: r.createdAt || new Date().toISOString(),
-              updatedAt: r.createdAt || new Date().toISOString(),
-              evaluatedAt: r.createdAt || new Date().toISOString(),
-            };
-          });
-
-        const combined = [
-          ...localCandidates,
-          ...candidateList.filter((c) => !localCandidates.some((l) => l.sessionId === c.sessionId)),
-        ];
-
-        let filtered = combined;
-        if (query?.type && query.type !== "ALL") {
-          filtered = filtered.filter((item) => item.type === query.type);
-        }
-        if (query?.search) {
-          const q = query.search.toLowerCase();
-          filtered = filtered.filter(
-            (item) =>
-              item.sessionCode.toLowerCase().includes(q) ||
-              item.customerName.toLowerCase().includes(q) ||
-              (item.deviceType && item.deviceType.toLowerCase().includes(q)),
-          );
-        }
-
-        return filtered;
+        return Array.isArray(apiItems) ? apiItems : [];
       } catch (error) {
-        const localReviewsRaw = typeof window !== "undefined" ? localStorage.getItem("smartelec_user_reviews") : null;
-        const localReviews = localReviewsRaw ? JSON.parse(localReviewsRaw) : [];
-        const rawImported = typeof window !== "undefined" ? localStorage.getItem("smartelec_imported_sessions") : null;
-        const importedSessionIds: number[] = rawImported ? JSON.parse(rawImported) : [];
-
-        const fallbackCandidates: RagConversationCandidate[] = localReviews
-          .filter((r: { rating?: number }) => (r.rating ?? 0) >= 4)
-          .map((r: { sessionId?: number; sessionCode?: string; rating: number; customerName?: string; customerPhone?: string; repairServiceName?: string; comment?: string; createdAt?: string }) => {
-            const sid = r.sessionId || 148;
-            const isImported = importedSessionIds.includes(sid);
-            return {
-              sessionId: sid,
-              sessionCode: r.sessionCode || `SE-${sid}`,
-              type: r.rating === 5 ? "CUSTOMER_5_STAR" : "CUSTOMER_4_STAR",
-              sourceType: "CUSTOMER_REVIEW",
-              customerName: r.customerName || "Khách hàng Chatbot",
-              customerPhone: r.customerPhone || "0901234567",
-              deviceType: r.repairServiceName || "Điều hòa",
-              brand: "SmartElec",
-              modelCode: `SE-DEV-${sid}`,
-              symptom: r.comment || "Đoạn tư vấn chẩn đoán AI đạt chất lượng cao",
-              aiSummary: r.comment || "Đoạn tư vấn chẩn đoán AI đạt chất lượng cao",
-              customerRating: r.rating,
-              aiScore: r.rating * 2,
-              aiConclusion: true,
-              evidenceLabel: `Đánh giá ${r.rating}/5 sao`,
-              evidenceNote: r.comment || null,
-              messageCount: 4,
-              preview: "Khách hàng đã xác nhận giải pháp chẩn đoán AI và đánh giá hài lòng.",
-              alreadyImported: isImported,
-              importedDocumentId: isImported ? 9900 + sid : null,
-              createdAt: r.createdAt || new Date().toISOString(),
-              updatedAt: r.createdAt || new Date().toISOString(),
-              evaluatedAt: r.createdAt || new Date().toISOString(),
-            };
-          });
-
-        if (fallbackCandidates.length > 0) {
-          return fallbackCandidates;
-        }
-
         throw normalizeRagError(error);
       }
     },
     importConversationCandidate: (payload: ImportRagConversationPayload) =>
-      runMutation(async () => {
-        try {
-          return await ragKnowledgeService.importConversationCandidate(payload);
-        } catch {
-          const sid = Number(payload.sessionId) || 148;
-          const now = new Date().toISOString();
-          const newDoc: RagDocumentListItem = {
-            id: sid,
-            title: `Tri thức chẩn đoán AI Session #${sid} (Điều hòa)`,
-            fileName: `session_${sid}_rag.txt`,
-            kind: "TROUBLESHOOTING_GUIDE",
-            category: "Điều hòa",
-            chunkCount: 3,
-            totalTokens: 420,
-            status: "ACTIVE",
-            tags: ["Session Import", "Chatbot AI"],
-            createdAt: now,
-            updatedAt: now,
-          };
-
-          try {
-            const rawDocs = localStorage.getItem("smartelec_local_rag_documents");
-            const existingDocs: RagDocumentListItem[] = rawDocs ? JSON.parse(rawDocs) : [];
-            const cleanDocs = existingDocs.filter((d) => d.id !== newDoc.id);
-            localStorage.setItem(
-              "smartelec_local_rag_documents",
-              JSON.stringify([newDoc, ...cleanDocs]),
-            );
-
-            const rawImported = localStorage.getItem("smartelec_imported_sessions");
-            const importedList: number[] = rawImported ? JSON.parse(rawImported) : [];
-            if (!importedList.includes(sid)) {
-              localStorage.setItem(
-                "smartelec_imported_sessions",
-                JSON.stringify([...importedList, sid]),
-              );
-            }
-          } catch {
-            // ignore localStorage error
-          }
-
-          return {
-            success: true,
-            documentId: newDoc.id,
-            message: `Đã import Session #${sid} vào kho tri thức RAG thành công.`,
-          };
-        }
-      }),
+      runMutation(() => ragKnowledgeService.importConversationCandidate(payload)),
     suggestImportMetadata: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);

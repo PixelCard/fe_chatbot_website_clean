@@ -64,7 +64,7 @@ function normalizePhoneNumber(rawPhone: string) {
 function hasTemporarySocialPhone(phoneNumber?: string | null) {
   return Boolean(
     phoneNumber &&
-      (phoneNumber.startsWith("ZALO_") || phoneNumber.startsWith("GOOGLE_")),
+    (phoneNumber.startsWith("ZALO_") || phoneNumber.startsWith("GOOGLE_")),
   );
 }
 
@@ -517,12 +517,12 @@ function LoginPageContent() {
           callback.provider === "google"
             ? await loginWithGoogle({ idToken: callback.idToken })
             : await loginWithZalo({
-                code: callback.code,
-                codeVerifier: callback.codeVerifier,
-                redirectUri: callback.redirectUri,
-                state: callback.state,
-                platform: "WEB",
-              });
+              code: callback.code,
+              codeVerifier: callback.codeVerifier,
+              redirectUri: callback.redirectUri,
+              state: callback.state,
+              platform: "WEB",
+            });
 
         await completeAuthSession(response);
       } catch (error) {
