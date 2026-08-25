@@ -82,6 +82,16 @@ export type ChatbotFeedbackResponse = {
   message?: string;
 };
 
+export type ChatbotSessionRatingPayload = {
+  rating: number;
+  comment?: string;
+};
+
+export type ChatbotSessionRatingResponse = {
+  success?: boolean;
+  rating?: number;
+};
+
 export const chatbotService = {
   sendMessage(payload: ChatbotMessagePayload, accessToken: string) {
     return apiClient.post<ChatbotResponse>("/api/ai-web/chat", payload, {
@@ -98,6 +108,22 @@ export const chatbotService = {
   ) {
     return apiClient.patch<ChatbotFeedbackResponse>(
       `/api/ai-web/messages/${logId}/feedback`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+  },
+
+  rateSession(
+    sessionId: number,
+    payload: ChatbotSessionRatingPayload,
+    accessToken: string,
+  ) {
+    return apiClient.post<ChatbotSessionRatingResponse>(
+      `/api/ai-web/sessions/${sessionId}/rating`,
       payload,
       {
         headers: {

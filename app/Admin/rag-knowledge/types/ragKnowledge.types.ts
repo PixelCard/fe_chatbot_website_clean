@@ -181,6 +181,7 @@ export type RagChunkListQuery = {
 
 export type RagConversationCandidateType =
   | "ALL"
+  | "IMPORTED"
   | "CUSTOMER_5_STAR"
   | "CUSTOMER_4_STAR"
   | "AI_8_10"

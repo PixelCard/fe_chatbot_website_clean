@@ -42,6 +42,11 @@ const filterOptions: Array<{
     description: "Mọi cuộc trò chuyện đủ điều kiện",
   },
   {
+    value: "IMPORTED",
+    label: "Đã import",
+    description: "Đã đưa vào kho tri thức RAG",
+  },
+  {
     value: "CUSTOMER_5_STAR",
     label: "5 sao",
     description: "Khách hàng đánh giá rất tốt",
@@ -80,13 +85,32 @@ export default function ConversationReviewModal({
     null,
   );
 
+  const [importedCount, setImportedCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+
+    onLoad({ type: "IMPORTED" })
+      .then((items) => {
+        if (active) {
+          setImportedCount(items.length);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [open, onLoad, successMessage]);
+
   const candidateSummary = useMemo(
     () => ({
-      total: candidates.length,
-      imported: candidates.filter((item) => item.alreadyImported).length,
+      total: type === "IMPORTED" ? importedCount : candidates.length,
+      imported: importedCount,
       aiConclusion: candidates.filter((item) => item.aiConclusion).length,
     }),
-    [candidates],
+    [candidates, importedCount, type],
   );
 
   useEffect(() => {
@@ -162,25 +186,25 @@ export default function ConversationReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950/55 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950/90 p-4">
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="conversation-review-title"
-        className="flex max-h-[calc(100dvh-32px)] w-[min(1180px,calc(100vw-32px))] flex-col overflow-hidden rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] shadow-[0_30px_90px_-40px_rgba(15,23,42,0.8)]"
+        className="flex max-h-[calc(100dvh-32px)] w-[min(1380px,calc(100vw-32px))] flex-col overflow-hidden rounded-3xl border border-[var(--admin-card-border)] bg-slate-900 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white opacity-100 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.8)]"
       >
-        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--admin-card-border)] px-5 py-4">
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--admin-card-border)] px-6 py-5">
           <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--admin-accent)]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--admin-accent)]">
               Duyệt dữ liệu chat cho RAG
             </p>
             <h2
               id="conversation-review-title"
-              className="mt-1 text-xl font-black text-[var(--admin-strong-text)]"
+              className="mt-1 text-2xl font-bold tracking-tight text-[var(--admin-strong-text)]"
             >
               Duyệt cuộc trò chuyện
             </h2>
-            <p className="mt-1 max-w-3xl text-sm font-semibold text-[var(--admin-muted-text)]">
+            <p className="mt-1.5 max-w-3xl text-sm font-medium leading-relaxed text-[var(--admin-muted-text)]">
               Chọn các cuộc trò chuyện có đánh giá tốt hoặc AI conclusion đủ
               điểm để import vào kho tri thức dưới dạng tài liệu chat.
             </p>
@@ -196,15 +220,30 @@ export default function ConversationReviewModal({
           </button>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-5">
-          <div className="grid gap-3 md:grid-cols-3">
-            <SummaryCard label="Tổng ứng viên" value={candidateSummary.total} />
-            <SummaryCard label="AI conclusion" value={candidateSummary.aiConclusion} />
-            <SummaryCard label="Đã import" value={candidateSummary.imported} />
+        <div className="min-h-0 flex-1 overflow-y-auto p-6 space-y-5">
+          <div className="grid gap-4 md:grid-cols-3">
+            <SummaryCard
+              label="Tổng ứng viên"
+              value={candidateSummary.total}
+              tone="cyan"
+              icon={MessageSquareText}
+            />
+            <SummaryCard
+              label="AI conclusion"
+              value={candidateSummary.aiConclusion}
+              tone="violet"
+              icon={Bot}
+            />
+            <SummaryCard
+              label="Đã import"
+              value={candidateSummary.imported}
+              tone="emerald"
+              icon={CheckCircle2}
+            />
           </div>
 
-          <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
-            <div className="flex min-w-0 flex-wrap gap-2">
+          <div className="mt-4 flex flex-col gap-4 xl:flex-row xl:items-stretch xl:justify-between">
+            <div className="flex flex-1 min-w-0 flex-wrap gap-3">
               {filterOptions.map((option) => {
                 const active = type === option.value;
 
@@ -214,16 +253,16 @@ export default function ConversationReviewModal({
                     type="button"
                     onClick={() => setType(option.value)}
                     className={[
-                      "rounded-2xl border px-3 py-2 text-left transition",
+                      "flex flex-col justify-center rounded-2xl border px-4 py-3 text-left transition-all duration-150 active:scale-[0.98]",
                       active
-                        ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-strong-text)]"
-                        : "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)] hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]",
+                        ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-strong-text)] shadow-sm ring-1 ring-[var(--admin-accent)]"
+                        : "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)] hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-strong-text)]",
                     ].join(" ")}
                   >
-                    <span className="block text-sm font-black">
+                    <span className="block text-base font-bold leading-tight">
                       {option.label}
                     </span>
-                    <span className="mt-0.5 block text-xs font-semibold">
+                    <span className="mt-1 block text-sm font-medium opacity-85">
                       {option.description}
                     </span>
                   </button>
@@ -231,13 +270,13 @@ export default function ConversationReviewModal({
               })}
             </div>
 
-            <label className="relative block min-w-0">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--admin-muted-text)]" />
+            <label className="relative block shrink-0 xl:w-80">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--admin-muted-text)]" />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Tìm phiên, khách, thiết bị"
-                className="h-11 w-full rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] pl-9 pr-3 text-sm font-bold text-[var(--admin-strong-text)] outline-none transition placeholder:text-[var(--admin-muted-text)] focus:border-[var(--admin-accent)] focus:ring-2 focus:ring-[var(--admin-focus-ring)]"
+                placeholder="Tìm mã phiên, khách, thiết bị..."
+                className="h-12 w-full rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] pl-11 pr-4 text-base font-medium text-[var(--admin-strong-text)] outline-none transition placeholder:text-sm placeholder:font-normal placeholder:text-[var(--admin-muted-text)] hover:border-[var(--admin-control-hover-border)] focus:border-[var(--admin-accent)] focus:ring-2 focus:ring-[var(--admin-focus-ring)]"
               />
             </label>
           </div>
@@ -255,16 +294,23 @@ export default function ConversationReviewModal({
             </div>
           ) : null}
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--admin-card-border)]">
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)]">
             <div className="hidden overflow-x-auto lg:block">
-              <table className="w-full min-w-[960px] table-auto">
+              <table className="w-full min-w-[1080px] table-fixed">
+                <colgroup>
+                  <col className="w-[26%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[24%]" />
+                  <col className="w-[16%]" />
+                </colgroup>
                 <thead>
-                  <tr className="border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] text-left text-[11px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
-                    <th className="px-4 py-3">Cuộc trò chuyện</th>
-                    <th className="px-4 py-3">Nguồn đánh giá</th>
-                    <th className="px-4 py-3">Kết luận</th>
-                    <th className="px-4 py-3">Nội dung</th>
-                    <th className="px-4 py-3 text-right">Thao tác</th>
+                  <tr className="border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] text-left text-sm font-black uppercase tracking-wider text-slate-400 dark:text-slate-300">
+                    <th className="px-5 py-4 align-middle">Cuộc trò chuyện</th>
+                    <th className="px-5 py-4 align-middle text-center">Nguồn đánh giá</th>
+                    <th className="px-5 py-4 align-middle text-center">Kết luận</th>
+                    <th className="px-5 py-4 align-middle">Nội dung xem trước</th>
+                    <th className="px-5 py-4 align-middle text-right">Thao tác</th>
                   </tr>
                 </thead>
 
@@ -287,7 +333,7 @@ export default function ConversationReviewModal({
                     <tr>
                       <td
                         colSpan={5}
-                        className="px-4 py-10 text-center text-sm font-bold text-[var(--admin-muted-text)]"
+                        className="px-5 py-12 text-center text-sm font-bold text-[var(--admin-muted-text)]"
                       >
                         Chưa có cuộc trò chuyện phù hợp với bộ lọc hiện tại.
                       </td>
@@ -329,15 +375,58 @@ export default function ConversationReviewModal({
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: number }) {
+function SummaryCard({
+  label,
+  value,
+  tone,
+  icon: Icon,
+}: {
+  label: string;
+  value: number;
+  tone: "cyan" | "violet" | "emerald";
+  icon: React.ElementType;
+}) {
+  const toneClasses = {
+    cyan: {
+      accent: "bg-cyan-500",
+      iconBox: "border-cyan-500/30 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
+    },
+    violet: {
+      accent: "bg-violet-500",
+      iconBox: "border-violet-500/30 bg-violet-500/10 text-violet-600 dark:text-violet-400",
+    },
+    emerald: {
+      accent: "bg-emerald-500",
+      iconBox: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    },
+  };
+
+  const currentTone = toneClasses[tone];
+
   return (
-    <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4">
-      <p className="text-xs font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
-        {label}
-      </p>
-      <p className="mt-2 text-3xl font-black text-[var(--admin-strong-text)]">
-        {value.toLocaleString("vi-VN")}
-      </p>
+    <div className="relative overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-5 transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] shadow-sm">
+      <span
+        aria-hidden="true"
+        className={["absolute inset-x-0 top-0 h-1", currentTone.accent].join(" ")}
+      />
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="truncate text-xs font-bold uppercase tracking-[0.1em] text-[var(--admin-muted-text)]">
+            {label}
+          </p>
+          <p className="mt-2 text-3xl font-black text-[var(--admin-strong-text)] sm:text-4xl">
+            {value.toLocaleString("vi-VN")}
+          </p>
+        </div>
+        <div
+          className={[
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border",
+            currentTone.iconBox,
+          ].join(" ")}
+        >
+          <Icon className="h-5 w-5" strokeWidth={2.3} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -352,44 +441,44 @@ function CandidateRow({
   onImport: () => void;
 }) {
   return (
-    <tr className="text-sm text-[var(--admin-theme-text)] transition hover:bg-[var(--admin-row-hover)]">
-      <td className="px-4 py-3">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-200">
-            <MessageSquareText className="h-5 w-5" />
+    <tr className="text-sm transition duration-150 hover:bg-[var(--admin-control-hover-bg)]">
+      <td className="px-5 py-4 align-middle">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-600 dark:text-cyan-300">
+            <MessageSquareText className="h-5.5 w-5.5" />
           </div>
           <div className="min-w-0">
-            <p className="font-black text-[var(--admin-strong-text)]">
+            <p className="text-[18px] font-black text-[var(--admin-strong-text)]">
               {candidate.sessionCode}
             </p>
-            <p className="mt-1 truncate text-xs font-bold text-[var(--admin-muted-text)]">
-              {candidate.customerName} · {candidate.customerPhone || "Chưa có SĐT"}
+            <p className="mt-0.5 truncate text-[15px] font-bold text-[var(--admin-strong-text)]">
+              {candidate.customerName} {candidate.customerPhone ? `· ${candidate.customerPhone}` : ""}
             </p>
-            <p className="mt-1 truncate text-xs font-semibold text-[var(--admin-muted-text)]">
-              {candidate.deviceType || "Chưa rõ thiết bị"}
+            <p className="mt-0.5 truncate text-[14px] font-black text-orange-500 dark:text-orange-400">
+              {candidate.deviceType || "Thiết bị chưa phân loại"}
             </p>
           </div>
         </div>
       </td>
 
-      <td className="px-4 py-3">
+      <td className="px-5 py-4 align-middle text-center">
         <ScoreBadge candidate={candidate} />
-        <p className="mt-2 text-xs font-semibold text-[var(--admin-muted-text)]">
+        <p className="mt-2 text-sm font-bold text-[var(--admin-strong-text)]">
           {candidate.messageCount.toLocaleString("vi-VN")} tin nhắn
         </p>
       </td>
 
-      <td className="px-4 py-3">
+      <td className="px-5 py-4 align-middle text-center">
         <ConclusionBadge candidate={candidate} />
       </td>
 
-      <td className="max-w-[340px] px-4 py-3">
-        <p className="line-clamp-2 text-sm font-semibold text-[var(--admin-theme-text)]">
+      <td className="px-5 py-4 align-middle">
+        <p className="line-clamp-3 text-[16px] font-extrabold leading-relaxed text-[var(--admin-strong-text)]">
           {candidate.preview || candidate.symptom || "Chưa có nội dung xem trước."}
         </p>
       </td>
 
-      <td className="w-0 whitespace-nowrap px-4 py-3 text-right">
+      <td className="px-5 py-4 text-right align-middle">
         <CandidateActions
           candidate={candidate}
           importing={importing}
@@ -413,17 +502,17 @@ function CandidateMobileCard({
     <article className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-black text-[var(--admin-strong-text)]">
+          <p className="text-[15px] font-bold text-[var(--admin-strong-text)]">
             {candidate.sessionCode}
           </p>
-          <p className="mt-1 text-xs font-bold text-[var(--admin-muted-text)]">
+          <p className="mt-0.5 text-xs font-medium text-[var(--admin-muted-text)]">
             {candidate.customerName} · {candidate.deviceType || "Chưa rõ thiết bị"}
           </p>
         </div>
         <ScoreBadge candidate={candidate} />
       </div>
 
-      <p className="mt-3 line-clamp-3 text-sm font-semibold text-[var(--admin-theme-text)]">
+      <p className="mt-3 line-clamp-3 text-sm font-medium leading-relaxed text-[var(--admin-strong-text)]">
         {candidate.preview || candidate.symptom || "Chưa có nội dung xem trước."}
       </p>
 
@@ -452,38 +541,40 @@ function CandidateActions({
   onImport: () => void;
 }) {
   return (
-    <div className="flex flex-wrap justify-end gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2.5">
       <Link
         href={`/admin/chats?sessionId=${candidate.sessionId}`}
-        className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 text-xs font-black text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]"
+        className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3.5 text-sm font-bold text-[var(--admin-strong-text)] transition hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)] hover:text-[var(--admin-accent)] whitespace-nowrap"
       >
         Mở chat
-        <ExternalLink className="h-3.5 w-3.5" />
+        <ExternalLink className="h-4 w-4" />
       </Link>
 
-      <button
-        type="button"
-        onClick={onImport}
-        disabled={candidate.alreadyImported || importing}
-        className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-3 text-xs font-black text-[var(--admin-cta-text)] shadow-[var(--admin-cta-shadow)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
-      >
-        {candidate.alreadyImported ? (
-          <>
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Đã import
-          </>
-        ) : importing ? (
-          <>
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            Đang import
-          </>
-        ) : (
-          <>
-            <UploadCloud className="h-3.5 w-3.5" />
-            Import RAG
-          </>
-        )}
-      </button>
+      {candidate.alreadyImported ? (
+        <span className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/15 px-3.5 text-sm font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
+          <CheckCircle2 className="h-4 w-4" />
+          Đã import
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={onImport}
+          disabled={importing}
+          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-[var(--admin-cta-shadow)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55 whitespace-nowrap"
+        >
+          {importing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Đang import
+            </>
+          ) : (
+            <>
+              <UploadCloud className="h-4 w-4" />
+              Import RAG
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 }
@@ -491,16 +582,16 @@ function CandidateActions({
 function ScoreBadge({ candidate }: { candidate: RagConversationCandidate }) {
   if (candidate.sourceType === "CUSTOMER_REVIEW") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/45 bg-amber-500/15 px-2.5 py-1 text-xs font-black text-amber-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-amber-200">
-        <Star className="h-3.5 w-3.5 fill-current" />
+      <span className="inline-flex h-8.5 items-center gap-1.5 rounded-full bg-amber-500 px-4 text-sm font-black text-slate-950 shadow-md whitespace-nowrap shrink-0">
+        <Star className="h-4 w-4 fill-current" />
         {candidate.customerRating}/5 sao
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1 text-xs font-black text-cyan-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-200">
-      <Bot className="h-3.5 w-3.5" />
+    <span className="inline-flex h-8.5 items-center gap-1.5 rounded-full bg-cyan-600 px-4 text-sm font-black text-white shadow-md whitespace-nowrap shrink-0">
+      <Bot className="h-4 w-4" />
       AI {candidate.aiScore}/10
     </span>
   );
@@ -510,10 +601,8 @@ function ConclusionBadge({ candidate }: { candidate: RagConversationCandidate })
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-black",
-        candidate.aiConclusion
-          ? "border-cyan-400/45 bg-cyan-500/15 text-cyan-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-cyan-200"
-          : "border-emerald-400/45 bg-emerald-500/15 text-emerald-700 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-emerald-200",
+        "inline-flex h-8.5 items-center gap-1.5 rounded-full px-4 text-sm font-black text-white shadow-md whitespace-nowrap shrink-0",
+        candidate.aiConclusion ? "bg-cyan-600" : "bg-emerald-600",
       ].join(" ")}
     >
       {candidate.aiConclusion ? "AI conclusion" : "Khách hàng đánh giá"}
@@ -526,7 +615,7 @@ function LoadingRows() {
     <>
       {Array.from({ length: 4 }).map((_, index) => (
         <tr key={index}>
-          <td colSpan={5} className="px-4 py-3">
+          <td colSpan={5} className="px-5 py-4">
             <div className="h-14 animate-pulse rounded-2xl bg-[var(--admin-card-soft-bg)]" />
           </td>
         </tr>

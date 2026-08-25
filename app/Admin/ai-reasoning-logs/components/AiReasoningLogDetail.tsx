@@ -684,7 +684,7 @@ function ChatMessage({
         </p>
       </div>
 
-      <p className="whitespace-pre-wrap break-words text-sm font-medium leading-7 text-[var(--admin-strong-text)]">
+      <p className="whitespace-pre-wrap break-words text-[16px] font-extrabold leading-relaxed text-[var(--admin-strong-text)]">
         {content}
       </p>
     </article>

@@ -458,13 +458,13 @@ export default function ModerationPage() {
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
-                          <ShieldAlert className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-black uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
+                          <ShieldAlert className="h-3.5 w-3.5" />
                           Phiên kiểm duyệt #MDR-{selectedItem.id}
                         </span>
                         <span
                           className={[
-                            "rounded-md border px-2 py-0.5 text-[11px] font-black uppercase tracking-wider",
+                            "inline-flex h-8 items-center justify-center rounded-full px-3.5 text-xs font-black shadow-sm shrink-0 whitespace-nowrap",
                             getSeverityClasses(selectedItem.severity),
                           ].join(" ")}
                         >
@@ -472,15 +472,15 @@ export default function ModerationPage() {
                         </span>
                       </div>
 
-                      <h2 className="mt-2 text-xl font-black tracking-tight text-[var(--admin-strong-text)]">
+                      <h2 className="mt-2.5 text-2.5xl font-black tracking-tight text-[var(--admin-strong-text)]">
                         {selectedItem.title}
                       </h2>
-                      <p className="mt-1 text-sm font-semibold text-[var(--admin-muted-text)]">
+                      <p className="mt-1.5 text-[16px] font-extrabold text-[var(--admin-strong-text)]">
                         {selectedItem.subtitle}
                       </p>
                     </div>
 
-                    <p className="shrink-0 text-xs font-bold text-[var(--admin-soft-text)]">
+                    <p className="shrink-0 text-xs font-black text-[var(--admin-muted-text)]">
                       Thời gian phát hiện: {formatDateTime(selectedItem.createdAt)}
                     </p>
                   </div>
@@ -488,20 +488,20 @@ export default function ModerationPage() {
 
                 {/* Workflow Steps Indicator */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
+                  <p className="text-xs font-black uppercase tracking-[0.1em] text-slate-400 dark:text-slate-300">
                     Quy trình kiểm duyệt chuẩn
                   </p>
                   <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                    <div className="flex items-center gap-2 rounded-xl border border-cyan-500/25 bg-cyan-500/10 px-3 py-2 text-xs font-black text-cyan-800 dark:text-cyan-200">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-[10px] text-white">1</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-cyan-500/25 bg-cyan-500/10 px-3 py-2 text-[13px] font-extrabold text-cyan-800 dark:text-cyan-200">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-[10px] font-black text-white">1</span>
                       <span>Rà soát Sự cố</span>
                     </div>
-                    <div className="flex items-center gap-2 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs font-black text-amber-800 dark:text-amber-200">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white">2</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[13px] font-extrabold text-amber-800 dark:text-amber-200">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-white">2</span>
                       <span>Trích xuất bằng chứng</span>
                     </div>
-                    <div className="flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs font-black text-emerald-800 dark:text-emerald-200">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white">3</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-white">3</span>
                       <span>Quyết định can thiệp</span>
                     </div>
                   </div>
@@ -525,18 +525,18 @@ export default function ModerationPage() {
 
                 {/* Description & Evidence */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5">
-                  <h3 className="flex items-center gap-2 text-sm font-black text-[var(--admin-strong-text)]">
-                    <MessageSquareWarning className="h-4 w-4 text-amber-500" />
+                  <h3 className="flex items-center gap-2 text-[16px] font-black text-[var(--admin-strong-text)]">
+                    <MessageSquareWarning className="h-4.5 w-4.5 text-amber-500" />
                     Bằng chứng & Nội dung chi tiết sự cố
                   </h3>
-                  <div className="mt-3 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 text-sm font-semibold leading-7 text-[var(--admin-strong-text)]">
+                  <div className="mt-3 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 text-[16px] font-extrabold leading-relaxed text-[var(--admin-strong-text)]">
                     <p className="whitespace-pre-wrap break-words">{selectedItem.description}</p>
                   </div>
                 </div>
 
                 {/* Technical Metadata */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5">
-                  <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
+                  <h3 className="text-[16px] font-black text-[var(--admin-strong-text)]">
                     Metadata & Nhật ký kỹ thuật
                   </h3>
                   <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -545,10 +545,10 @@ export default function ModerationPage() {
                         key={key}
                         className="rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3.5 py-3"
                       >
-                        <p className="text-[11px] font-black uppercase tracking-wider text-[var(--admin-muted-text)]">
+                        <p className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-300">
                           {key}
                         </p>
-                        <p className="mt-1 break-all text-xs font-extrabold text-[var(--admin-strong-text)]">
+                        <p className="mt-1 break-all text-[15px] font-extrabold text-[var(--admin-strong-text)]">
                           {String(value ?? "--")}
                         </p>
                       </div>
@@ -558,14 +558,14 @@ export default function ModerationPage() {
 
                 {/* Action Buttons */}
                 <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-5">
-                  <h3 className="flex items-center gap-2 text-sm font-black text-[var(--admin-strong-text)]">
-                    <Wrench className="h-4 w-4 text-cyan-500" />
+                  <h3 className="flex items-center gap-2 text-[16px] font-black text-[var(--admin-strong-text)]">
+                    <Wrench className="h-4.5 w-4.5 text-cyan-500" />
                     Thao tác xử lý kiểm duyệt của Admin
                   </h3>
                   <div className="mt-4 flex flex-wrap gap-3">
                     <Link
                       href={`/admin/chats?sessionId=${selectedItem.metadata.sessionId}`}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-sm transition hover:brightness-105"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--admin-cta-bg)] px-5 text-[15px] font-extrabold text-[var(--admin-cta-text)] shadow-sm transition hover:brightness-105"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Mở lịch sử chat phiên #{selectedItem.metadata.sessionId || selectedItem.id}
@@ -574,7 +574,7 @@ export default function ModerationPage() {
                     {(selectedItem.type === "disliked-ai" || selectedItem.type === "dangerous-session") && selectedItem.metadata.sessionId ? (
                       <Link
                         href={`/admin/rag-knowledge?importSession=${selectedItem.metadata.sessionId}&openModal=true`}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-4 text-sm font-bold text-cyan-800 transition hover:bg-cyan-500/20 dark:text-cyan-200"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-5 text-[15px] font-extrabold text-cyan-800 transition hover:bg-cyan-500/20 dark:text-cyan-200"
                       >
                         <FolderKanban className="h-4 w-4" />
                         Bổ sung tri thức RAG cho AI (Mở ngay Modal Import)
@@ -584,7 +584,7 @@ export default function ModerationPage() {
                     <button
                       type="button"
                       onClick={() => handleResolveItem(selectedItem.id, selectedItem.title)}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-4 text-sm font-bold text-emerald-800 transition hover:bg-emerald-500/20 dark:text-emerald-300"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-5 text-[15px] font-extrabold text-emerald-800 transition hover:bg-emerald-500/20 dark:text-emerald-300"
                     >
                       <CheckCircle2 className="h-4 w-4" />
                       Xác nhận đã duyệt & Hoàn tất xử lý
@@ -618,12 +618,12 @@ function QuickFact({
 }) {
   return (
     <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4">
-      <p className="text-[11px] font-black uppercase tracking-wider text-[var(--admin-muted-text)]">
+      <p className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-300">
         {label}
       </p>
       <p
         className={[
-          "mt-1.5 text-sm font-extrabold text-[var(--admin-strong-text)]",
+          "mt-1.5 text-[16px] font-extrabold text-[var(--admin-strong-text)]",
           breakAll ? "break-all" : "break-words",
         ].join(" ")}
       >

@@ -44,9 +44,8 @@ export function AiReasoningKpiGrid({
       label: "Tổng log AI",
       value: formatNumber(total),
       icon: BotMessageSquare,
-      iconClassName:
-        "border-[#06B6D4]/25 bg-[#06B6D4]/10 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
-      accentClassName: "bg-[#06B6D4]",
+      iconClassName: "bg-cyan-600 text-white shadow-md shadow-cyan-600/20",
+      accentClassName: "bg-cyan-500",
     },
     {
       label: "Điểm trung bình",
@@ -54,44 +53,40 @@ export function AiReasoningKpiGrid({
       icon: Star,
       iconClassName:
         avgScore >= 8
-          ? "border-[#22C55E]/25 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]"
+          ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
           : avgScore <= 4
-            ? "border-[#EF4444]/25 bg-[#EF4444]/10 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]"
-            : "border-[#F59E0B]/25 bg-[#F59E0B]/10 text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]",
+            ? "bg-rose-600 text-white shadow-md shadow-rose-600/20"
+            : "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20",
       accentClassName:
-        avgScore >= 8 ? "bg-[#22C55E]" : avgScore <= 4 ? "bg-[#EF4444]" : "bg-[#F59E0B]",
+        avgScore >= 8 ? "bg-emerald-500" : avgScore <= 4 ? "bg-rose-500" : "bg-amber-500",
     },
     {
       label: "Cần rà soát",
       value: formatNumber(highRisk),
       icon: ShieldAlert,
-      iconClassName:
-        "border-[#EF4444]/25 bg-[#EF4444]/10 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]",
-      accentClassName: "bg-[#EF4444]",
+      iconClassName: "bg-rose-600 text-white shadow-md shadow-rose-600/20",
+      accentClassName: "bg-rose-500",
     },
     {
       label: "Bị dislike",
       value: formatNumber(disliked),
       icon: ThumbsDown,
-      iconClassName:
-        "border-[#F59E0B]/25 bg-[#F59E0B]/10 text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]",
-      accentClassName: "bg-[#F59E0B]",
+      iconClassName: "bg-rose-600 text-white shadow-md shadow-rose-600/20",
+      accentClassName: "bg-rose-500",
     },
     {
       label: "Câu trả lời tốt",
       value: formatNumber(golden),
       icon: CheckCircle2,
-      iconClassName:
-        "border-[#22C55E]/25 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
-      accentClassName: "bg-[#22C55E]",
+      iconClassName: "bg-emerald-600 text-white shadow-md shadow-emerald-600/20",
+      accentClassName: "bg-emerald-500",
     },
     {
       label: "Nghi vấn sai",
       value: formatNumber(suspectedWrong),
       icon: AlertTriangle,
-      iconClassName:
-        "border-[#F59E0B]/25 bg-[#F59E0B]/10 text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]",
-      accentClassName: "bg-[#F59E0B]",
+      iconClassName: "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20",
+      accentClassName: "bg-amber-500",
     },
   ];
 
@@ -106,28 +101,28 @@ export function AiReasoningKpiGrid({
         return (
           <article
             key={item.label}
-            className="admin-card group relative min-h-[112px] overflow-hidden rounded-2xl p-5 transition-colors duration-150 hover:border-[var(--admin-control-hover-border)] hover:bg-[var(--admin-control-hover-bg)]"
+            className="admin-card group relative min-h-[112px] overflow-hidden rounded-3xl p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
           >
             <span
               aria-hidden="true"
-              className={`absolute inset-x-0 top-0 h-1 ${item.accentClassName}`}
+              className={`absolute inset-x-0 top-0 h-1.5 ${item.accentClassName}`}
             />
 
             <div className="flex h-full items-center justify-between gap-4">
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold leading-5 text-[var(--admin-strong-text)]">
+                <p className="truncate text-[15px] font-black uppercase tracking-wider text-[var(--admin-strong-text)]">
                   {item.label}
                 </p>
 
-                <p className="mt-3 text-4xl font-extrabold leading-none tracking-tight text-[var(--admin-strong-text)]">
+                <p className="mt-2.5 text-[34px] font-black leading-none tracking-tight text-[var(--admin-strong-text)]">
                   {item.value}
                 </p>
               </div>
 
               <div
-                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${item.iconClassName}`}
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${item.iconClassName}`}
               >
-                <Icon className="h-5 w-5" strokeWidth={2.3} />
+                <Icon className="h-6 w-6" strokeWidth={2.3} />
               </div>
             </div>
           </article>
