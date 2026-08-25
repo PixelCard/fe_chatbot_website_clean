@@ -11,8 +11,7 @@ import {
 
 import type { ChatUiMessage } from "@/app/hooks/useChatbotApi";
 import type { ApiError } from "@/app/services/apiClient";
-import { reviewAdminService } from "@/app/Admin/Reviews/services/reviewAdmin.service";
-import type { ReviewItem } from "@/app/Admin/Reviews/types/review.types";
+import { chatbotService } from "@/app/services/chatbot.service";
 
 function AiAvatar() {
   return (
@@ -237,8 +236,6 @@ export function ChatMessageList({
   messagesEndRef,
   onSubmitFeedback,
   sessionId,
-  currentDeviceLabel,
-  profileName,
 }: ChatMessageListProps) {
   const shouldShowFeedbackPanel =
     chatClosed && (feedbackPending || feedbackSubmitted);
@@ -318,8 +315,6 @@ export function ChatMessageList({
             isSubmittingFeedback={isSubmittingFeedback}
             onSubmitFeedback={onSubmitFeedback}
             sessionId={sessionId}
-            currentDeviceLabel={currentDeviceLabel}
-            profileName={profileName}
           />
         ) : null}
 
@@ -329,78 +324,18 @@ export function ChatMessageList({
   );
 }
 
-function getStoredUserInfo(profileNameProp?: string) {
-  if (typeof window !== "undefined") {
-    try {
-      const userProfileRaw = localStorage.getItem("user_profile");
-      if (userProfileRaw) {
-        const parsed = JSON.parse(userProfileRaw) as {
-          name?: string;
-          fullName?: string;
-          contactName?: string;
-          phoneNumber?: string;
-          phone?: string;
-          contactPhone?: string;
-        };
-        const resolvedName = parsed.name || parsed.fullName || parsed.contactName;
-        const resolvedPhone = parsed.phoneNumber || parsed.phone || parsed.contactPhone;
-        if (resolvedName || resolvedPhone) {
-          return {
-            name: resolvedName?.trim() || profileNameProp || "Khách hàng",
-            phone: resolvedPhone?.trim() || "0901234567",
-          };
-        }
-      }
-
-      const userRaw = localStorage.getItem("user");
-      if (userRaw) {
-        const parsed = JSON.parse(userRaw) as {
-          fullName?: string;
-          name?: string;
-          phoneNumber?: string;
-          phone?: string;
-        };
-        const resolvedName = parsed.fullName || parsed.name;
-        const resolvedPhone = parsed.phoneNumber || parsed.phone;
-        if (resolvedName || resolvedPhone) {
-          return {
-            name: resolvedName?.trim() || profileNameProp || "Khách hàng",
-            phone: resolvedPhone?.trim() || "0901234567",
-          };
-        }
-      }
-    } catch {
-      // ignore JSON parse error
-    }
-  }
-
-  const fallbackName =
-    profileNameProp && profileNameProp !== "Khách hàng"
-      ? profileNameProp.trim()
-      : "Khách hàng";
-
-  return {
-    name: fallbackName,
-    phone: "0901234567",
-  };
-}
-
 function StarRatingFeedback({
   feedbackSubmitted,
   feedbackChoice,
   isSubmittingFeedback,
   onSubmitFeedback,
   sessionId,
-  currentDeviceLabel,
-  profileName,
 }: {
   feedbackSubmitted: boolean;
   feedbackChoice: "LIKE" | "DISLIKE" | null;
   isSubmittingFeedback: boolean;
   onSubmitFeedback: (feedback: "LIKE" | "DISLIKE") => Promise<unknown>;
   sessionId?: number | null;
-  currentDeviceLabel?: string;
-  profileName?: string;
 }) {
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [selectedRating, setSelectedRating] = useState<number | null>(
@@ -419,47 +354,22 @@ function StarRatingFeedback({
     if (isSubmittingFeedback || feedbackSubmitted) return;
     setSelectedRating(starCount);
 
-    // 1. Tạo và lưu bản ghi Review vào CSDL/Review Admin TRƯỚC TIÊN để xác định 5-sao
-    try {
-      const now = new Date();
-      const existingRaw = localStorage.getItem("smartelec_user_reviews");
-      const rawList: Array<{ id: number }> = existingRaw ? JSON.parse(existingRaw) : [];
-      const cleanList = rawList.filter((item) => Number(item.id) < 100000000);
-      const maxId = cleanList.reduce(
-        (max, item) => Math.max(max, Number(item.id) || 10),
-        10,
+    const accessToken =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("accessToken")
+        : null;
+
+    if (accessToken && sessionId) {
+      await chatbotService.rateSession(
+        sessionId,
+        {
+          rating: starCount,
+          comment: `Đánh giá ${starCount}/5 sao cho phiên tư vấn AI (${starLabels[starCount] || ""})`,
+        },
+        accessToken,
       );
-      const nextId = maxId + 1;
-      const userInfo = getStoredUserInfo(profileName);
-      const activeSessionId = sessionId ?? 147;
-      const deviceName = currentDeviceLabel || "Điều hòa";
-
-      const reviewItem: Partial<ReviewItem> = {
-        id: nextId,
-        sessionId: activeSessionId,
-        sessionCode: `SE-${activeSessionId}`,
-        userId: 1,
-        customerName: userInfo.name,
-        customerPhone: userInfo.phone,
-        technicianId: 999,
-        technicianName: "SmartElec AI Assistant",
-        technicianPhone: "1955-AI",
-        rating: starCount,
-        comment: `Đánh giá ${starCount}/5 sao cho phiên tư vấn AI (${starLabels[starCount] || ""})`,
-        tags: starCount >= 4 ? ["Tư vấn rõ ràng", "Nhiệt tình"] : ["Không hài lòng"],
-        repairServiceName: deviceName,
-        address: "Online Chatbot",
-        createdAt: now.toISOString(),
-      };
-
-      // Đồng bộ lưu tức thì vào Local Cache & gọi API Review
-      localStorage.setItem("smartelec_user_reviews", JSON.stringify([reviewItem, ...cleanList]));
-      void reviewAdminService.createReview(reviewItem).catch(() => {});
-    } catch {
-      // Ignore local storage error
     }
 
-    // 2. Gửi phản hồi tư vấn AI
     const choice = starCount >= 4 ? "LIKE" : "DISLIKE";
     await onSubmitFeedback(choice);
   };

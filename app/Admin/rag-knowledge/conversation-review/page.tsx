@@ -37,6 +37,11 @@ const filterOptions: Array<{
       description: "Mọi cuộc trò chuyện đủ điều kiện",
     },
     {
+      value: "IMPORTED",
+      label: "Đã import",
+      description: "Đã đưa vào kho tri thức RAG",
+    },
+    {
       value: "CUSTOMER_5_STAR",
       label: "5 sao",
       description: "Khách hàng đánh giá rất tốt",
@@ -72,13 +77,31 @@ export default function RagConversationReviewPage() {
     null,
   );
 
+  const [importedCount, setImportedCount] = useState<number>(0);
+
+  useEffect(() => {
+    let active = true;
+
+    getConversationCandidates({ type: "IMPORTED" })
+      .then((items) => {
+        if (active) {
+          setImportedCount(items.length);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [getConversationCandidates, toasts]);
+
   const candidateSummary = useMemo(
     () => ({
-      total: candidates.length,
-      imported: candidates.filter((item) => item.alreadyImported).length,
+      total: type === "IMPORTED" ? importedCount : candidates.length,
+      imported: importedCount,
       aiConclusion: candidates.filter((item) => item.aiConclusion).length,
     }),
-    [candidates],
+    [candidates, importedCount, type],
   );
 
   const activeFilter = useMemo(
@@ -294,7 +317,7 @@ export default function RagConversationReviewPage() {
           </header>
 
           <div className="hidden lg:block">
-            <div className="grid grid-cols-[1.65fr_0.9fr_1.1fr_1.6fr_200px] gap-x-8 border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-4 text-left text-[12px] font-black uppercase tracking-[0.14em] text-[var(--admin-muted-text)]">
+            <div className="grid grid-cols-[1.65fr_0.9fr_1.1fr_1.6fr_200px] gap-x-8 border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-4 text-left text-sm font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-300">
               <div>Cuộc trò chuyện</div>
               <div>Nguồn đánh giá</div>
               <div>Trạng thái</div>
@@ -452,16 +475,16 @@ function DesktopRow({
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate text-[1.35rem] font-black leading-6 text-[var(--admin-strong-text)]">
+              <p className="truncate text-[1.5rem] font-black leading-6 text-[var(--admin-strong-text)]">
                 {candidate.sessionCode}
               </p>
               <ImportStateBadge imported={candidate.alreadyImported} />
             </div>
-            <p className="mt-1 truncate text-base font-bold leading-6 text-[var(--admin-strong-text)]">
+            <p className="mt-1 truncate text-[17px] font-extrabold leading-6 text-[var(--admin-strong-text)]">
               {candidate.customerName} ·{" "}
               {candidate.customerPhone || "Chưa có SĐT"}
             </p>
-            <p className="mt-1 truncate text-[15px] font-semibold leading-6 text-[var(--admin-muted-text)]">
+            <p className="mt-1 truncate text-[15px] font-bold leading-6 text-orange-500 dark:text-orange-400">
               {candidate.deviceType || "Chưa rõ thiết bị"}
             </p>
           </div>
@@ -485,7 +508,7 @@ function DesktopRow({
       </div>
 
       <div className="min-w-0">
-        <p className="line-clamp-3 text-base font-semibold leading-7 text-[var(--admin-theme-text)]">
+        <p className="line-clamp-3 text-[17px] font-extrabold leading-relaxed text-[var(--admin-theme-text)]">
           {candidate.preview || candidate.symptom || "Chưa có nội dung xem trước."}
         </p>
       </div>

@@ -5,23 +5,28 @@ import { useMemo, useState } from "react";
 import {
   AlertCircle,
   AlertTriangle,
+  Archive,
   CheckCircle2,
+  Clock,
   Database,
   ExternalLink,
   FileText,
   FileWarning,
   Info,
   Loader2,
+  MessageSquareText,
   Sparkles,
   UploadCloud,
   Wrench,
+  ShieldCheck,
   X,
 } from "lucide-react";
-
 import type {
   ImportRagDocumentFormValues,
   RagDocumentDetail,
   RagDocumentKind,
+  RagDocumentStatus,
+  RagFileType,
   RagImportMetadataSuggestionResponse,
 } from "../../types/ragKnowledge.types";
 
@@ -155,7 +160,7 @@ export default function KnowledgeActionDrawer({
     } catch (error) {
       setMetadataHintError(
         (error as { message?: string }).message ||
-          "Không thể gợi ý thông tin từ file này.",
+        "Không thể gợi ý thông tin từ file này.",
       );
     } finally {
       setIsSuggestingMetadata(false);
@@ -184,7 +189,7 @@ export default function KnowledgeActionDrawer({
   const selectedDocumentId = getNumber(detailRecord, "id");
 
   return (
-    <div className="fixed inset-0 z-[95] bg-slate-950/70 backdrop-blur-md">
+    <div className="fixed inset-0 z-[95] bg-slate-950/90">
       <button
         type="button"
         aria-label="Đóng drawer"
@@ -192,7 +197,7 @@ export default function KnowledgeActionDrawer({
         onClick={isSubmitting ? undefined : onClose}
       />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-[1180px] flex-col overflow-hidden border-l border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] shadow-2xl">
+      <aside className="absolute right-0 top-0 flex h-full w-full max-w-[1180px] flex-col overflow-hidden border-l border-[var(--admin-card-border)] bg-slate-900 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white shadow-2xl">
         <DrawerHeader
           mode={mode}
           title={
@@ -295,7 +300,7 @@ function DrawerHeader({
   status?: string | null;
 }) {
   return (
-    <header className="shrink-0 border-b border-[var(--admin-card-border)] bg-[var(--admin-card-bg)]/95 px-5 py-4 backdrop-blur-xl xl:px-6">
+    <header className="shrink-0 border-b border-[var(--admin-card-border)] bg-slate-900 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white px-5 py-4 xl:px-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -410,8 +415,8 @@ function ImportLayout({
                   {isSuggestingMetadata
                     ? "Hệ thống đang đọc file và tự điền thử tên tài liệu, nhóm thiết bị, hãng, model và từ khóa."
                     : metadataHintError ||
-                      metadataHintMessage ||
-                      "Sau khi chọn file, hệ thống sẽ cố gắng tự điền các thông tin cơ bản để bạn đỡ phải nhập tay."}
+                    metadataHintMessage ||
+                    "Sau khi chọn file, hệ thống sẽ cố gắng tự điền các thông tin cơ bản để bạn đỡ phải nhập tay."}
                 </p>
               </div>
             </div>
@@ -689,7 +694,7 @@ function FormSection({
 
         <div>
           <h3 className="text-lg font-bold text-[var(--admin-strong-text)]">
-            Đang phân tích tài liệu...
+            {title}
           </h3>
 
           <p className="mt-1 text-sm font-semibold leading-6 text-[var(--admin-muted-text)]">
@@ -723,10 +728,10 @@ function DetailLayout({
 }) {
   if (isLoading) {
     return (
-      <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)]">
+      <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)]">
         <div className="flex items-center gap-3 text-sm font-bold text-[var(--admin-muted-text)]">
-          <Loader2 className="h-4.5 w-4.5 animate-spin text-[var(--admin-accent)]" />
-          Đang tải tài liệu...
+          <Loader2 className="h-5 w-5 animate-spin text-orange-500" />
+          Đang tải thông tin chi tiết tài liệu...
         </div>
       </div>
     );
@@ -734,8 +739,8 @@ function DetailLayout({
 
   if (!detail) {
     return (
-      <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-6">
-        <p className="text-sm font-bold text-[var(--admin-muted-text)]">
+      <div className="rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-8 text-center">
+        <p className="text-base font-bold text-[var(--admin-muted-text)]">
           Không tìm thấy thông tin tài liệu.
         </p>
       </div>
@@ -743,136 +748,278 @@ function DetailLayout({
   }
 
   const id = getNumber(detail, "id");
+  const title = getString(detail, "title") || "Tài liệu không tên";
   const kind = getString(detail, "kind");
-  const kindLabel = kind ? (kindLabelMap[kind] || kind) : "--";
+  const kindLabel = kind ? (kindLabelMap[kind] || kind) : "Chưa phân loại";
   const accessLevel = getString(detail, "accessLevel");
-  const accessLevelText = accessLevel === "BASIC" ? "Cơ bản" : accessLevel === "ADVANCED" ? "Chỉ kỹ thuật viên" : "--";
+  const accessLevelText = accessLevel === "BASIC" ? "Cơ bản" : "Chỉ kỹ thuật viên";
+  const status = (getString(detail, "status") as any) || "READY";
+  const isActive = Boolean(detail.isActive ?? true);
+  const fileType = (getString(detail, "fileType") || "UNKNOWN") as any;
 
   const originalFileName =
     getString(detail, "originalFileName") ||
     getString(detail, "storedFileName") ||
+    getString(detail, "source") ||
     "--";
   const originalFileUrl = getString(detail, "fileUrl");
 
   const tags = detail.tags;
   let tagsArray: string[] = [];
   if (Array.isArray(tags)) {
-    tagsArray = tags;
+    tagsArray = tags as string[];
   } else if (typeof tags === "string") {
-    tagsArray = tags.split(",").map(t => t.trim()).filter(Boolean);
+    tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <main className="min-w-0 space-y-6">
-        {/* Nhóm 1: Tổng quan tài liệu dạng KPI Grid */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-orange-400/10 text-orange-500 dark:text-orange-300">
-              <FileText className="h-5 w-5" />
-            </span>
-            <h3 className="text-[17px] font-bold tracking-tight text-[var(--admin-strong-text)]">
-              Tổng quan tài liệu
-            </h3>
+        <section className="rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-6 shadow-md">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 space-y-3.5">
+              <div className="flex flex-wrap items-center gap-3">
+                <span
+                  className={[
+                    "inline-flex h-9 items-center gap-2 rounded-full px-4.5 text-xs font-black shadow-md",
+                    !isActive || status === "ARCHIVED"
+                      ? "bg-slate-600 text-white shadow-slate-600/20"
+                      : status === "READY"
+                        ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                        : status === "FAILED" || status === "CANCELLED"
+                          ? "bg-rose-600 text-white shadow-rose-600/20"
+                          : "bg-sky-600 text-white shadow-sky-600/20",
+                  ].join(" ")}
+                >
+                  {!isActive || status === "ARCHIVED" ? (
+                    <>
+                      <Archive className="h-4 w-4" />
+                      Đã lưu trữ
+                    </>
+                  ) : status === "READY" ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" />
+                      Hoạt động
+                    </>
+                  ) : status === "FAILED" ? (
+                    <>
+                      <AlertTriangle className="h-4 w-4" />
+                      Thất bại
+                    </>
+                  ) : status === "CANCELLED" ? (
+                    <>
+                      <AlertTriangle className="h-4 w-4" />
+                      Đã hủy
+                    </>
+                  ) : status === "UPLOADED" ? (
+                    <>
+                      <Database className="h-4 w-4" />
+                      Đã tải lên
+                    </>
+                  ) : status === "PARSING" ? (
+                    <>
+                      <Clock className="h-4 w-4" />
+                      Đang xử lý
+                    </>
+                  ) : status === "CHUNKING" ? (
+                    <>
+                      <Clock className="h-4 w-4" />
+                      Đang chia chunk
+                    </>
+                  ) : status === "EMBEDDING" ? (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Đang tạo vector
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-4 w-4" />
+                      {status === "PENDING" ? "Chờ xử lý" : status === "PROCESSING" ? "Đang xử lý" : status}
+                    </>
+                  )}
+                </span>
+
+                {(() => {
+                  const source = getString(detail, "source");
+                  const upper = fileType ? fileType.toUpperCase() : "UNKNOWN";
+                  const isChatSession = source?.startsWith("CHAT_SESSION") || upper === "UNKNOWN";
+
+                  const meta = isChatSession
+                    ? { label: "Phiên chat", bg: "bg-cyan-600 shadow-cyan-600/20", icon: MessageSquareText }
+                    : upper === "PDF"
+                      ? { label: "PDF", bg: "bg-rose-600 shadow-rose-600/20", icon: FileText }
+                      : upper === "DOCX" || upper === "DOC"
+                        ? { label: upper, bg: "bg-sky-600 shadow-sky-600/20", icon: FileText }
+                        : upper === "XLSX" || upper === "XLS" || upper === "CSV"
+                          ? { label: upper, bg: "bg-emerald-600 shadow-emerald-600/20", icon: FileText }
+                          : upper === "TXT" || upper === "MD" || upper === "JSON"
+                            ? { label: upper, bg: "bg-amber-500 shadow-amber-500/20", icon: FileText }
+                            : { label: upper !== "UNKNOWN" ? upper : "Văn bản", bg: "bg-slate-600 shadow-slate-600/20", icon: FileText };
+
+                  const IconComp = meta.icon;
+
+                  return (
+                    <span className={["inline-flex h-9 items-center gap-2 rounded-full px-4.5 text-xs font-black text-white shadow-md", meta.bg].join(" ")}>
+                      <IconComp className="h-4 w-4" />
+                      {meta.label}
+                    </span>
+                  );
+                })()}
+
+                <span
+                  className={[
+                    "inline-flex h-9 items-center gap-2 rounded-full px-4.5 text-xs font-black text-white shadow-md",
+                    accessLevel === "BASIC" ? "bg-emerald-600 shadow-emerald-600/20" : "bg-amber-500 shadow-amber-500/20",
+                  ].join(" ")}
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  {accessLevelText}
+                </span>
+              </div>
+
+              <h2 className="text-2xl font-extrabold leading-snug text-[var(--admin-strong-text)]">
+                {title}
+              </h2>
+
+              <div className="flex items-center gap-2.5 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-4 py-2.5 text-base">
+                <span className="font-extrabold text-[var(--admin-muted-text)]">File gốc:</span>
+                <span className="font-extrabold text-[var(--admin-strong-text)] truncate" title={originalFileName}>
+                  {originalFileName}
+                </span>
+              </div>
+            </div>
+
+            {originalFileUrl ? (
+              <a
+                href={originalFileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-orange-500/40 bg-orange-500/15 px-5 text-sm font-black text-orange-500 transition hover:bg-orange-500/25 active:scale-95 shadow-sm"
+              >
+                <ExternalLink className="h-4.5 w-4.5" />
+                Mở file gốc
+              </a>
+            ) : null}
+          </div>
+        </section>
+
+        <div className="grid grid-cols-3 gap-3.5">
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-5 shadow-sm flex flex-col justify-between space-y-2.5">
+            <span className="absolute inset-x-0 top-0 h-1 bg-orange-500" />
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--admin-muted-text)]">
+              <Database className="h-4.5 w-4.5 text-orange-500" />
+              <span>Tổng Chunks</span>
+            </div>
+            <p className="text-2xl font-black text-[var(--admin-strong-text)]">
+              {getDisplayValue(detail, "totalChunks")}
+            </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <ReadOnlyField
-              label="File gốc"
-              value={getString(detail, "originalFileName")}
-            />
-            <ReadOnlyField label="Loại file" value={getString(detail, "fileType")} />
-            <ReadOnlyField label="Nguồn" value={getString(detail, "source")} />
-            <ReadOnlyField label="Nhóm thiết bị" value={getString(detail, "category")} />
-            <ReadOnlyField label="Hãng" value={getString(detail, "brand")} />
-            <ReadOnlyField label="Mã model" value={getString(detail, "modelCode")} />
-            <ReadOnlyField label="Loại tài liệu" value={kindLabel} />
-            <ReadOnlyField label="Quyền xem" value={accessLevelText} />
-            <div className="sm:col-span-2 lg:col-span-3">
-              <div className="flex flex-col gap-3 rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-[14px] font-bold uppercase tracking-[0.08em] text-[var(--admin-muted-text)]">
-                    Tài liệu gốc
-                  </p>
-                  <p
-                    className="mt-2 truncate text-[15px] font-bold text-[var(--admin-strong-text)]"
-                    title={originalFileName}
-                  >
-                    {originalFileName}
-                  </p>
-                </div>
-
-                {originalFileUrl ? (
-                  <a
-                    href={originalFileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-orange-300/30 bg-orange-400/10 px-4 text-sm font-black text-orange-600 transition hover:border-orange-400/50 hover:bg-orange-400/15 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-orange-300"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Xem tài liệu gốc
-                  </a>
-                ) : (
-                  <span className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-4 text-sm font-bold text-[var(--admin-muted-text)]">
-                    Chưa có đường dẫn file
-                  </span>
-                )}
-              </div>
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-5 shadow-sm flex flex-col justify-between space-y-2.5">
+            <span className="absolute inset-x-0 top-0 h-1 bg-cyan-500" />
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--admin-muted-text)]">
+              <FileText className="h-4.5 w-4.5 text-cyan-500" />
+              <span>Số ký tự</span>
             </div>
+            <p className="text-2xl font-black text-[var(--admin-strong-text)]">
+              {getDisplayValue(detail, "totalCharacters")}
+            </p>
+          </div>
 
-            <div className="sm:col-span-2 lg:col-span-3">
-              <div className="rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4">
-                 <p className="text-[14px] font-bold uppercase tracking-[0.08em] text-[var(--admin-muted-text)]">
-                  Từ khóa
-                </p>
-                {tagsArray.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5 mt-2.5">
-                    {tagsArray.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center rounded-full bg-orange-400/10 border border-orange-400/25 px-3 py-1 text-xs font-bold text-orange-600 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-orange-300"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="mt-2 text-[14px] font-semibold text-[var(--admin-muted-text)]">--</p>
-                )}
-              </div>
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-5 shadow-sm flex flex-col justify-between space-y-2.5">
+            <span className="absolute inset-x-0 top-0 h-1 bg-emerald-500" />
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--admin-muted-text)]">
+              <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
+              <span>Ngày nạp tri thức</span>
             </div>
+            <p className="text-base font-black text-[var(--admin-strong-text)] truncate" title={getString(detail, "indexedAt") || "--"}>
+              {getString(detail, "indexedAt") ? new Date(getString(detail, "indexedAt")!).toLocaleDateString("vi-VN") : "--"}
+            </p>
           </div>
         </div>
 
-        {/* Nhóm 2: Mô tả tài liệu */}
+        <section className="rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-6 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-500/30 bg-orange-500/15 text-orange-500">
+              <Wrench className="h-5 w-5" />
+            </span>
+            <h3 className="text-lg font-extrabold text-[var(--admin-strong-text)]">
+              Phân loại & Thuộc tính RAG
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3.5 text-sm sm:grid-cols-3">
+            <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 space-y-1.5">
+              <p className="text-[13px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Nhóm thiết bị</p>
+              <p className="text-[16px] font-extrabold text-[var(--admin-strong-text)]">{getString(detail, "category") || "--"}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 space-y-1.5">
+              <p className="text-[13px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Hãng sản xuất</p>
+              <p className="text-[16px] font-extrabold text-[var(--admin-strong-text)]">{getString(detail, "brand") || "--"}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 space-y-1.5">
+              <p className="text-[13px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Mã Model</p>
+              <p className="text-[16px] font-extrabold text-[var(--admin-strong-text)]">{getString(detail, "modelCode") || "--"}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 space-y-1.5">
+              <p className="text-[13px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Loại tài liệu</p>
+              <p className="text-[16px] font-extrabold text-[var(--admin-strong-text)]">{kindLabel}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 space-y-1.5">
+              <p className="text-[13px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Nguồn tri thức</p>
+              <p className="text-[16px] font-extrabold text-[var(--admin-strong-text)]">{getString(detail, "source") || "--"}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4 space-y-1.5">
+              <p className="text-[13px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Quyền truy cập</p>
+              <p className="text-[16px] font-extrabold text-[var(--admin-strong-text)]">{accessLevelText}</p>
+            </div>
+          </div>
+
+          {tagsArray.length > 0 && (
+            <div className="pt-4 border-t border-[var(--admin-card-border)] space-y-3">
+              <p className="text-[13px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                Từ khóa (Tags RAG)
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                {tagsArray.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-4 py-1.5 text-sm font-black text-slate-950 shadow-sm"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
         {getString(detail, "description") ? (
-          <div className="space-y-4">
+          <section className="rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-6 space-y-3.5 shadow-sm">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-orange-400/10 text-orange-500 dark:text-orange-300">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-500/30 bg-orange-500/15 text-orange-500">
                 <Info className="h-5 w-5" />
               </span>
-              <h3 className="text-[17px] font-black tracking-tight text-[var(--admin-strong-text)]">
-                Mô tả tài liệu
+              <h3 className="text-lg font-extrabold text-[var(--admin-strong-text)]">
+                Mô tả chi tiết
               </h3>
             </div>
-
-            <div className="rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-5">
-              <p className="whitespace-pre-wrap break-words text-[15px] font-medium leading-7 text-[var(--admin-strong-text)]">
+            <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4.5">
+              <p className="text-base font-medium leading-relaxed text-[var(--admin-strong-text)] whitespace-pre-wrap">
                 {getString(detail, "description")}
               </p>
             </div>
-          </div>
+          </section>
         ) : null}
 
-        {/* Nhóm 3: Preview chunks */}
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-orange-400/10 text-orange-500 dark:text-orange-300">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-500/30 bg-orange-500/15 text-orange-500">
                 <Database className="h-5 w-5" />
               </span>
-              <h3 className="text-[17px] font-black tracking-tight text-[var(--admin-strong-text)]">
-                Preview chunks
+              <h3 className="text-lg font-extrabold text-[var(--admin-strong-text)]">
+                Xem trước Chunks
               </h3>
             </div>
 
@@ -880,99 +1027,68 @@ function DetailLayout({
               <button
                 type="button"
                 onClick={() => onOpenChunks(id)}
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-orange-500 hover:bg-orange-600 px-4 text-[13px] font-black text-white shadow-lg transition active:scale-95"
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-orange-500 hover:bg-orange-600 px-4 text-xs font-black text-white shadow-md transition active:scale-95"
               >
-                Xem chi tiết tất cả chunks
+                <Database className="h-4 w-4" />
+                Xem tất cả Chunks
               </button>
             ) : null}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {Array.isArray(detail.chunksPreview) && detail.chunksPreview.length > 0 ? (
-              detail.chunksPreview.slice(0, 10).map((chunk) => (
+              (detail.chunksPreview as any[]).slice(0, 5).map((chunk: any) => (
                 <article
                   key={chunk.id}
-                  className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-5 transition hover:border-orange-400/40"
+                  className="rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-5 space-y-3 shadow-md transition hover:border-orange-500/50"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--admin-card-border)] pb-3">
-                    <p className="text-[16px] font-black text-[var(--admin-strong-text)]">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1 text-xs font-black text-white shadow-sm">
+                      <Database className="h-3.5 w-3.5" />
                       Chunk #{chunk.chunkIndex + 1}
-                    </p>
-                    <span className="text-[13px] font-bold text-[var(--admin-muted-text)]">
-                      {chunk.charCount ?? 0} ký tự · {chunk.tokenCount ?? 0} tokens
+                    </span>
+
+                    <span className="inline-flex items-center gap-2 rounded-lg border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] px-3 py-1 text-xs font-extrabold text-[var(--admin-strong-text)]">
+                      <span>{chunk.charCount ?? 0} ký tự</span>
+                      <span className="text-slate-500">·</span>
+                      <span>{chunk.tokenCount ?? 0} tokens</span>
                     </span>
                   </div>
-                  {chunk.title || chunk.section ? (
-                    <h4 className="text-[13px] font-bold uppercase tracking-wider text-[var(--admin-muted-text)]">
-                      Nội dung trích dẫn (Preview)
-                    </h4>
-                  ) : null}
-                  <p className="mt-2 text-[15px] leading-7 text-[var(--admin-muted-text)] whitespace-pre-wrap">
-                    {chunk.contentPreview}
-                  </p>
+
+                  <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4.5">
+                    <p className="text-[17px] font-extrabold leading-relaxed text-[var(--admin-strong-text)] line-clamp-3 select-text">
+                      {chunk.contentPreview}
+                    </p>
+                  </div>
                 </article>
               ))
             ) : (
-              <p className="text-[15px] font-bold text-[var(--admin-muted-text)] text-center py-8 rounded-xl border border-dashed border-[var(--admin-card-border)] bg-[var(--admin-control-bg)]">
+              <div className="rounded-3xl border border-dashed border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-8 text-center text-base font-extrabold text-[var(--admin-muted-text)]">
                 Tài liệu này chưa có chunk preview.
-              </p>
+              </div>
             )}
           </div>
-        </div>
+        </section>
       </main>
 
-      <aside className="min-w-0 space-y-6 xl:sticky xl:top-0 xl:self-start">
-        {/* Nhóm phụ 1: Dữ liệu AI */}
-        <div className="space-y-4">
+      {/* Right Sidebar Timeline */}
+      <aside className="min-w-0 space-y-5 xl:sticky xl:top-0 xl:self-start">
+        <section className="rounded-3xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-5.5 space-y-4 shadow-sm">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-orange-400/10 text-orange-500 dark:text-orange-300">
-              <Database className="h-5 w-5" />
+            <span className="flex h-8.5 w-8.5 items-center justify-center rounded-xl border border-orange-500/30 bg-orange-500/15 text-orange-500">
+              <Clock className="h-4.5 w-4.5" />
             </span>
-            <h3 className="text-[17px] font-black tracking-tight text-[var(--admin-strong-text)]">
-              Dữ liệu AI
+            <h3 className="text-base font-extrabold text-[var(--admin-strong-text)]">
+              Lịch sử xử lý tri thức
             </h3>
           </div>
 
-          <div className="grid gap-3">
-            <MiniStat label="Chunks" value={getDisplayValue(detail, "totalChunks")} />
-            <MiniStat label="Tokens" value={getDisplayValue(detail, "totalTokens")} />
-            <MiniStat
-              label="Characters"
-              value={getDisplayValue(detail, "totalCharacters")}
-            />
+          <div className="flex flex-col rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-4.5">
+            <TimelineItem label="Tải lên hệ thống" value={getString(detail, "createdAt") || "--"} isCompleted={true} />
+            <TimelineItem label="Đã phân tích nội dung" value={getString(detail, "parsedAt") || "--"} isCompleted={Boolean(getString(detail, "parsedAt"))} />
+            <TimelineItem label="Đã sẵn sàng tra cứu AI" value={getString(detail, "indexedAt") || "--"} isCompleted={Boolean(getString(detail, "indexedAt"))} isLast={true} />
           </div>
-        </div>
-
-        {/* Nhóm phụ 2: Thời gian xử lý */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-orange-400/10 text-orange-500 dark:text-orange-300">
-              <CheckCircle2 className="h-5 w-5" />
-            </span>
-            <h3 className="text-[17px] font-black tracking-tight text-[var(--admin-strong-text)]">
-              Thời gian xử lý
-            </h3>
-          </div>
-
-          <div className="flex flex-col rounded-xl border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] p-5">
-            <TimelineItem
-              label="Tạo lúc"
-              value={getString(detail, "createdAt")}
-              isCompleted={true}
-            />
-            <TimelineItem
-              label="Parsed"
-              value={getString(detail, "parsedAt")}
-              isCompleted={Boolean(getString(detail, "parsedAt"))}
-            />
-            <TimelineItem
-              label="Indexed"
-              value={getString(detail, "indexedAt")}
-              isCompleted={Boolean(getString(detail, "indexedAt"))}
-              isLast={true}
-            />
-          </div>
-        </div>
+        </section>
       </aside>
     </div>
   );
@@ -996,7 +1112,7 @@ function DrawerFooter({
   onOpenChunks?: (documentId: number) => void;
 }) {
   return (
-    <footer className="shrink-0 border-t border-[var(--admin-card-border)] bg-[var(--admin-card-bg)]/95 px-5 py-4 backdrop-blur-xl xl:px-6">
+    <footer className="shrink-0 border-t border-[var(--admin-card-border)] bg-slate-900 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white px-5 py-4 xl:px-6">
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-bold text-[var(--admin-muted-text)]">
           {mode === "import"
@@ -1130,35 +1246,39 @@ function TimelineItem({
   isLast?: boolean;
   isCompleted?: boolean;
 }) {
+  const formattedTime = formatMaybeDate(value);
+  const hasValue = Boolean(value && formattedTime !== "--");
+
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-3.5">
       <div className="flex flex-col items-center">
         <div
           className={[
-            "flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold transition-colors duration-200",
+            "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-200 shadow-sm",
             isCompleted
-              ? "border-[#16A34A]/50 bg-[#16A34A]/15 text-[#15803D] dark:border-[#22C55E]/30 dark:bg-[#22C55E]/10 dark:text-[#4ADE80]"
-              : "border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-[var(--admin-muted-text)]",
+              ? "bg-emerald-600 text-white shadow-emerald-600/20"
+              : "border border-[var(--admin-card-border)] bg-[var(--admin-control-bg)] text-slate-400 dark:text-slate-500",
           ].join(" ")}
         >
-          {isCompleted ? "✓" : "○"}
+          {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : "○"}
         </div>
         {!isLast && (
           <div
             className={[
-              "w-0.5 flex-1 my-1 min-h-[22px] transition-colors duration-200",
-              isCompleted ? "bg-[#16A34A]/60 dark:bg-[#22C55E]/30" : "bg-[var(--admin-card-border)]",
+              "w-0.5 flex-1 my-1.5 min-h-[26px] rounded-full transition-colors duration-200",
+              isCompleted ? "bg-emerald-500/70" : "bg-[var(--admin-card-border)]",
             ].join(" ")}
           />
         )}
       </div>
-      <div className="pb-4">
-        <p className="text-[14px] font-bold uppercase tracking-[0.06em] text-[var(--admin-muted-text)]">
+      <div className="pb-4 pt-0.5">
+        <p className="text-sm font-extrabold text-[var(--admin-strong-text)]">
           {label}
         </p>
-        <p className="mt-1 text-[15px] font-semibold text-[var(--admin-strong-text)]">
-          {formatMaybeDate(value)}
-        </p>
+        <div className="mt-1 flex items-center gap-1.5 text-xs font-bold text-[var(--admin-muted-text)]">
+          <Clock className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+          <span>{hasValue ? formattedTime : "Chưa thực hiện"}</span>
+        </div>
       </div>
     </div>
   );

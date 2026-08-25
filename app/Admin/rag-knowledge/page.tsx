@@ -507,6 +507,12 @@ function RagKnowledgePageContent() {
                 ...prev,
                 [document.id]: isActive,
               }));
+              addToast(
+                "success",
+                isActive
+                  ? `Đã mở lại tài liệu "${document.title}".`
+                  : `Đã lưu trữ tài liệu "${document.title}".`,
+              );
             })
           }
           onReindex={(document) =>

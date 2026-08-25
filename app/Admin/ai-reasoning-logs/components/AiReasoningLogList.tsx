@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { ReactNode } from "react";
 import { Eye, Sparkles } from "lucide-react";
@@ -64,7 +64,7 @@ export function AiReasoningLogList({ logs, total, isLoading }: Props) {
       </header>
 
       <div className="hidden xl:block">
-        <div className="grid grid-cols-[1fr_1.25fr_1.05fr_1.35fr_1.15fr_0.9fr] items-center border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-3 text-xs font-black uppercase tracking-[0.08em] text-[var(--admin-muted-text)]">
+        <div className="grid grid-cols-[1fr_1.25fr_1.05fr_1.35fr_1.15fr_0.9fr] items-center border-b border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-5 py-4 text-sm font-black uppercase tracking-wider text-slate-400 dark:text-slate-300">
           <div className="text-center">Ưu tiên</div>
           <div>Người dùng</div>
           <div>SĐT</div>
@@ -84,13 +84,13 @@ export function AiReasoningLogList({ logs, total, isLoading }: Props) {
               </div>
 
               <div className="min-w-0">
-                <p className="truncate text-[15px] font-black text-[var(--admin-strong-text)]">
+                <p className="truncate text-[17px] font-black text-[var(--admin-strong-text)]">
                   {getSafeText(log.userName, "Không rõ")}
                 </p>
               </div>
 
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-[var(--admin-muted-text)]">
+                <p className="truncate text-[15px] font-bold text-[var(--admin-strong-text)]">
                   {getSafeText(log.userPhone, "--")}
                 </p>
               </div>
@@ -192,7 +192,7 @@ function getPrimaryContext(log: AiReasoningLogItem) {
 
 function SmallTag({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex h-8 max-w-full items-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 text-xs font-bold text-[var(--admin-muted-text)]">
+    <span className="inline-flex h-8.5 max-w-full items-center rounded-full bg-amber-400 px-4 text-xs font-black text-slate-950 shadow-sm">
       <span className="truncate">{children}</span>
     </span>
   );
@@ -204,7 +204,7 @@ function PriorityBadge({ log }: { log: AiReasoningLogItem }) {
   return (
     <span
       className={[
-        "inline-flex h-8 w-fit items-center justify-center rounded-full border px-3 text-xs font-black",
+        "inline-flex h-8.5 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-black text-white shadow-md whitespace-nowrap",
         priority.className,
       ].join(" ")}
     >
@@ -226,8 +226,8 @@ function QualityBadge({
 
   if (isGolden) {
     return (
-      <span className="inline-flex h-8 w-fit items-center justify-center gap-1 rounded-full border border-[#22C55E]/35 bg-[#22C55E]/10 px-3 text-xs font-black text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
-        <Sparkles className="h-3.5 w-3.5" />
+      <span className="inline-flex h-8.5 items-center justify-center gap-1.5 rounded-full bg-emerald-600 px-4 text-sm font-black text-white shadow-md shadow-emerald-600/20 whitespace-nowrap">
+        <Sparkles className="h-4 w-4" />
         Mẫu tốt
       </span>
     );
@@ -235,7 +235,7 @@ function QualityBadge({
 
   if (!hasUserFeedback) {
     return (
-      <span className="inline-flex h-8 w-fit items-center justify-center rounded-full border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-3 text-xs font-black text-[var(--admin-muted-text)]">
+      <span className="inline-flex h-8.5 items-center justify-center rounded-full bg-slate-600 px-4 text-sm font-black text-white shadow-md whitespace-nowrap">
         Chưa phản hồi
       </span>
     );
@@ -243,14 +243,14 @@ function QualityBadge({
 
   if (feedback === "LIKE") {
     return (
-      <span className="inline-flex h-8 w-fit items-center justify-center rounded-full border border-[#22C55E]/35 bg-[#22C55E]/10 px-3 text-xs font-black text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]">
+      <span className="inline-flex h-8.5 items-center justify-center rounded-full bg-emerald-600 px-4 text-sm font-black text-white shadow-md shadow-emerald-600/20 whitespace-nowrap">
         {score}/10
       </span>
     );
   }
 
   return (
-    <span className="inline-flex h-8 w-fit items-center justify-center rounded-full border border-[#EF4444]/35 bg-[#EF4444]/10 px-3 text-xs font-black text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]">
+    <span className="inline-flex h-8.5 items-center justify-center rounded-full bg-rose-600 px-4 text-sm font-black text-white shadow-md shadow-rose-600/20 whitespace-nowrap">
       {score}/10
     </span>
   );
@@ -260,8 +260,7 @@ function getPriority(log: AiReasoningLogItem) {
   if (log.riskLevel === "CRITICAL" || log.riskLevel === "HIGH") {
     return {
       label: "Rủi ro cao",
-      className:
-        "border-[#EF4444]/35 bg-[#EF4444]/10 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]",
+      className: "bg-rose-600 shadow-rose-600/20",
     };
   }
 
@@ -270,23 +269,20 @@ function getPriority(log: AiReasoningLogItem) {
   if (effectiveScore <= 4 || log.aiFeedback === "DISLIKE") {
     return {
       label: "Nghi vấn sai",
-      className:
-        "border-[#F59E0B]/35 bg-[#F59E0B]/10 text-[#B45309] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FBBF24]",
+      className: "bg-amber-500 text-slate-950 shadow-amber-500/20",
     };
   }
 
   if (log.isGolden || effectiveScore >= 8) {
     return {
       label: "Ổn định",
-      className:
-        "border-[#22C55E]/35 bg-[#22C55E]/10 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
+      className: "bg-emerald-600 shadow-emerald-600/20",
     };
   }
 
   return {
     label: getRiskText(log.riskLevel),
-    className:
-      "border-[#06B6D4]/35 bg-[#06B6D4]/10 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]",
+    className: "bg-sky-600 shadow-sky-600/20",
   };
 }
 
