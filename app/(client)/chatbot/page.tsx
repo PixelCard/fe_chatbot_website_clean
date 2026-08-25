@@ -430,7 +430,7 @@ export default function ChatInterface() {
   const handleOpenBookingModal = useCallback(() => {
     /*
      * Guard phía FE:
-     * Không mở modal nếu phiên đã đóng hoặc risk không phải RED.
+     * Chỉ mở modal khi AI đã xác nhận có thể chuyển sang bước đặt thợ.
      */
     if (
       chatClosed ||

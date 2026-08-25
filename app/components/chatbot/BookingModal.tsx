@@ -43,7 +43,7 @@ export function BookingModal({
 
         <TechnicianBookingForm
           title="Gọi thợ khẩn từ kết quả AI"
-          description="AI đang đánh giá tình huống này có mức rủi ro cao. Tạm thời đừng tự thao tác thiết bị, hãy xác nhận thông tin để hệ thống phát đơn cho kỹ thuật viên."
+          description="AI đã ghi nhận phiên này đủ điều kiện chuyển sang bước đặt thợ. Hãy xác nhận lại thông tin để hệ thống phát đơn cho kỹ thuật viên phù hợp."
           submitLabel="Gửi yêu cầu thợ"
           values={bookingValues}
           onChange={onChange}
