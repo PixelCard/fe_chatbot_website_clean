@@ -465,7 +465,7 @@ function StatusBadge({
 }) {
   if (isActive === false || status === "ARCHIVED") {
     return (
-      <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-500 bg-slate-600 px-3.5 text-xs font-extrabold text-white shadow-sm whitespace-nowrap shrink-0">
+      <span className="inline-flex h-8.5 w-[140px] items-center justify-center gap-1.5 rounded-full border border-slate-500 bg-slate-600 px-3 text-xs font-black text-white shadow-sm whitespace-nowrap shrink-0">
         <Archive className="h-3.5 w-3.5" />
         Đã lưu trữ
       </span>
@@ -529,7 +529,7 @@ function StatusBadge({
   return (
     <span
       className={[
-        "inline-flex h-8 items-center gap-1.5 rounded-full border px-3.5 text-xs font-extrabold shadow-sm whitespace-nowrap shrink-0",
+        "inline-flex h-8.5 w-[140px] items-center justify-center gap-1.5 rounded-full border px-3 text-xs font-black shadow-sm whitespace-nowrap shrink-0",
         config.toneClass,
       ].join(" ")}
     >
@@ -552,11 +552,11 @@ function AccessBadge({
   return (
     <span
       className={[
-        "inline-flex h-8 items-center gap-1.5 rounded-full border px-3.5 text-xs font-extrabold shadow-sm whitespace-nowrap shrink-0",
+        "inline-flex h-8.5 w-[120px] items-center justify-center gap-1.5 rounded-full border px-3 text-xs font-black shadow-sm whitespace-nowrap shrink-0",
         toneClass,
       ].join(" ")}
     >
-      <ShieldCheck className="h-4 w-4" />
+      <ShieldCheck className="h-3.5 w-3.5" />
       {level === "BASIC" ? "Cơ bản" : "Nâng cao"}
     </span>
   );
@@ -568,11 +568,11 @@ function FileTypeBadge({ type, source }: { type: RagDocumentListItem["fileType"]
   return (
     <span
       className={[
-        "inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-xs font-black shadow-sm whitespace-nowrap",
+        "inline-flex h-8.5 w-[140px] items-center justify-center gap-2 rounded-full border px-3 text-xs font-black shadow-sm whitespace-nowrap shrink-0",
         meta.className,
       ].join(" ")}
     >
-      <span className="grid h-5 min-w-5 place-items-center rounded-md bg-white/90 text-[10px] font-black leading-none text-[#111827]">
+      <span className="grid h-4.5 min-w-4.5 place-items-center rounded-md bg-white/90 text-[10px] font-black leading-none text-[#111827]">
         {meta.mark}
       </span>
       {meta.label}
@@ -581,7 +581,13 @@ function FileTypeBadge({ type, source }: { type: RagDocumentListItem["fileType"]
 }
 
 function getFileTypeMeta(type: RagDocumentListItem["fileType"], source?: string | null) {
-  const isChatSession = source?.startsWith("CHAT_SESSION") || type === "UNKNOWN";
+  const sourceUpper = (source || "").toUpperCase();
+  const typeUpper = (type || "").toUpperCase();
+
+  // 1. Phiên chat (Chat session)
+  const isChatSession =
+    sourceUpper.startsWith("CHAT_SESSION") ||
+    (typeUpper === "UNKNOWN" && (sourceUpper.includes("CHAT") || !sourceUpper.includes(".")));
 
   if (isChatSession) {
     return {
@@ -591,25 +597,80 @@ function getFileTypeMeta(type: RagDocumentListItem["fileType"], source?: string 
     };
   }
 
-  if (type === "PDF") {
-    return {
-      mark: "PDF",
-      label: "PDF",
-      className: "border-rose-600 bg-rose-600 text-white shadow-rose-600/20",
-    };
-  }
-
-  if (type === "DOCX") {
+  // 2. Word (DOCX / DOC)
+  if (
+    typeUpper === "DOCX" ||
+    typeUpper === "DOC" ||
+    sourceUpper.endsWith(".DOCX") ||
+    sourceUpper.endsWith(".DOC")
+  ) {
     return {
       mark: "W",
-      label: "DOCX",
+      label: "Word (DOCX)",
       className: "border-blue-600 bg-blue-600 text-white shadow-blue-600/20",
     };
   }
 
+  // 3. PDF
+  if (typeUpper === "PDF" || sourceUpper.endsWith(".PDF")) {
+    return {
+      mark: "PDF",
+      label: "Tài liệu PDF",
+      className: "border-rose-600 bg-rose-600 text-white shadow-rose-600/20",
+    };
+  }
+
+  // 4. Excel / CSV (XLSX / XLS / CSV)
+  if (
+    typeUpper === "XLSX" ||
+    typeUpper === "XLS" ||
+    typeUpper === "CSV" ||
+    sourceUpper.endsWith(".XLSX") ||
+    sourceUpper.endsWith(".XLS") ||
+    sourceUpper.endsWith(".CSV")
+  ) {
+    const isCsv = typeUpper === "CSV" || sourceUpper.endsWith(".CSV");
+    return {
+      mark: "X",
+      label: isCsv ? "Bảng dữ liệu CSV" : "Excel (XLSX)",
+      className: "border-emerald-600 bg-emerald-600 text-white shadow-emerald-600/20",
+    };
+  }
+
+  // 5. Plain Text & Markdown (TXT / MD)
+  if (
+    typeUpper === "TXT" ||
+    typeUpper === "MD" ||
+    sourceUpper.endsWith(".TXT") ||
+    sourceUpper.endsWith(".MD")
+  ) {
+    const isMd = typeUpper === "MD" || sourceUpper.endsWith(".MD");
+    return {
+      mark: "T",
+      label: isMd ? "Markdown (.md)" : "Văn bản (TXT)",
+      className: "border-amber-500 bg-amber-500 text-slate-950 shadow-amber-500/20",
+    };
+  }
+
+  // 6. JSON / Web / Code / HTML
+  if (
+    typeUpper === "JSON" ||
+    typeUpper === "HTML" ||
+    sourceUpper.endsWith(".JSON") ||
+    sourceUpper.endsWith(".HTML")
+  ) {
+    const isHtml = typeUpper === "HTML" || sourceUpper.endsWith(".HTML");
+    return {
+      mark: "{ }",
+      label: isHtml ? "Trang Web (HTML)" : "Dữ liệu JSON",
+      className: "border-purple-600 bg-purple-600 text-white shadow-purple-600/20",
+    };
+  }
+
+  // Fallback
   return {
     mark: <FileText className="h-3.5 w-3.5 text-slate-700" />,
-    label: type || "Văn bản",
+    label: typeUpper !== "UNKNOWN" ? typeUpper : "Tài liệu",
     className: "border-slate-500 bg-slate-600 text-white shadow-slate-600/20",
   };
 }

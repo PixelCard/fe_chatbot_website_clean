@@ -841,25 +841,30 @@ function DetailLayout({
 
                 {(() => {
                   const source = getString(detail, "source");
+                  const sourceUpper = (source || "").toUpperCase();
                   const upper = fileType ? fileType.toUpperCase() : "UNKNOWN";
-                  const isChatSession = source?.startsWith("CHAT_SESSION") || upper === "UNKNOWN";
+                  const isChatSession =
+                    sourceUpper.startsWith("CHAT_SESSION") ||
+                    (upper === "UNKNOWN" && (sourceUpper.includes("CHAT") || !sourceUpper.includes(".")));
 
                   const meta = isChatSession
                     ? { label: "Phiên chat", bg: "bg-cyan-600 shadow-cyan-600/20", icon: MessageSquareText }
-                    : upper === "PDF"
-                      ? { label: "PDF", bg: "bg-rose-600 shadow-rose-600/20", icon: FileText }
-                      : upper === "DOCX" || upper === "DOC"
-                        ? { label: upper, bg: "bg-sky-600 shadow-sky-600/20", icon: FileText }
-                        : upper === "XLSX" || upper === "XLS" || upper === "CSV"
-                          ? { label: upper, bg: "bg-emerald-600 shadow-emerald-600/20", icon: FileText }
-                          : upper === "TXT" || upper === "MD" || upper === "JSON"
-                            ? { label: upper, bg: "bg-amber-500 shadow-amber-500/20", icon: FileText }
-                            : { label: upper !== "UNKNOWN" ? upper : "Văn bản", bg: "bg-slate-600 shadow-slate-600/20", icon: FileText };
+                    : upper === "PDF" || sourceUpper.endsWith(".PDF")
+                      ? { label: "Tài liệu PDF", bg: "bg-rose-600 shadow-rose-600/20", icon: FileText }
+                      : upper === "DOCX" || upper === "DOC" || sourceUpper.endsWith(".DOCX") || sourceUpper.endsWith(".DOC")
+                        ? { label: "Word (DOCX)", bg: "bg-blue-600 shadow-blue-600/20", icon: FileText }
+                        : upper === "XLSX" || upper === "XLS" || upper === "CSV" || sourceUpper.endsWith(".XLSX") || sourceUpper.endsWith(".XLS") || sourceUpper.endsWith(".CSV")
+                          ? { label: upper === "CSV" || sourceUpper.endsWith(".CSV") ? "Bảng CSV" : "Excel (XLSX)", bg: "bg-emerald-600 shadow-emerald-600/20", icon: FileText }
+                          : upper === "TXT" || upper === "MD" || sourceUpper.endsWith(".TXT") || sourceUpper.endsWith(".MD")
+                            ? { label: upper === "MD" || sourceUpper.endsWith(".MD") ? "Markdown (.md)" : "Văn bản (TXT)", bg: "bg-amber-500 shadow-amber-500/20 text-slate-950", icon: FileText }
+                            : upper === "JSON" || upper === "HTML" || sourceUpper.endsWith(".JSON") || sourceUpper.endsWith(".HTML")
+                              ? { label: upper === "HTML" || sourceUpper.endsWith(".HTML") ? "Trang Web (HTML)" : "Dữ liệu JSON", bg: "bg-purple-600 shadow-purple-600/20", icon: FileText }
+                              : { label: upper !== "UNKNOWN" ? upper : "Tài liệu", bg: "bg-slate-600 shadow-slate-600/20", icon: FileText };
 
                   const IconComp = meta.icon;
 
                   return (
-                    <span className={["inline-flex h-9 items-center gap-2 rounded-full px-4.5 text-xs font-black text-white shadow-md", meta.bg].join(" ")}>
+                    <span className={["inline-flex h-9 items-center gap-2 rounded-full px-4.5 text-xs font-black shadow-md text-white", meta.bg].join(" ")}>
                       <IconComp className="h-4 w-4" />
                       {meta.label}
                     </span>

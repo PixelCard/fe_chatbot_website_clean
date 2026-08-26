@@ -319,26 +319,26 @@ function SummaryCard({
   detail: ExtendedLog;
 }) {
   return (
-    <section className="admin-card rounded-2xl p-5">
-      <p className="text-xs font-black uppercase tracking-[0.14em] text-[var(--admin-accent)]">
-        Tổng quan log
+    <section className="rounded-3xl border-2 border-cyan-500/40 bg-cyan-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-cyan-50/80 p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-600 dark:text-cyan-300">
+        Tổng quan log suy luận
       </p>
 
-      <h1 className="mt-2 text-2xl font-black tracking-tight text-[var(--admin-strong-text)]">
+      <h1 className="mt-2 text-2.5xl font-black tracking-tight text-[var(--admin-strong-text)]">
         LOG-{log.id}
       </h1>
 
       {detail.createdAt ? (
         <p
           suppressHydrationWarning
-          className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[var(--admin-muted-text)]"
+          className="mt-2 inline-flex items-center gap-2 text-xs font-extrabold text-[var(--admin-strong-text)]"
         >
-          <Clock className="h-4 w-4" />
+          <Clock className="h-4 w-4 text-cyan-500" />
           {formatDateTime(detail.createdAt)}
         </p>
       ) : null}
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-5 space-y-3.5 divide-y divide-cyan-500/20 pt-2">
         <SummaryRow label="Rủi ro">
           <RiskBadge riskLevel={log.riskLevel} />
         </SummaryRow>
@@ -398,33 +398,33 @@ function UsefulnessSection({
           />
         </div>
 
-        <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4">
-          <p className="text-sm font-black text-[var(--admin-strong-text)]">
+        <div className="rounded-2xl border-2 border-amber-500/40 bg-amber-950/25 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-amber-50/70 p-5 shadow-sm">
+          <p className="text-[16px] font-black text-amber-600 dark:text-amber-300">
             Lý do chấm điểm tự động
           </p>
 
           {autoUsefulnessReasons.length > 0 ? (
-            <ul className="mt-3 space-y-2 text-sm font-medium text-[var(--admin-strong-text)]">
+            <ul className="mt-3 space-y-2 text-[15px] font-extrabold text-[var(--admin-strong-text)]">
               {autoUsefulnessReasons.map((reason) => (
-                <li key={reason} className="rounded-xl bg-[var(--admin-card-bg)] px-3 py-2">
+                <li key={reason} className="rounded-xl border border-amber-500/30 bg-[#060D1E] [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white px-4 py-2.5 text-white [.admin-ripple-theme-shell[data-admin-theme=light]_&]:text-slate-900 shadow-sm">
                   {reason}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-sm font-medium text-[var(--admin-muted-text)]">
+            <p className="mt-3 text-[15px] font-extrabold text-[var(--admin-muted-text)]">
               Hệ thống chưa ghi nhận lý do chấm điểm.
             </p>
           )}
         </div>
 
-        <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] p-4">
+        <div className="rounded-2xl border-2 border-emerald-500/40 bg-emerald-950/25 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-emerald-50/70 p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-black text-[var(--admin-strong-text)]">
+              <p className="text-[16px] font-black text-emerald-600 dark:text-emerald-300">
                 Đánh giá thủ công của quản trị viên
               </p>
-              <p className="mt-1 text-sm font-medium text-[var(--admin-muted-text)]">
+              <p className="mt-1 text-[14px] font-extrabold text-[var(--admin-strong-text)]">
                 {log.humanUsefulnessLabel
                   ? "Nhãn thủ công đang được ưu tiên hiển thị."
                   : "Chưa đánh giá"}
@@ -449,21 +449,23 @@ function UsefulnessSection({
           </div>
 
           <div className="mt-4">
-            <p className="text-sm font-black text-[var(--admin-strong-text)]">
+            <p className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
               Ghi chú của quản trị viên
             </p>
-            <p className="mt-2 whitespace-pre-wrap break-words text-sm font-medium leading-6 text-[var(--admin-muted-text)]">
-              {log.humanUsefulnessNote?.trim() || "Chưa có ghi chú."}
-            </p>
+            <div className="mt-2 rounded-xl border border-emerald-500/30 bg-[#060D1E] [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white p-4 text-[15px] font-extrabold leading-relaxed text-white [.admin-ripple-theme-shell[data-admin-theme=light]_&]:text-slate-900 shadow-sm">
+              <p className="whitespace-pre-wrap break-words">
+                {log.humanUsefulnessNote?.trim() || "Chưa có ghi chú."}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
-          <p className="text-sm font-black text-[var(--admin-strong-text)]">
+        <div className="rounded-2xl border-2 border-sky-500/40 bg-sky-950/25 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-sky-50/70 p-5 shadow-sm">
+          <p className="text-[16px] font-black text-sky-600 dark:text-sky-300">
             Chấm lại thủ công
           </p>
 
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2.5">
             {USEFULNESS_OPTIONS.map((option) => {
               const active = selectedLabel === option.value;
 
@@ -473,10 +475,10 @@ function UsefulnessSection({
                   type="button"
                   onClick={() => onSelectLabel(option.value)}
                   className={[
-                    "rounded-xl border px-4 py-2 text-sm font-black transition",
+                    "rounded-xl border-2 px-4.5 py-2.5 text-[15px] font-black shadow-sm transition",
                     active
-                      ? "border-[#06B6D4]/40 bg-[#06B6D4]/12 text-[#0891B2] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]"
-                      : "border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] text-[var(--admin-strong-text)] hover:border-[var(--admin-accent)]",
+                      ? "border-cyan-500 bg-cyan-600 text-white shadow-cyan-600/30"
+                      : "border-sky-500/30 bg-[#060D1E] [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white text-[var(--admin-strong-text)] hover:border-cyan-500",
                   ].join(" ")}
                 >
                   {option.text}
@@ -486,7 +488,7 @@ function UsefulnessSection({
           </div>
 
           <label className="mt-4 block">
-            <span className="text-sm font-black text-[var(--admin-strong-text)]">
+            <span className="text-xs font-black uppercase tracking-wider text-sky-600 dark:text-sky-400">
               Ghi chú của quản trị viên
             </span>
             <textarea
@@ -494,7 +496,7 @@ function UsefulnessSection({
               onChange={(event) => onChangeNote(event.target.value)}
               rows={4}
               placeholder="Nhập ghi chú để giải thích vì sao lượt tư vấn này hữu ích hoặc chưa hữu ích."
-              className="mt-2 w-full rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)] px-4 py-3 text-sm font-medium text-[var(--admin-strong-text)] outline-none transition placeholder:text-[var(--admin-muted-text)] focus:border-[var(--admin-accent)]"
+              className="mt-2 w-full rounded-xl border-2 border-sky-500/35 bg-[#060D1E] [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white px-4 py-3 text-[15px] font-extrabold text-white [.admin-ripple-theme-shell[data-admin-theme=light]_&]:text-slate-900 outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
             />
           </label>
 
@@ -509,7 +511,7 @@ function UsefulnessSection({
               type="button"
               onClick={() => void onSubmit()}
               disabled={isSavingReview}
-              className="inline-flex h-10 items-center justify-center rounded-xl bg-[image:var(--admin-cta-bg)] px-4 text-sm font-bold text-[var(--admin-cta-text)] shadow-[var(--admin-cta-shadow)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-cyan-600 px-5 text-[15px] font-black text-white shadow-md shadow-cyan-600/20 transition hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSavingReview ? "Đang lưu..." : "Lưu đánh giá thủ công"}
             </button>
@@ -627,18 +629,18 @@ function SideSection({
   children: ReactNode;
 }) {
   return (
-    <section className="admin-card rounded-2xl p-5">
+    <section className="rounded-3xl border-2 border-cyan-500/40 bg-cyan-950/25 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-cyan-50/70 p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-3">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#06B6D4]/25 bg-[#06B6D4]/10 text-[#0891B2] [&>svg]:h-5 [&>svg]:w-5 [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#22D3EE]">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-cyan-600 text-white shadow-md shadow-cyan-600/20 [&>svg]:h-5 [&>svg]:w-5">
           {icon}
         </span>
 
-        <h2 className="text-base font-black text-[var(--admin-strong-text)]">
+        <h2 className="text-base font-black text-cyan-600 dark:text-cyan-300">
           {title}
         </h2>
       </div>
 
-      <div className="divide-y divide-[var(--admin-card-border)]">
+      <div className="divide-y divide-cyan-500/20">
         {children}
       </div>
     </section>
@@ -831,18 +833,18 @@ function StateInfoTile({
   return (
     <article
       className={[
-        "rounded-2xl border p-4",
+        "rounded-2xl p-4.5 transition-all duration-150",
         getStateTileClassName(tone),
       ].join(" ")}
     >
-      <p className="text-[13px] font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
+      <p className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-300">
         {label}
       </p>
-      <p className="mt-2 break-words text-base font-black text-[var(--admin-strong-text)]">
+      <p className="mt-2 break-words text-[17px] font-black text-[var(--admin-strong-text)]">
         {value}
       </p>
       {description ? (
-        <p className="mt-1 text-xs font-semibold text-[var(--admin-muted-text)]">
+        <p className="mt-1 text-xs font-extrabold text-cyan-600 dark:text-cyan-300">
           {description}
         </p>
       ) : null}
@@ -858,22 +860,22 @@ function StateDetailPanel({
   children: ReactNode;
 }) {
   return (
-    <article className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
-      <h3 className="text-sm font-black text-[var(--admin-strong-text)]">
+    <article className="rounded-2xl border-2 border-sky-500/40 bg-sky-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-sky-50/80 p-5 shadow-sm">
+      <h3 className="text-[16px] font-black text-sky-600 dark:text-sky-300">
         {title}
       </h3>
-      <div className="mt-3 space-y-3">{children}</div>
+      <div className="mt-3.5 space-y-3">{children}</div>
     </article>
   );
 }
 
 function StateFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-      <span className="text-sm font-bold text-[var(--admin-muted-text)]">
+    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-sky-500/30 bg-[#060D1E] [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white px-4 py-3 shadow-sm">
+      <span className="text-xs font-black uppercase tracking-wider text-sky-600 dark:text-sky-400">
         {label}
       </span>
-      <span className="min-w-0 break-words text-sm font-black text-[var(--admin-strong-text)] sm:max-w-[60%] sm:text-right">
+      <span className="min-w-0 break-words text-[15px] font-extrabold text-white [.admin-ripple-theme-shell[data-admin-theme=light]_&]:text-slate-900 sm:max-w-[65%] sm:text-right">
         {value}
       </span>
     </div>
@@ -896,45 +898,43 @@ function CheckPanel({
   return (
     <article
       className={[
-        "rounded-2xl border p-4",
+        "rounded-2xl border-2 p-5 shadow-sm transition-all duration-150",
         isRed
-          ? "border-[#EF4444]/35 bg-[#EF4444]/10"
-          : "border-[#22C55E]/35 bg-[#22C55E]/10",
+          ? "border-rose-500/50 bg-rose-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-rose-50/80"
+          : "border-emerald-500/50 bg-emerald-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-emerald-50/80",
       ].join(" ")}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3.5">
         <span
           className={[
-            "grid h-10 w-10 shrink-0 place-items-center rounded-xl border bg-white/40",
-            isRed
-              ? "border-[#EF4444]/35 text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]"
-              : "border-[#22C55E]/35 text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
+            "grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white shadow-md",
+            isRed ? "bg-rose-600 shadow-rose-600/20" : "bg-emerald-600 shadow-emerald-600/20",
           ].join(" ")}
         >
           {isRed ? (
-            <ShieldAlert className="h-5 w-5" />
+            <ShieldAlert className="h-6 w-6" strokeWidth={2.2} />
           ) : (
-            <CheckCircle2 className="h-5 w-5" />
+            <CheckCircle2 className="h-6 w-6" strokeWidth={2.2} />
           )}
         </span>
 
         <div className="min-w-0">
-          <h3 className="text-base font-black text-[var(--admin-strong-text)]">
+          <h3 className="text-[17px] font-black text-[var(--admin-strong-text)]">
             {title}
           </h3>
 
           <p
             className={[
-              "mt-2 text-sm font-black",
+              "mt-1.5 text-[15px] font-black",
               isRed
-                ? "text-[#B91C1C] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#FCA5A5]"
-                : "text-[#15803D] [.admin-ripple-theme-shell[data-admin-theme=dark]_&]:text-[#4ADE80]",
+                ? "text-rose-600 dark:text-rose-400"
+                : "text-emerald-600 dark:text-emerald-400",
             ].join(" ")}
           >
             {result}
           </p>
 
-          <p className="mt-2 text-sm font-medium leading-6 text-[var(--admin-muted-text)]">
+          <p className="mt-2 text-[14px] font-extrabold leading-relaxed text-[var(--admin-strong-text)]">
             {description}
           </p>
         </div>
@@ -1010,11 +1010,11 @@ function InfoCard({
   valueNode?: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--admin-card-border)] bg-[var(--admin-card-bg)] p-4">
-      <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--admin-muted-text)]">
+    <div className="rounded-xl border-2 border-cyan-500/35 bg-[#060D1E] [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-white p-4 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
         {label}
       </p>
-      <div className="mt-2 text-sm font-bold text-[var(--admin-strong-text)]">
+      <div className="mt-1.5 text-[16px] font-extrabold text-white [.admin-ripple-theme-shell[data-admin-theme=light]_&]:text-slate-900">
         {valueNode ?? value ?? "--"}
       </div>
     </div>
@@ -1339,18 +1339,18 @@ function getQuestionSetText(value: string) {
 
 function getStateTileClassName(tone: "neutral" | "green" | "orange" | "red") {
   if (tone === "red") {
-    return "border-[#EF4444]/35 bg-[#EF4444]/10";
+    return "border-2 border-rose-500/50 bg-rose-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-rose-50/80 shadow-sm";
   }
 
   if (tone === "orange") {
-    return "border-[#F59E0B]/35 bg-[#F59E0B]/10";
+    return "border-2 border-amber-500/50 bg-amber-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-amber-50/80 shadow-sm";
   }
 
   if (tone === "green") {
-    return "border-[#22C55E]/35 bg-[#22C55E]/10";
+    return "border-2 border-emerald-500/50 bg-emerald-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-emerald-50/80 shadow-sm";
   }
 
-  return "border-[var(--admin-card-border)] bg-[var(--admin-card-soft-bg)]";
+  return "border-2 border-cyan-500/40 bg-cyan-950/30 [.admin-ripple-theme-shell[data-admin-theme=light]_&]:bg-cyan-50/80 shadow-sm";
 }
 
 function formatJson(value: unknown) {

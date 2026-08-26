@@ -15,7 +15,7 @@ import { chatbotService } from "@/app/services/chatbot.service";
 
 function AiAvatar() {
   return (
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-md shadow-orange-500/20 dark:from-[#06B6D4] dark:to-[#0284C7] dark:shadow-[#06B6D4]/20 sm:h-10 sm:w-10">
+    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/25 sm:h-10 sm:w-10">
       <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
     </div>
   );
@@ -107,7 +107,7 @@ function UserBubble({
 }) {
   return (
     <div className="flex w-full justify-end">
-      <div className="max-w-[90%] overflow-hidden rounded-[18px] rounded-br-md border border-orange-300/40 bg-gradient-to-br from-orange-500 via-orange-500 to-amber-400 px-4 py-2.5 text-[14px] font-bold leading-6 text-white shadow-md dark:border-[#0891B2] dark:from-[#0891B2] dark:to-[#0284C7] sm:max-w-[78%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
+      <div className="max-w-[90%] overflow-hidden rounded-[20px] rounded-br-md border border-cyan-400/40 bg-gradient-to-r from-cyan-600 via-cyan-600 to-blue-600 px-4 py-2.5 text-[14px] font-extrabold leading-6 text-white shadow-lg shadow-cyan-600/20 dark:border-cyan-400/40 dark:from-cyan-600 dark:via-cyan-600 dark:to-blue-600 sm:max-w-[78%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
         {message.type === "image" && message.mediaUrl ? (
           <div className="space-y-2.5 sm:space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -179,13 +179,13 @@ function AssistantBubble({
     <div className="flex w-full justify-start gap-2 sm:gap-3">
       <AiAvatar />
 
-      <div className="max-w-[91%] rounded-[18px] rounded-bl-md border border-slate-200 bg-white px-4 py-2.5 text-[14px] font-semibold leading-6 text-slate-800 shadow-sm dark:border-[#1E2A3F] dark:bg-[#101B2E] dark:text-slate-50 sm:max-w-[80%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
+      <div className="max-w-[91%] rounded-[20px] rounded-bl-md border border-slate-200 bg-white px-4 py-3 text-[14px] font-semibold leading-6 text-slate-900 shadow-sm dark:border-cyan-500/25 dark:bg-[#0F1C2E] dark:text-slate-100 sm:max-w-[80%] sm:rounded-[24px] sm:px-5 sm:py-3.5 sm:text-[15px] sm:leading-7">
         <div className="space-y-2.5 sm:space-y-3">
           {contentLines.map((line, index) =>
             /^(\*\*)?Bước\s+\d+:/i.test(line) ? (
               <div
                 key={`${message.id}-${index}`}
-                className="rounded-xl border border-orange-100 bg-orange-50 px-3.5 py-2.5 text-[13px] font-black text-orange-700 dark:border-cyan-400/30 dark:bg-cyan-500/15 dark:text-cyan-200 sm:rounded-2xl sm:px-4 sm:py-3 sm:text-[14px]"
+                className="rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-3.5 py-2.5 text-[13px] font-black text-cyan-700 dark:border-cyan-400/30 dark:bg-cyan-500/15 dark:text-cyan-200 sm:rounded-2xl sm:px-4 sm:py-3 sm:text-[14px]"
               >
                 {line.replace(/\*\*/g, "")}
               </div>
